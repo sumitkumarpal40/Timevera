@@ -1,0 +1,67 @@
+{
+  "entities": {
+    "StoreOrder": {
+      "title": "StoreOrder",
+      "description": "Represents a customer watch order in Timevera store",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Order ID like TV-123456" },
+        "createdAt": { "type": "string", "description": "ISO timestamp" },
+        "timestamp": { "type": "number", "description": "Unix timestamp in ms" },
+        "orderDate": { "type": "string", "description": "Date formatted YYYY-MM-DD" },
+        "customerName": { "type": "string", "description": "Customer full name" },
+        "customerPhone": { "type": "string", "description": "Customer phone number" },
+        "customerAddress": { "type": "string", "description": "Customer delivery address" },
+        "customerCity": { "type": "string", "description": "Customer city or district" },
+        "customerPincode": { "type": "string", "description": "6-digit postal code" },
+        "items": { "type": "array", "description": "List of watch items ordered" },
+        "totalAmount": { "type": "number", "description": "Total order amount in INR" },
+        "paymentMethod": { "type": "string", "enum": ["upi_qr", "cod"], "description": "Payment mode" },
+        "selectedUpiHandle": { "type": "string", "description": "Optional selected UPI app" },
+        "utrNumber": { "type": "string", "description": "Transaction reference" },
+        "orderStatus": { "type": "string", "enum": ["new", "confirmed", "packed", "dispatched", "delivered", "cancelled"], "description": "Current order lifecycle status" },
+        "printed": { "type": "boolean", "description": "Whether thermal slip or invoice has been printed" },
+        "printCount": { "type": "number", "description": "Number of times invoice printed" },
+        "billed": { "type": "boolean", "description": "Whether bill has been generated" },
+        "billedAt": { "type": "string", "description": "Timestamp when bill was generated" },
+        "packedAt": { "type": "string", "description": "Timestamp when order was packed" },
+        "dispatchedAt": { "type": "string", "description": "Timestamp when order was dispatched" },
+        "courierPartner": { "type": "string", "description": "Name of courier/delivery agent" },
+        "courierTrackingNumber": { "type": "string", "description": "Tracking / AWB number" },
+        "deliveredAt": { "type": "string", "description": "Timestamp when order was delivered" },
+        "notes": { "type": "string", "description": "Merchant or customer notes" },
+        "statusHistory": { "type": "array", "description": "Audit trail of status changes with timestamps" }
+      },
+      "required": ["id", "createdAt", "timestamp", "customerName", "customerPhone", "customerAddress", "customerCity", "customerPincode", "items", "totalAmount", "paymentMethod", "orderStatus"]
+    },
+    "SupportTicket": {
+      "title": "SupportTicket",
+      "description": "Customer complaints and helpdesk tickets",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Ticket ID like TKT-123456" },
+        "createdAt": { "type": "string", "description": "ISO timestamp" },
+        "timestamp": { "type": "number", "description": "Unix timestamp in ms" },
+        "customerName": { "type": "string", "description": "Customer name" },
+        "customerPhone": { "type": "string", "description": "Customer phone" },
+        "customerEmail": { "type": "string", "description": "Customer email" },
+        "orderId": { "type": "string", "description": "Related order ID" },
+        "issueCategory": { "type": "string", "description": "Category of issue" },
+        "message": { "type": "string", "description": "Customer complaint details" },
+        "status": { "type": "string", "enum": ["open", "in_progress", "resolved"], "description": "Ticket status" },
+        "replyNotes": { "type": "string", "description": "Merchant resolution notes" }
+      },
+      "required": ["id", "createdAt", "timestamp", "customerName", "customerPhone", "issueCategory", "message", "status"]
+    }
+  },
+  "firestore": {
+    "/orders/{orderId}": {
+      "schema": "StoreOrder",
+      "description": "Customer watch orders for live sync, direct store billing and order tracking"
+    },
+    "/support_tickets/{ticketId}": {
+      "schema": "SupportTicket",
+      "description": "Customer complaints and helpdesk tickets"
+    }
+  }
+}

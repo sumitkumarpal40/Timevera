@@ -1,0 +1,8 @@
+{
+  "name": "Timevera Watch Store & Billing Portal",
+  "description": "Timevera Watch customer store & merchant portal featuring Mobile / Gmail ID and Password / OTP customer authentication, profile & address sync, order placement security, live order tracking, and billing/dispatch management.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "short_name": "Timevera",
+  "name": "Timevera Watch - Official Store",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "type": "image/svg+xml",
+      "sizes": "192x192 512x512 any",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#ffffff",
+  "theme_color": "#dc2626",
+  "display": "standalone",
+  "orientation": "portrait",
+  "description": "Discover stylish and affordable watches starting from ₹100 to ₹5,000. Order directly on WhatsApp."
+}

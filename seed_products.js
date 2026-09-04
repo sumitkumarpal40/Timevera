@@ -1,0 +1,192 @@
+import { initializeApp } from "firebase/app";
+import { getFirestore, collection, doc, setDoc } from "firebase/firestore";
+import fs from "fs";
+
+const config = JSON.parse(fs.readFileSync("firebase-applet-config.json", "utf8"));
+const app = initializeApp(config);
+const db = getFirestore(app, config.firestoreDatabaseId);
+
+const PRODUCTS_DATA = [
+  {
+    id: 'classic-black',
+    name: 'Classic Black',
+    category: 'budget',
+    categoryLabel: 'Budget Collection',
+    price: 499,
+    originalPrice: 799,
+    image: 'https://images.unsplash.com/photo-1524805444758-089113d48a6d?auto=format&fit=crop&w=800&q=80',
+    secondaryImage: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=800&q=80',
+    description: 'Sleek matte midnight black finish with minimalist hour markers. Perfect for college, daily office wear, and casual outings.',
+    strapMaterial: 'High-Density Vegan Leather',
+    dialColor: 'Obsidian Matte Black',
+    caseSize: '40 mm',
+    movement: 'Precision Japanese Quartz',
+    waterResistant: '3 ATM Splash Resistant',
+    tag: 'Best Seller',
+    inStock: true,
+    rating: 4.8,
+    reviewsCount: 142,
+    active: true,
+    stock: 100
+  },
+  {
+    id: 'elegant-silver',
+    name: 'Elegant Silver',
+    category: 'style',
+    categoryLabel: 'Style Collection',
+    price: 999,
+    originalPrice: 1499,
+    image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=800&q=80',
+    secondaryImage: 'https://images.unsplash.com/photo-1539185441755-769473a23570?auto=format&fit=crop&w=800&q=80',
+    description: 'Polished stainless steel casing with sunburst silver dial. A quintessential timepiece for business meetings and formal events.',
+    strapMaterial: 'Stainless Steel Mesh Link',
+    dialColor: 'Sunburst Silver-White',
+    caseSize: '42 mm',
+    movement: 'Quartz Analog 3-Hand',
+    waterResistant: '3 ATM Splash Proof',
+    tag: 'Featured',
+    inStock: true,
+    rating: 4.9,
+    reviewsCount: 98,
+    active: true,
+    stock: 100
+  },
+  {
+    id: 'premium-gold',
+    name: 'Premium Gold',
+    category: 'premium',
+    categoryLabel: 'Premium Collection',
+    price: 2499,
+    originalPrice: 3499,
+    image: 'https://images.unsplash.com/photo-1547996160-71dfa6358260?auto=format&fit=crop&w=800&q=80',
+    secondaryImage: 'https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?auto=format&fit=crop&w=800&q=80',
+    description: 'Signature 18K gold electroplated casing with deep royal dial accents. Designed to make an undeniable luxury statement on your wrist.',
+    strapMaterial: '18K IP Gold-Tone Stainless Steel',
+    dialColor: 'Champagne Gold with Diamond Markers',
+    caseSize: '41 mm',
+    movement: 'High-Torque Japanese Quartz Chrono',
+    waterResistant: '5 ATM (50 Meters)',
+    tag: 'Trending',
+    inStock: true,
+    rating: 4.9,
+    reviewsCount: 175,
+    active: true,
+    stock: 100
+  },
+  {
+    id: 'luxury-edition',
+    name: 'Luxury Edition Chrono',
+    category: 'premium',
+    categoryLabel: 'Premium Collection',
+    price: 4999,
+    originalPrice: 5999,
+    image: 'https://images.unsplash.com/photo-1508685096489-7aacd43bd3b1?auto=format&fit=crop&w=800&q=80',
+    secondaryImage: 'https://images.unsplash.com/photo-1533139502658-0198f920d8e8?auto=format&fit=crop&w=800&q=80',
+    description: 'Our pinnacle flagship timepiece featuring dual-subdial chronograph layout, scratch-proof sapphire crystal glass, and solid butterfly clasp.',
+    strapMaterial: 'Solid Grade 316L Stainless Steel',
+    dialColor: 'Deep Midnight Onyx with Gold Bezel',
+    caseSize: '43 mm',
+    movement: 'Multi-Function Quartz Chronograph',
+    waterResistant: '5 ATM Water Resistant',
+    tag: 'Limited Edition',
+    inStock: true,
+    rating: 5.0,
+    reviewsCount: 64,
+    active: true,
+    stock: 100
+  },
+  {
+    id: 'urban-minimalist-leather',
+    name: 'Urban Minimalist Brown',
+    category: 'budget',
+    categoryLabel: 'Budget Collection',
+    price: 299,
+    originalPrice: 599,
+    image: 'https://images.unsplash.com/photo-1524592094714-0f0654e20314?auto=format&fit=crop&w=800&q=80',
+    description: 'Warm tan brown stitched leather strap with clean ivory dial. A lightweight and reliable everyday wrist companion.',
+    strapMaterial: 'Textured Tan Faux Leather',
+    dialColor: 'Warm Ivory',
+    caseSize: '39 mm',
+    movement: 'Standard Quartz Movement',
+    waterResistant: 'Daily Splash Resistant',
+    tag: 'Best Seller',
+    inStock: true,
+    rating: 4.7,
+    reviewsCount: 89,
+    active: true,
+    stock: 100
+  },
+  {
+    id: 'rose-gold-elegance',
+    name: 'Rose Gold Royale',
+    category: 'style',
+    categoryLabel: 'Style Collection',
+    price: 1499,
+    originalPrice: 2199,
+    image: 'https://images.unsplash.com/photo-1539185441755-769473a23570?auto=format&fit=crop&w=800&q=80',
+    description: 'Subtle rose gold brush finish with slender hour needles and magnetic milanese loop for effortless wrist adjustment.',
+    strapMaterial: 'Magnetic Rose Gold Mesh',
+    dialColor: 'Pearl Rose with Crystal Indices',
+    caseSize: '36 mm',
+    movement: 'Slim Quartz Caliber',
+    waterResistant: '3 ATM Water Resistant',
+    tag: 'Trending',
+    inStock: true,
+    rating: 4.8,
+    reviewsCount: 112,
+    active: true,
+    stock: 100
+  },
+  {
+    id: 'timevera-couple-gift-box',
+    name: 'Timevera Couple Royal Gift Set',
+    category: 'gift',
+    categoryLabel: 'Gift Collection',
+    price: 2999,
+    originalPrice: 4499,
+    image: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=800&q=80',
+    description: 'Matching Men & Women dual timepiece gift box with luxury velvet lined presentation case. Ideal anniversary and wedding gift.',
+    strapMaterial: 'Dual Stainless Steel & Leather Straps included',
+    dialColor: 'Matching Jet Black & Rose Gold Dials',
+    caseSize: '41mm (His) & 34mm (Hers)',
+    movement: 'Twin Quartz Synchronized',
+    waterResistant: '3 ATM Water Proof',
+    tag: 'Limited Edition',
+    inStock: true,
+    rating: 5.0,
+    reviewsCount: 76,
+    active: true,
+    stock: 100
+  },
+  {
+    id: 'stealth-military-chrono',
+    name: 'Stealth Sport Chrono',
+    category: 'style',
+    categoryLabel: 'Style Collection',
+    price: 1299,
+    originalPrice: 1999,
+    image: 'https://images.unsplash.com/photo-1542496658-e33a6d0d50f6?auto=format&fit=crop&w=800&q=80',
+    description: 'Tough matte alloy casing with silicon silicone sport strap. Built for active workouts, driving, and rugged outdoor use.',
+    strapMaterial: 'Flexible Sweat-Resistant Silicone',
+    dialColor: 'Tactical Carbon Grey',
+    caseSize: '44 mm',
+    movement: 'Sport Quartz Movement with Date Window',
+    waterResistant: '5 ATM Water Resistant',
+    tag: 'New Arrival',
+    inStock: true,
+    rating: 4.8,
+    reviewsCount: 53,
+    active: true,
+    stock: 100
+  }
+];
+
+async function seed() {
+  for (const prod of PRODUCTS_DATA) {
+    const docRef = doc(db, "products", prod.id);
+    await setDoc(docRef, prod, { merge: true });
+    console.log(`Seeded ${prod.name}`);
+  }
+  process.exit(0);
+}
+seed().catch(console.error);
