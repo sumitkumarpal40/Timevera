@@ -58,13 +58,20 @@ export const ProductModal: React.FC<ProductModalProps> = ({
 
   const isWishlisted = isInWishlist(product.id);
   const images = [product.image, product.secondaryImage || product.image];
-  const price = Number(product.price) || 0;
-  const originalPrice = Number(product.originalPrice) || 0;
-  const discountPercent = originalPrice > price
-    ? Math.round(((originalPrice - price) / originalPrice) * 100)
+  // Implement exact requested price logic with backwards compatibility support
+  const mrp = Number(product.originalPrice || product.price || 0);
+  const sellingPrice = Number(product.discountPrice) > 0
+    ? Number(product.discountPrice)
+    : Number(product.price) || 0;
+  
+  const price = sellingPrice;
+  const originalPrice = mrp;
+
+  const discountPercent = (mrp > sellingPrice && mrp > 0)
+    ? Math.round(((mrp - sellingPrice) / mrp) * 100)
     : 0;
   const totalPrice = price * selectedQty;
-  const totalSavings = originalPrice > price ? (originalPrice - price) * selectedQty : 0;
+  const totalSavings = discountPercent > 0 && originalPrice > price ? (originalPrice - price) * selectedQty : 0;
 
   const handleShareProduct = async () => {
     const shareUrl = window.location.href;
@@ -207,13 +214,17 @@ export const ProductModal: React.FC<ProductModalProps> = ({
             <div>
               <div className="flex items-center justify-between mb-1">
                 <span className="text-xs font-bold text-[#D4AF37] uppercase tracking-wider">
-                  {product.categoryLabel}
+                  {product.categoryLabel || product.category || 'TIMEVERA'}
                 </span>
-                <div className="flex items-center gap-1 text-[#D4AF37] text-xs">
-                  <Star className="w-3.5 h-3.5 fill-current" />
-                  <span className="text-[#F8FAFC] font-bold">{product.rating}</span>
-                  <span className="text-[#A7AFBF]">({product.reviewsCount || 48} reviews)</span>
-                </div>
+                {product.rating && Number(product.rating) > 0 && (
+                  <div className="flex items-center gap-1 text-[#D4AF37] text-xs">
+                    <Star className="w-3.5 h-3.5 fill-current" />
+                    <span className="text-[#F8FAFC] font-bold">{product.rating}</span>
+                    {product.reviewsCount && Number(product.reviewsCount) > 0 && (
+                      <span className="text-[#A7AFBF]">({product.reviewsCount} reviews)</span>
+                    )}
+                  </div>
+                )}
               </div>
 
               <h2 className="font-brand text-2xl sm:text-3xl font-bold text-[#F8FAFC] mb-2">
@@ -231,16 +242,14 @@ export const ProductModal: React.FC<ProductModalProps> = ({
                     ₹{price.toLocaleString('en-IN')}
                     <span className="text-xs font-normal text-[#A7AFBF] ml-1.5">/ piece</span>
                   </div>
-                  {originalPrice > price && (
+                  {discountPercent > 0 && originalPrice > price && (
                     <div className="flex items-center gap-2 text-xs">
                       <span className="text-[#A7AFBF]/60 line-through">
                         ₹{originalPrice.toLocaleString('en-IN')}
                       </span>
-                      {discountPercent > 0 && (
-                        <span className="text-emerald-400 font-semibold">
-                          Save {discountPercent}% off
-                        </span>
-                      )}
+                      <span className="text-emerald-400 font-semibold">
+                        Save {discountPercent}% off
+                      </span>
                     </div>
                   )}
                 </div>

@@ -532,19 +532,26 @@ export async function saveSupportTicketToFirestore(
   initialMessageText?: string
 ): Promise<void> {
   const nowIso = new Date().toISOString();
-  const messageText = (initialMessageText || ticket.message || '').trim();
+  const messageText = (initialMessageText || ticket.message || ticket.customerMessage || '').trim();
   const msgId = 'msg_' + Date.now().toString() + '_' + Math.random().toString(36).substring(2, 7);
 
   const ticketPayload: SupportTicket = {
-    ...ticket,
-    customerId: ticket.customerId || ticket.customerUid || '',
-    customerEmail: ticket.customerEmail || '',
-    subject: ticket.subject || ticket.issueCategory || ticket.issueType || 'Customer Support Request',
-    status: ticket.status || 'open',
+    id: ticket.id,
+    customerId: ticket.customerId,
+    customerUid: (ticket as any).customerUid || ticket.customerId,
+    customerName: ticket.customerName,
+    customerPhone: ticket.customerPhone,
+    customerMobile: ticket.customerPhone,
+    customerEmail: ticket.customerEmail,
+    issueType: ticket.issueType,
+    category: ticket.issueType || (ticket as any).category || '',
+    issueCategory: ticket.issueType || (ticket as any).issueCategory || '',
+    status: 'open',
+    customerMessage: messageText,
+    message: messageText,
     createdAt: ticket.createdAt || nowIso,
     updatedAt: ticket.updatedAt || nowIso,
     timestamp: ticket.timestamp || Date.now(),
-    message: messageText,
   };
 
   try {
@@ -638,11 +645,25 @@ export function subscribeToTicketMessages(
       const msgs: import('../types').TicketMessage[] = [];
       snapshot.forEach((docSnap) => {
         const data = docSnap.data();
+        let ts: any = data.timestamp || data.createdAt || Date.now();
+        // अगर Firestore Timestamp है तो ISO string में convert करो
+        if (ts && typeof ts.toDate === 'function') {
+          ts = ts.toDate().toISOString();
+        } else if (ts && typeof ts.toMillis === 'function') {
+          ts = new Date(ts.toMillis()).toISOString();
+        } else if (typeof ts === 'number') {
+          ts = new Date(ts).toISOString();
+        }
+        // अगर अभी भी string नहीं है तो fallback
+        if (typeof ts !== 'string') {
+          ts = new Date().toISOString();
+        }
+
         msgs.push({
           id: docSnap.id,
           sender: data.sender || 'customer',
-          text: data.text || '',
-          timestamp: data.timestamp || data.createdAt || Date.now(),
+          text: data.text || data.message || '',
+          timestamp: ts,
         });
       });
       onMessagesUpdated(msgs);
@@ -671,7 +692,8 @@ export function subscribeToCustomerSupportTickets(
     const offTickets: SupportTicket[] = JSON.parse(localStorage.getItem('timevera_offline_tickets') || '[]');
     if (offTickets.length > 0) {
       const matched = offTickets.filter((t) => {
-        const pMatch = cleanPhone && t.customerPhone && t.customerPhone.replace(/\D/g, '').includes(cleanPhone);
+        const customerPhone = t.customerPhone || (t as any).customerMobile || '';
+        const pMatch = cleanPhone && customerPhone && customerPhone.replace(/\D/g, '').includes(cleanPhone);
         const eMatch = clean && t.customerEmail && t.customerEmail.toLowerCase().includes(clean.toLowerCase());
         const uMatch = uid && t.customerId === uid;
         return pMatch || eMatch || uMatch;
@@ -683,7 +705,7 @@ export function subscribeToCustomerSupportTickets(
   }
 
   // 2. Live snapshot listener on support_tickets
-  const q = query(collection(db, SUPPORT_COLLECTION), orderBy('timestamp', 'desc'));
+  const q = query(collection(db, SUPPORT_COLLECTION));
 
   return onSnapshot(
     q,
@@ -691,7 +713,8 @@ export function subscribeToCustomerSupportTickets(
       const tickets: SupportTicket[] = [];
       snapshot.forEach((docSnap) => {
         const t = docSnap.data() as SupportTicket;
-        const pMatch = cleanPhone && t.customerPhone && t.customerPhone.replace(/\D/g, '').includes(cleanPhone);
+        const customerPhone = t.customerPhone || (t as any).customerMobile || '';
+        const pMatch = cleanPhone && customerPhone && customerPhone.replace(/\D/g, '').includes(cleanPhone);
         const eMatch = clean && t.customerEmail && t.customerEmail.toLowerCase().includes(clean.toLowerCase());
         const uMatch = uid && (t.customerId === uid || t.customerUid === uid);
 
@@ -706,6 +729,12 @@ export function subscribeToCustomerSupportTickets(
       try {
         localStorage.setItem('timevera_offline_tickets', JSON.stringify(tickets));
       } catch {}
+
+      tickets.sort((a, b) => {
+        const aTime = (a as any).timestamp || new Date(a.createdAt).getTime();
+        const bTime = (b as any).timestamp || new Date(b.createdAt).getTime();
+        return bTime - aTime;
+      });
 
       onTicketsUpdated(tickets);
     },

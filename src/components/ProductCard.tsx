@@ -30,10 +30,17 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   const [justAdded, setJustAdded] = useState(false);
   const isWishlisted = isInWishlist(product.id);
 
-  const price = Number(product.price) || 0;
-  const originalPrice = Number(product.originalPrice) || 0;
-  const discountPercent = originalPrice > price
-    ? Math.round(((originalPrice - price) / originalPrice) * 100)
+  // Implement exact requested price logic with backwards compatibility support
+  const mrp = Number(product.originalPrice || product.price || 0);
+  const sellingPrice = Number(product.discountPrice) > 0
+    ? Number(product.discountPrice)
+    : Number(product.price) || 0;
+  
+  const price = sellingPrice;
+  const originalPrice = mrp;
+
+  const discountPercent = (mrp > sellingPrice && mrp > 0)
+    ? Math.round(((mrp - sellingPrice) / mrp) * 100)
     : 0;
 
   const handleShareProduct = async (e: React.MouseEvent) => {
@@ -156,12 +163,14 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         {/* Category & Rating */}
         <div className="flex items-center justify-between text-xs text-[#A7AFBF] mb-1">
           <span className="uppercase tracking-wider text-[10px] text-[#D4AF37] font-bold">
-            {product.categoryLabel || 'TIMEVERA'}
+            {product.categoryLabel || product.category || 'TIMEVERA'}
           </span>
-          <div className="flex items-center gap-1 text-[#D4AF37]">
-            <Star className="w-3 h-3 fill-current" />
-            <span className="text-[11px] text-[#F8FAFC] font-medium">{Number(product.rating) || 4.5}</span>
-          </div>
+          {product.rating && Number(product.rating) > 0 && (
+            <div className="flex items-center gap-1 text-[#D4AF37]">
+              <Star className="w-3 h-3 fill-current" />
+              <span className="text-[11px] text-[#F8FAFC] font-medium">{product.rating}</span>
+            </div>
+          )}
         </div>
 
         {/* Product Title */}
@@ -185,7 +194,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             <span className="text-[#E5C07B] font-extrabold text-lg sm:text-xl">
               ₹{price.toLocaleString('en-IN')}
             </span>
-            {originalPrice > price && (
+            {discountPercent > 0 && originalPrice > price && (
               <span className="text-[#A7AFBF]/60 line-through text-xs">
                 ₹{originalPrice.toLocaleString('en-IN')}
               </span>

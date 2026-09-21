@@ -100,13 +100,13 @@ export const SupportTicketChat: React.FC<SupportTicketChatProps> = ({ ticket, on
       {/* Messages Stream */}
       <div className="flex-1 p-3 overflow-y-auto space-y-2.5 bg-zinc-50/50 dark:bg-[#0c0c0c]/50">
         {/* Ticket initial context message */}
-        {ticket.message && messages.length === 0 && (
+        {(ticket.message || ticket.customerMessage) && messages.length === 0 && (
           <div className="flex flex-col items-end">
             <span className="text-[10px] text-zinc-400 mb-0.5 px-1 font-semibold">
               You (Initial Message)
             </span>
             <div className="max-w-[85%] px-3.5 py-2 rounded-2xl rounded-tr-none bg-red-600 text-white text-xs leading-relaxed shadow-sm">
-              {ticket.message}
+              {ticket.message || ticket.customerMessage || ''}
             </div>
             {ticket.createdAt && (
               <span className="text-[9px] text-zinc-400 mt-0.5 px-1">

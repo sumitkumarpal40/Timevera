@@ -1,12 +1,11 @@
 {
-  "projectId": "upheld-fabric-8lcf1",
-  "appId": "1:609329403812:web:1709843c9e56285c0a1331",
-  "apiKey": "AIzaSyC3Yt2h7reFhsGA8o7JwrO3gkvUYHWZveM",
-  "authDomain": "upheld-fabric-8lcf1.firebaseapp.com",
-  "firestoreDatabaseId": "ai-studio-db116c3c-f3b0-48fa-8734-637e0282f08a",
-  "storageBucket": "upheld-fabric-8lcf1.firebasestorage.app",
-  "messagingSenderId": "609329403812",
+  "projectId": "timeverawatchstore",
+  "appId": "",
+  "apiKey": "",
+  "authDomain": "timeverawatchstore.firebaseapp.com",
+  "storageBucket": "timeverawatchstore.firebasestorage.app",
+  "messagingSenderId": "344269176450",
   "measurementId": "",
-  "oAuthClientId": "609329403812-tr9nenf21d2gla8usp9br9644uonniji.apps.googleusercontent.com",
+  "oAuthClientId": "",
   "recaptchaSiteKey": ""
 }

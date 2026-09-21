@@ -529,7 +529,13 @@ export const CustomerAccountModal: React.FC<CustomerAccountModalProps> = ({
                                 ₹{(Number(order.totalAmount) || 0).toLocaleString('en-IN')}
                               </p>
                               <span className="text-[10px] font-bold text-zinc-500 uppercase">
-                                {order.paymentMethod === 'upi_qr' ? '★ PREPAID ONLINE ★' : '★ CASH ON DELIVERY ★'}
+                                {(() => {
+                                  const isPrepaid = order.paymentMethod === 'Prepaid'
+                                    || order.paymentMethod === 'Online'
+                                    || order.paymentMethod === 'Online Payment'
+                                    || order.paymentMethod === 'upi_qr';
+                                  return isPrepaid ? '★ PREPAID ONLINE ★' : '★ CASH ON DELIVERY ★';
+                                })()}
                               </span>
                             </div>
                           </div>
@@ -1470,9 +1476,9 @@ export const CustomerAccountModal: React.FC<CustomerAccountModalProps> = ({
                                 </div>
                               )}
 
-                              {ticket.message && (
+                              {(ticket.message || ticket.customerMessage) && (
                                 <p className="text-[11px] text-zinc-600 dark:text-zinc-400 leading-relaxed bg-zinc-50 dark:bg-zinc-900/60 p-2 rounded-lg border border-zinc-200/60 dark:border-zinc-800">
-                                  "{ticket.message}"
+                                  "{ticket.message || ticket.customerMessage || ''}"
                                 </p>
                               )}
 

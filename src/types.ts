@@ -143,7 +143,7 @@ export interface StoreOrder {
   customerPincode: string;
   customerLandmark?: string;
   customerEmail?: string;
-  paymentMethod: 'COD' | 'Online' | 'cod' | 'upi_qr';
+  paymentMethod: 'COD' | 'Online' | 'Prepaid' | 'Online Payment' | 'cod' | 'upi_qr' | string;
   paymentStatus?: 'Pending' | 'Paid' | 'Failed' | 'pending' | 'verified' | 'failed' | 'refunded';
   orderStatus: 'Order Received' | 'Confirmed' | 'Packed' | 'Shipped' | 'Out for Delivery' | 'Delivered' | 'Cancelled' | 'Returned';
   statusHistory?: OrderStatusHistoryItem[];
@@ -176,12 +176,15 @@ export interface SupportTicket {
   customerId?: string;
   customerUid?: string;
   customerPhone?: string;
+  customerMobile?: string;
   customerName: string;
   customerEmail?: string;
   subject?: string;
   issueType?: 'order_delay' | 'wrong_item' | 'defective' | 'payment_issue' | 'other' | string;
   issueCategory?: string;
+  category?: string;
   message?: string;
+  customerMessage?: string;
   status: 'open' | 'in_progress' | 'resolved' | 'closed';
   createdAt: string;
   createdAtFirestore?: any;

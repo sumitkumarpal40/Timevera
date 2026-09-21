@@ -1,7 +1,13 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getFirestore, initializeFirestore } from 'firebase/firestore';
 import { getAuth, GoogleAuthProvider } from 'firebase/auth';
-import firebaseConfig from '../../firebase-applet-config.json';
+import rawConfig from '../../firebase-applet-config.json';
+
+const firebaseConfig = {
+  ...rawConfig,
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || rawConfig.apiKey,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || rawConfig.appId,
+};
 
 // Initialize Firebase App instance safely
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
@@ -11,10 +17,10 @@ let dbInstance;
 try {
   dbInstance = initializeFirestore(app, {
     experimentalForceLongPolling: true,
-  }, firebaseConfig.firestoreDatabaseId);
+  });
 } catch (e) {
   try {
-    dbInstance = getFirestore(app, firebaseConfig.firestoreDatabaseId);
+    dbInstance = getFirestore(app);
   } catch (err) {
     dbInstance = getFirestore(app);
   }

@@ -202,8 +202,30 @@ export async function saveCustomerProfile(profile: CustomerProfile): Promise<voi
       ...updatedProfile,
       updatedAtFirestore: Timestamp.now(),
     });
-    // Fire and forget
+    // Fire and forget - 1. customer_profiles में write (existing — preserve करो)
     setDoc(docRef, cleaned, { merge: true }).catch(console.warn);
+
+    // 2. customers collection में भी write (Store compatibility — नया)
+    try {
+      const customerId = cleanPhone || cleanEmail || docId;
+      setDoc(doc(db, 'customers', customerId), sanitizeFirestoreData({
+        id: customerId,
+        firebaseUid: profile.uid || '',
+        uid: profile.uid || '',
+        name: profile.fullName?.trim() || '',
+        fullName: profile.fullName?.trim() || '',
+        email: cleanEmail || '',
+        phone: cleanPhone || profile.phone || '',
+        status: 'active',
+        addresses: profile.addresses || [],
+        createdAt: profile.savedAt || new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      }), { merge: true }).catch(err => {
+        console.warn('customers collection sync deferred:', err?.message || err);
+      });
+    } catch (e) {
+      console.warn('customers sync error:', e);
+    }
   } catch (err) {
     console.warn('Firestore customer profile sync notice:', err);
   }

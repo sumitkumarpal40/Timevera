@@ -22,7 +22,14 @@ export const subscribeToProducts = (
           // Hide only explicitly inactive products; missing active field defaults to active
           const isInactive = data.active === false || data.status === 'inactive';
           if (!isInactive) {
-            prods.push({ id: docSnap.id, ...data } as WatchProduct);
+            const mrp = Number(data.price) || 0;
+            const sellingPrice = Number(data.discountPrice) > 0 ? Number(data.discountPrice) : mrp;
+            prods.push({ 
+              id: docSnap.id, 
+              ...data,
+              price: sellingPrice,
+              originalPrice: mrp,
+            } as WatchProduct);
           }
         });
         callback(prods);
@@ -54,7 +61,14 @@ export const getProducts = async (): Promise<WatchProduct[]> => {
       const data = docSnap.data() as any;
       const isInactive = data.active === false || data.status === 'inactive';
       if (!isInactive) {
-        prods.push({ id: docSnap.id, ...data } as WatchProduct);
+        const mrp = Number(data.price) || 0;
+        const sellingPrice = Number(data.discountPrice) > 0 ? Number(data.discountPrice) : mrp;
+        prods.push({ 
+          id: docSnap.id, 
+          ...data,
+          price: sellingPrice,
+          originalPrice: mrp,
+        } as WatchProduct);
       }
     });
     return prods;

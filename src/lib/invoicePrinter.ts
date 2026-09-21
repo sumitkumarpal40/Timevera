@@ -20,7 +20,10 @@ export function printInvoice(order: StoreOrder, type: 'tax_invoice' | 'thermal_s
   });
 
   const isThermal = type === 'thermal_slip';
-  const isPrepaid = order.paymentMethod === 'upi_qr';
+  const isPrepaid = order.paymentMethod === 'Prepaid'
+    || order.paymentMethod === 'Online'
+    || order.paymentMethod === 'Online Payment'
+    || order.paymentMethod === 'upi_qr';
 
   const invoiceItems = order.items && order.items.length > 0
     ? order.items

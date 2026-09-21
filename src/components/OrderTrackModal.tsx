@@ -533,7 +533,13 @@ export const OrderTrackModal: React.FC<OrderTrackModalProps> = ({
                   <p className="text-zinc-500 text-[11px] pt-1">
                     Payment Mode:{' '}
                     <strong className="uppercase">
-                      {selectedOrder.paymentMethod === 'upi_qr' ? 'Online Paid (UPI)' : 'Cash on Delivery (COD)'}
+                      {(() => {
+                        const isPrepaid = selectedOrder.paymentMethod === 'Prepaid'
+                          || selectedOrder.paymentMethod === 'Online'
+                          || selectedOrder.paymentMethod === 'Online Payment'
+                          || selectedOrder.paymentMethod === 'upi_qr';
+                        return isPrepaid ? 'Prepaid' : 'Cash on Delivery (COD)';
+                      })()}
                     </strong>
                   </p>
                 </div>

@@ -280,21 +280,34 @@ function TimeveraStore() {
       // Category match
       const effectiveCategory = filterState.category !== 'all' ? filterState.category : selectedCategory;
       const matchesCategory =
-        effectiveCategory === 'all' || product.category === effectiveCategory;
+        effectiveCategory === 'all' || 
+        (product.category || '').toLowerCase() === (effectiveCategory || '').toLowerCase();
 
       // Subcategory match
       const matchesSubcategory = 
-        !filterState.subcategory || filterState.subcategory === 'all' || product.subcategory === filterState.subcategory;
+        !filterState.subcategory || 
+        filterState.subcategory === 'all' || 
+        (product.subcategory || '').toLowerCase() === (filterState.subcategory || '').toLowerCase();
 
-      // Movement
-      const matchesMovement =
-        filterState.movement === 'all' ||
-        (product.movement && product.movement.toLowerCase() === filterState.movement.toLowerCase());
+      // Movement — top-level या attributes से (case-insensitive key)
+      const movementValue = product.movement 
+        || product.attributes?.movement 
+        || product.attributes?.['Movement'] 
+        || '';
+      const matchesMovement = filterState.movement === 'all' 
+        || !movementValue
+        || movementValue.toLowerCase().includes(filterState.movement.toLowerCase());
 
-      // Strap Material
-      const matchesStrap =
-        filterState.strapMaterial === 'all' ||
-        (product.strapMaterial && product.strapMaterial.toLowerCase().includes(filterState.strapMaterial.toLowerCase()));
+      // Strap — top-level या attributes से
+      const strapValue = product.strapMaterial 
+        || product.strap 
+        || product.attributes?.strap 
+        || product.attributes?.['Strap'] 
+        || product.attributes?.['Strap Type'] 
+        || '';
+      const matchesStrap = filterState.strapMaterial === 'all' 
+        || !strapValue
+        || strapValue.toLowerCase().includes(filterState.strapMaterial.toLowerCase());
 
       // Rating (safe numeric fallback so missing/undefined rating is not rejected)
       const productRating = Number(product.rating) || 0;
@@ -305,8 +318,14 @@ function TimeveraStore() {
       const productStock = Number(product.stock) || 0;
       const matchesStock = !filterState.inStockOnly || productStock > 0;
 
-      // Water resistance
-      const matchesWater = !filterState.waterResistantOnly || (product.waterResistance && product.waterResistance !== 'No' && product.waterResistance !== 'None');
+      // Water resistance — top-level या attributes से
+      const waterValue = product.waterResistance 
+        || product.attributes?.waterResistance 
+        || product.attributes?.['Water Resistance'] 
+        || '';
+      const matchesWater = !filterState.waterResistantOnly 
+        || !waterValue
+        || (waterValue !== 'No' && waterValue !== 'None');
 
       // Discount
       const productPrice = Number(product.price) || 0;

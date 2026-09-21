@@ -365,7 +365,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
       totalAmount: finalAmount,
       grandTotal: finalAmount,
       
-      paymentMethod: isOnline ? 'Online' : 'COD',
+      paymentMethod: isOnline ? 'Prepaid' : 'COD',
       paymentStatus: 'Pending',
       orderStatus: 'Order Received',
       
