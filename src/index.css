@@ -80,5 +80,17 @@
   background: #D4AF37;
 }
 
+/* Hide Netlify badge */
+#netlify-badge,
+[data-netlify-badge],
+iframe[src*="netlify"],
+a[href*="netlify.com"][target="_blank"] img[alt*="Netlify"],
+div[style*="netlify"] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
 
 
