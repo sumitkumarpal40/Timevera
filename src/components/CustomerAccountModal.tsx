@@ -34,7 +34,7 @@ import {
   Zap,
 } from 'lucide-react';
 import { useCustomerAuth } from '../context/CustomerAuthContext';
-import { fetchOrdersForCustomer, fetchCustomerReviews } from '../lib/customerService';
+import { fetchOrdersForCustomer, fetchCustomerReviews, subscribeToCustomerOrders } from '../lib/customerService';
 import { saveSupportTicketToFirestore, fetchCustomerSupportTickets, subscribeToCustomerSupportTickets } from '../lib/orderService';
 import { StoreOrder, CustomerReviewFeedback, StoreProduct, SupportTicket } from '../types';
 import { printInvoice } from '../lib/invoicePrinter';
@@ -104,9 +104,21 @@ export const CustomerAccountModal: React.FC<CustomerAccountModalProps> = ({
 
   // Load orders, reviews & support tickets when modal opens or customer changes
   useEffect(() => {
-    if (isOpen && (customer?.phone || customer?.email || customer?.username || customer?.uid)) {
-      const searchKey = customer.phone || customer.email || customer.username || '';
-      setIsLoadingOrders(true);
+    if (!isOpen || !customer) {
+      if (!isOpen) setOrders([]);
+      return;
+    }
+
+    const searchKey = customer.phone || customer.email || customer.username || '';
+
+    setIsLoadingOrders(true);
+    let unsubOrders: (() => void) | undefined;
+    if (customer.uid) {
+      unsubOrders = subscribeToCustomerOrders(customer.uid, (ords) => {
+        setOrders(ords);
+        setIsLoadingOrders(false);
+      });
+    } else {
       fetchOrdersForCustomer(searchKey, customer.uid)
         .then((ords) => {
           setOrders(ords);
@@ -114,41 +126,44 @@ export const CustomerAccountModal: React.FC<CustomerAccountModalProps> = ({
         .finally(() => {
           setIsLoadingOrders(false);
         });
+    }
 
-      if (customer.phone) {
-        fetchCustomerReviews(customer.phone).then((revs) => {
-          setReviews(revs);
-        });
-      }
+    if (customer.phone) {
+      fetchCustomerReviews(customer.phone).then((revs) => {
+        setReviews(revs);
+      });
+    }
 
-      setIsLoadingTickets(true);
-      fetchCustomerSupportTickets(searchKey, customer.uid)
-        .then((tkts) => {
-          setSupportTickets(tkts);
-        })
-        .finally(() => {
-          setIsLoadingTickets(false);
-        });
-
-      // Subscribe in real time to support tickets
-      const unsubTickets = subscribeToCustomerSupportTickets(searchKey, customer.uid, (liveTkts) => {
-        setSupportTickets(liveTkts);
+    setIsLoadingTickets(true);
+    fetchCustomerSupportTickets(searchKey, customer.uid)
+      .then((tkts) => {
+        setSupportTickets(tkts);
+      })
+      .finally(() => {
+        setIsLoadingTickets(false);
       });
 
-      // Init profile inputs
-      setEditName(customer.fullName || '');
-      setEditEmail(customer.email || '');
-      setEditPassword(customer.password || '');
-      setEditAddress(customer.address || '');
-      setEditCity(customer.city || '');
-      setEditPincode(customer.pincode || '');
+    // Subscribe in real time to support tickets
+    const unsubTickets = subscribeToCustomerSupportTickets(searchKey, customer.uid, (liveTkts) => {
+      setSupportTickets(liveTkts);
+    });
 
-      return () => {
-        if (typeof unsubTickets === 'function') {
-          unsubTickets();
-        }
-      };
-    }
+    // Init profile inputs
+    setEditName(customer.fullName || '');
+    setEditEmail(customer.email || '');
+    setEditPassword(customer.password || '');
+    setEditAddress(customer.address || '');
+    setEditCity(customer.city || '');
+    setEditPincode(customer.pincode || '');
+
+    return () => {
+      if (typeof unsubOrders === 'function') {
+        unsubOrders();
+      }
+      if (typeof unsubTickets === 'function') {
+        unsubTickets();
+      }
+    };
   }, [isOpen, customer]);
 
   if (!isOpen || !customer) return null;
@@ -231,51 +246,56 @@ export const CustomerAccountModal: React.FC<CustomerAccountModalProps> = ({
     }
   };
 
-  const getStatusBadge = (status: StoreOrder['orderStatus']) => {
-    switch (status) {
-      case 'Order Received':
+  const getStatusBadge = (status: StoreOrder['orderStatus'] | string) => {
+    const s = (status || '').toLowerCase().trim();
+    switch (s) {
+      case 'pending':
+      case 'order received':
         return {
           label: 'Order Placed (नया ऑर्डर)',
           bg: 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20',
           step: 1,
         };
-      case 'Confirmed':
+      case 'confirmed':
+      case 'processing':
         return {
           label: 'Confirmed (कन्फ़र्म)',
           bg: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20',
           step: 2,
         };
-      case 'Packed':
+      case 'packed':
         return {
           label: 'Packed (पैक हो गया)',
           bg: 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20',
           step: 3,
         };
-      case 'Shipped':
+      case 'shipped':
         return {
           label: 'Dispatched (डिस्पैच / रवाना)',
           bg: 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/20',
           step: 4,
         };
-      case 'Out for Delivery':
+      case 'out for delivery':
+      case 'out_for_delivery':
         return {
           label: 'Out for Delivery (डिलीवरी के लिए तैयार)',
           bg: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20',
           step: 5,
         };
-      case 'Delivered':
+      case 'delivered':
         return {
           label: 'Delivered (सफलतापूर्वक डिलीवर)',
           bg: 'bg-green-600/15 text-green-700 dark:text-green-300 border-green-600/20',
           step: 6,
         };
-      case 'Cancelled':
+      case 'cancelled':
         return {
           label: 'Cancelled (रद्द)',
           bg: 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20',
           step: 0,
         };
-      case 'Returned':
+      case 'returned':
+      case 'refunded':
         return {
           label: 'Returned (वापस प्राप्त)',
           bg: 'bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/20',
@@ -283,7 +303,7 @@ export const CustomerAccountModal: React.FC<CustomerAccountModalProps> = ({
         };
       default:
         return {
-          label: 'Processing',
+          label: status || 'Processing',
           bg: 'bg-zinc-500/10 text-zinc-600 border-zinc-500/20',
           step: 1,
         };
@@ -446,13 +466,8 @@ export const CustomerAccountModal: React.FC<CustomerAccountModalProps> = ({
                   </div>
                   <button
                     onClick={() => {
-                      if (customer) {
-                        setIsLoadingOrders(true);
-                        const searchKey = customer.phone || customer.email || customer.username || '';
-                        fetchOrdersForCustomer(searchKey, customer.uid)
-                          .then((ords) => setOrders(ords))
-                          .finally(() => setIsLoadingOrders(false));
-                      }
+                      setIsLoadingOrders(true);
+                      setTimeout(() => setIsLoadingOrders(false), 500);
                     }}
                     className="p-2 text-zinc-500 hover:text-red-600 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
                     title="Refresh orders"

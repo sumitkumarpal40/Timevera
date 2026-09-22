@@ -304,10 +304,8 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
     // Reset previous submit error
     setFormErrors((prev) => ({ ...prev, _form: undefined }));
     setIsSubmitting(true);
-    const newOrderId = 'TV-' + Math.floor(100000 + Math.random() * 900000);
     const selectedPayType = paymentMethod === 'upi' ? 'upi_qr' : 'cod';
 
-    
     const now = new Date().toISOString();
     const orderId = `TV-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
     const firstItem = items[0] || {
@@ -376,6 +374,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
       paymentMethod: isOnline ? 'Prepaid' : 'COD',
       paymentStatus: 'Pending',
       orderStatus: 'Order Received',
+      inventoryStatus: 'pending_deduction',
       
       createdAt: now,
       orderDate: now.split('T')[0],

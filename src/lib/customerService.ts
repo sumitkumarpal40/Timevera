@@ -9,6 +9,7 @@ import {
   where,
   orderBy,
   Timestamp,
+  onSnapshot,
 } from 'firebase/firestore';
 import { db } from './firebase';
 import { CustomerProfile, CustomerReviewFeedback, StoreOrder, CartItem } from '../types';
@@ -441,6 +442,40 @@ export async function fetchOrdersForCustomer(phone: string, uid?: string): Promi
   }
 
   return Array.from(foundMap.values()).sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+}
+
+/**
+ * Real-time listener for customer orders by Firebase Auth UID
+ */
+export function subscribeToCustomerOrders(
+  uid: string,
+  onOrdersUpdate: (orders: StoreOrder[]) => void
+): () => void {
+  if (!uid) {
+    onOrdersUpdate([]);
+    return () => {};
+  }
+  const q = query(
+    collection(db, 'orders'),
+    where('customerUid', '==', uid)
+  );
+  const unsubscribe = onSnapshot(
+    q,
+    (snapshot) => {
+      const orders: StoreOrder[] = [];
+      snapshot.forEach((docSnap) => {
+        const data = docSnap.data() as StoreOrder;
+        orders.push({ ...data, id: data.id || docSnap.id });
+      });
+      orders.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+      onOrdersUpdate(orders);
+    },
+    (error) => {
+      console.warn('Customer orders subscription error:', error?.message);
+      onOrdersUpdate([]);
+    }
+  );
+  return unsubscribe;
 }
 
 /**

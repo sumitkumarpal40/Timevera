@@ -146,6 +146,7 @@ export interface StoreOrder {
   paymentMethod: 'COD' | 'Online' | 'Prepaid' | 'Online Payment' | 'cod' | 'upi_qr' | string;
   paymentStatus?: 'Pending' | 'Paid' | 'Failed' | 'pending' | 'verified' | 'failed' | 'refunded';
   orderStatus: 'Order Received' | 'Confirmed' | 'Packed' | 'Shipped' | 'Out for Delivery' | 'Delivered' | 'Cancelled' | 'Returned';
+  inventoryStatus?: 'pending_deduction' | 'deducted' | 'restocked' | string;
   statusHistory?: OrderStatusHistoryItem[];
   createdAt: string; // ISO string
   createdAtFirestore?: any;

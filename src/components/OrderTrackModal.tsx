@@ -41,6 +41,7 @@ export const OrderTrackModal: React.FC<OrderTrackModalProps> = ({
   const [selectedOrder, setSelectedOrder] = useState<StoreOrder | null>(null);
   const [isSearching, setIsSearching] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
+  const [searchError, setSearchError] = useState<string | null>(null);
   const [savedOrders, setSavedOrders] = useState<StoreOrder[]>([]);
 
   // Load saved orders from device when modal opens
@@ -104,6 +105,7 @@ export const OrderTrackModal: React.FC<OrderTrackModalProps> = ({
 
     setIsSearching(true);
     setHasSearched(true);
+    setSearchError(null);
 
     try {
       const results = await searchCustomerOrders(q);
@@ -113,81 +115,96 @@ export const OrderTrackModal: React.FC<OrderTrackModalProps> = ({
       } else {
         setSelectedOrder(null);
       }
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
+      if (e?.code === 'permission-denied' || e?.message?.includes('permission')) {
+        setSearchError('इस order को access करने की permission नहीं है। कृपया अपने account से login करें।');
+      } else {
+        setSearchError('Order नहीं मिला। कृपया Order ID या Phone number check करें।');
+      }
     } finally {
       setIsSearching(false);
     }
   };
 
-  const getStepProgress = (status: StoreOrder['orderStatus']) => {
-    switch (status) {
-      case 'Order Received':
+  const getStepProgress = (status: StoreOrder['orderStatus'] | string) => {
+    const s = (status || '').toLowerCase().trim();
+    switch (s) {
+      case 'pending':
+      case 'order received':
         return 1;
-      case 'Confirmed':
+      case 'confirmed':
+      case 'processing':
         return 2;
-      case 'Packed':
+      case 'packed':
         return 3;
-      case 'Shipped':
+      case 'shipped':
         return 4;
-      case 'Out for Delivery':
+      case 'out for delivery':
+      case 'out_for_delivery':
         return 5;
-      case 'Delivered':
+      case 'delivered':
         return 6;
-      case 'Cancelled':
+      case 'cancelled':
         return -1;
-      case 'Returned':
+      case 'returned':
+      case 'refunded':
         return -2;
       default:
         return 1;
     }
   };
 
-  const getStatusBadge = (status: StoreOrder['orderStatus']) => {
-    switch (status) {
-      case 'Order Received':
+  const getStatusBadge = (status: StoreOrder['orderStatus'] | string) => {
+    const s = (status || '').toLowerCase().trim();
+    switch (s) {
+      case 'pending':
+      case 'order received':
         return {
           label: 'Order Placed (दर्ज हुआ)',
           bg: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30',
           icon: Clock,
         };
-      case 'Confirmed':
+      case 'confirmed':
+      case 'processing':
         return {
           label: 'Confirmed (कन्फर्म हो गया)',
           bg: 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/30',
           icon: CheckCircle,
         };
-      case 'Packed':
+      case 'packed':
         return {
           label: 'Packed & Invoiced (पैक हो गया)',
           bg: 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/30',
           icon: Package,
         };
-      case 'Shipped':
+      case 'shipped':
         return {
           label: 'Dispatched / In Transit (रवाना हुआ)',
           bg: 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/30',
           icon: Truck,
         };
-      case 'Out for Delivery':
+      case 'out for delivery':
+      case 'out_for_delivery':
         return {
           label: 'Out for Delivery (डिलीवरी के लिए निकल चुका)',
           bg: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30',
           icon: Navigation,
         };
-      case 'Delivered':
+      case 'delivered':
         return {
           label: 'Delivered (सफलतापूर्वक डिलीवर)',
           bg: 'bg-green-600/15 text-green-700 dark:text-green-300 border-green-600/30',
           icon: CheckCircle,
         };
-      case 'Cancelled':
+      case 'cancelled':
         return {
           label: 'Cancelled (रद्द किया गया)',
           bg: 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/30',
           icon: AlertCircle,
         };
-      case 'Returned':
+      case 'returned':
+      case 'refunded':
         return {
           label: 'Returned (वापस प्राप्त हुआ)',
           bg: 'bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/30',
@@ -195,7 +212,7 @@ export const OrderTrackModal: React.FC<OrderTrackModalProps> = ({
         };
       default:
         return {
-          label: status,
+          label: status || 'Processing',
           bg: 'bg-zinc-500/10 text-zinc-600 border-zinc-500/30',
           icon: Clock,
         };
@@ -362,7 +379,7 @@ export const OrderTrackModal: React.FC<OrderTrackModalProps> = ({
                 </div>
 
                 {/* Progress Stepper Timeline */}
-                {selectedOrder.orderStatus !== 'Cancelled' && selectedOrder.orderStatus !== 'Returned' ? (
+                {getStepProgress(selectedOrder.orderStatus) > 0 ? (
                   <div className="py-2">
                     <div className="relative">
                       {/* Line connecting steps */}
@@ -415,7 +432,7 @@ export const OrderTrackModal: React.FC<OrderTrackModalProps> = ({
                       </div>
                     </div>
                   </div>
-                ) : selectedOrder.orderStatus === 'Cancelled' ? (
+                ) : (selectedOrder.orderStatus || '').toLowerCase().trim() === 'cancelled' ? (
                   <div className="p-3 bg-rose-50 dark:bg-rose-950/40 border border-rose-300 dark:border-rose-900 rounded-xl text-rose-700 dark:text-rose-300 text-xs font-semibold flex items-center gap-2">
                     <AlertCircle className="w-4 h-4 text-rose-500 flex-shrink-0" />
                     <span>Yeh order cancel ho gaya hai. Yadi aapko sahayata chahiye to Support Ticket raise karein.</span>
@@ -428,7 +445,7 @@ export const OrderTrackModal: React.FC<OrderTrackModalProps> = ({
                 )}
 
                 {/* Dispatch / Courier Details if Dispatched or Out for Delivery */}
-                {(selectedOrder.orderStatus === 'Shipped' || selectedOrder.orderStatus === 'Out for Delivery' || selectedOrder.dispatchedAt) && (
+                {(['shipped', 'out for delivery', 'out_for_delivery', 'delivered'].includes((selectedOrder.orderStatus || '').toLowerCase().trim()) || Boolean(selectedOrder.dispatchedAt)) && (
                   <div className="p-3.5 bg-emerald-50/80 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800 rounded-xl space-y-1.5 text-xs">
                     <div className="flex items-center gap-1.5 text-emerald-800 dark:text-emerald-300 font-bold">
                       <Truck className="w-4 h-4" />
@@ -611,10 +628,12 @@ export const OrderTrackModal: React.FC<OrderTrackModalProps> = ({
                 <AlertCircle className="w-6 h-6" />
               </div>
               <h4 className="font-brand font-bold text-base text-zinc-900 dark:text-white">
-                No Order Found for "{searchQuery}"
+                {searchError || `No Order Found for "${searchQuery}"`}
               </h4>
               <p className="text-xs text-zinc-500 max-w-sm mx-auto">
-                Kripya sahi Order ID (e.g. TV-849201) ya 10-digit Mobile Number daalein jo order karte waqt diya tha.
+                {searchError
+                  ? 'Yadi aapne phone ya account se order kiya tha, to Account section me login karke sabhi orders dekhein.'
+                  : 'Kripya sahi Order ID (e.g. TV-849201) ya 10-digit Mobile Number daalein jo order karte waqt diya tha.'}
               </p>
             </div>
           ) : (
