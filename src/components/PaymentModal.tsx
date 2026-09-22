@@ -31,6 +31,7 @@ import {
 } from 'lucide-react';
 import { WatchProduct, CartItem, StoreOrder, OrderItem } from '../types';
 import { saveOrderToFirestore } from '../lib/orderService';
+import { auth } from '../lib/firebase';
 import { BUSINESS_INFO } from '../data/watches';
 import { printInvoice } from '../lib/invoicePrinter';
 import { useCustomerAuth } from '../context/CustomerAuthContext';
@@ -276,6 +277,9 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
 
   // Step 4: Final Order Place Handler (Instantaneous 1-Click placement)
   const handleFinalOrderPlace = async () => {
+    // Guard against duplicate submission from rapid repeated clicks
+    if (isSubmitting) return;
+
     if (items.length === 0) {
       alert('Kripya kam se kam 1 ghadi select karein');
       setCurrentStep(1);
@@ -283,7 +287,8 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
     }
 
     // STRICT CUSTOMER PROFILE CHECK: Customer profile must exist to place order
-    if (!isLoggedIn || !customer) {
+    const authUid = auth.currentUser?.uid || customer?.uid;
+    if (!isLoggedIn || !customer || !authUid) {
       setFormErrors({
         profile: 'ऑर्डर करने के लिए कस्टमर प्रोफ़ाइल अनिवार्य है (Customer Profile Required). कृपया OTP द्वारा लॉगिन / प्रोफ़ाइल बनाएं।',
       });
@@ -296,6 +301,8 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
       return;
     }
 
+    // Reset previous submit error
+    setFormErrors((prev) => ({ ...prev, _form: undefined }));
     setIsSubmitting(true);
     const newOrderId = 'TV-' + Math.floor(100000 + Math.random() * 900000);
     const selectedPayType = paymentMethod === 'upi' ? 'upi_qr' : 'cod';
@@ -337,7 +344,8 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
 
     const orderData: StoreOrder = {
       id: orderId,
-      customerUid: customer?.uid,
+      customerUid: authUid,
+      customerId: authUid,
       customerName: customerName.trim(),
       customerPhone: customerPhone.trim(),
       customerEmail: customer?.email || '',
@@ -1303,6 +1311,14 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                     </span>
                   </div>
                 </div>
+
+                {/* Error Display */}
+                {formErrors._form && (
+                  <div className="p-3.5 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 rounded-2xl flex items-start gap-2.5 text-xs text-red-700 dark:text-red-300 animate-fadeIn">
+                    <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
+                    <span className="font-semibold leading-relaxed">{formErrors._form}</span>
+                  </div>
+                )}
 
                 {/* Navigation & Submit */}
                 <div className="space-y-2 pt-1">

@@ -153,6 +153,7 @@ export interface StoreOrder {
   courierTrackingNumber?: string;
   printCount?: number;
   customerUid?: string; // Links to CustomerProfile.uid
+  customerId?: string; // Strict compatibility with Firestore security rules
   orderDate?: string;
   timestamp?: any;
   billed?: boolean;

@@ -12,7 +12,7 @@ import { runTransaction,
   onSnapshot,
   Timestamp,
 } from 'firebase/firestore';
-import { db } from './firebase';
+import { db, auth } from './firebase';
 import { StoreOrder, SupportTicket, OrderStatusHistoryItem } from '../types';
 
 const ORDERS_COLLECTION = 'orders';
@@ -106,8 +106,13 @@ export async function saveOrderToFirestore(orderData: StoreOrder): Promise<void>
     },
   ];
 
+  // Ensure authenticated customer UID is set for both customerUid and customerId
+  const authUid = auth.currentUser?.uid || orderData.customerUid || orderData.customerId;
+
   const completeOrder: StoreOrder = {
     ...orderData,
+    customerUid: authUid,
+    customerId: authUid,
     orderStatus: 'Order Received' as any,
     orderDate,
     statusHistory: initialHistory,
@@ -118,41 +123,20 @@ export async function saveOrderToFirestore(orderData: StoreOrder): Promise<void>
     completeOrder.orderStatus = 'Order Received' as any;
   }
 
-  // Use Firestore transaction to safely decrement stock and create order
+  // Create order directly in Firestore /orders collection without unauthorized /products stock updates
   try {
-    await runTransaction(db, async (transaction) => {
-      // 1. Read product stocks for all items
-      for (const item of completeOrder.items) {
-        if (!item.productId) continue;
-        const productRef = doc(db, 'products', item.productId);
-        const productDoc = await transaction.get(productRef);
-        
-        if (!productDoc.exists()) {
-          throw new Error(`Product ${item.name} is no longer available.`);
-        }
-        
-        const stock = productDoc.data().stock || 0;
-        if (stock < item.quantity) {
-          throw new Error(`Sorry, only ${stock} items left for ${item.name}.`);
-        }
-        
-        // Decrement stock safely
-        transaction.update(productRef, { stock: stock - item.quantity });
-      }
-
-      // 2. Create the order
-      const orderRef = doc(db, ORDERS_COLLECTION, completeOrder.id);
-      const cleanedData = cleanFirestoreData({
-        ...completeOrder,
-        createdAtFirestore: Timestamp.now(),
-      });
-      transaction.set(orderRef, cleanedData);
+    const orderRef = doc(db, ORDERS_COLLECTION, completeOrder.id);
+    const cleanedData = cleanFirestoreData({
+      ...completeOrder,
+      createdAtFirestore: Timestamp.now(),
     });
+
+    await setDoc(orderRef, cleanedData);
     
     // Save locally for quick access
     updateLocalOrderCaches(completeOrder);
   } catch (error: any) {
-    console.error("Order Transaction Failed: ", error);
+    console.error("Order Creation Failed: ", error);
     throw error;
   }
 }
