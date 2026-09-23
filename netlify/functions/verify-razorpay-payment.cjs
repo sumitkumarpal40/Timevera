@@ -1,4 +1,5 @@
 const crypto = require('crypto');
+const Razorpay = require('razorpay');
 const { initializeApp, getApps, cert } = require('firebase-admin/app');
 const { getFirestore, Timestamp } = require('firebase-admin/firestore');
 
@@ -69,7 +70,69 @@ exports.handler = async (event) => {
       return { statusCode: 400, headers, body: JSON.stringify({ error: 'Invalid signature' }) };
     }
 
-    // Signature verified — save order to Firestore
+    // Signature verified — fetch payment status from Razorpay API
+    const keyId = process.env.RAZORPAY_KEY_ID;
+    const keySecret = process.env.RAZORPAY_KEY_SECRET;
+
+    if (!keyId || !keySecret) {
+      return { statusCode: 500, headers, body: JSON.stringify({ error: 'Razorpay server credentials not configured' }) };
+    }
+
+    const razorpay = new Razorpay({
+      key_id: keyId,
+      key_secret: keySecret,
+    });
+
+    let payment;
+    try {
+      payment = await razorpay.payments.fetch(razorpay_payment_id);
+    } catch (fetchErr) {
+      console.error('Failed to fetch payment details from Razorpay:', fetchErr);
+      return {
+        statusCode: 400,
+        headers,
+        body: JSON.stringify({ error: 'Unable to verify payment with payment gateway' }),
+      };
+    }
+
+    // Reject order_id mismatch
+    if (payment.order_id && payment.order_id !== razorpay_order_id) {
+      return {
+        statusCode: 400,
+        headers,
+        body: JSON.stringify({ error: 'Payment gateway order ID mismatch' }),
+      };
+    }
+
+    // Ensure payment is captured
+    let paymentStatusState = payment.status;
+    if (paymentStatusState === 'authorized') {
+      try {
+        const capturedPayment = await razorpay.payments.capture(
+          razorpay_payment_id,
+          payment.amount,
+          payment.currency || 'INR'
+        );
+        paymentStatusState = capturedPayment.status;
+      } catch (captureErr) {
+        console.error('Failed to capture authorized payment:', captureErr);
+        return {
+          statusCode: 400,
+          headers,
+          body: JSON.stringify({ error: 'Payment capture failed. Order cannot be marked Paid.' }),
+        };
+      }
+    }
+
+    if (paymentStatusState !== 'captured') {
+      return {
+        statusCode: 400,
+        headers,
+        body: JSON.stringify({ error: `Payment is not captured (status: ${paymentStatusState}). Order cannot be created.` }),
+      };
+    }
+
+    // Signature verified and payment captured — save order to Firestore
     const orderId = orderData.id || `TV-${Date.now()}`;
     const now = new Date().toISOString();
 

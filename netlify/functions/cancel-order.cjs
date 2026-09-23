@@ -306,30 +306,71 @@ exports.handler = async (event) => {
 
     const refundAmountPaise = Math.round(Number(orderData.totalAmount) * 100);
 
-    // Call Razorpay refund API FIRST (do NOT modify inventory or order status before refund succeeds)
-    let refundResult;
+    // Fetch actual payment status from Razorpay API first
+    let paymentDetails;
     try {
-      refundResult = await razorpay.payments.refund(orderData.razorpayPaymentId, {
-        amount: refundAmountPaise,
-        notes: {
-          orderId: orderData.id,
-          reason: reason || 'Customer cancellation before dispatch',
-        },
-      });
-      console.log('Razorpay refund initiated successfully:', refundResult.id);
-    } catch (rzpErr) {
-      console.error('Razorpay refund API call failed:', rzpErr);
-      const errMsg = rzpErr?.error?.description || rzpErr?.message || 'Razorpay refund execution failed';
+      paymentDetails = await razorpay.payments.fetch(orderData.razorpayPaymentId);
+    } catch (fetchErr) {
+      console.error('Failed to fetch payment details from Razorpay:', fetchErr);
+      const errMsg = fetchErr?.error?.description || fetchErr?.message || 'Unable to retrieve payment status from gateway';
       return {
         statusCode: 502,
         headers,
         body: JSON.stringify({
-          error: `Razorpay refund failed: ${errMsg}`,
+          error: `Razorpay payment verification failed: ${errMsg}`,
         }),
       };
     }
 
-    // Refund API succeeded. Now execute atomic Firestore transaction for inventory & order finalization.
+    const paymentState = (paymentDetails?.status || '').toLowerCase();
+    let refundResult = { id: null };
+    let isAuthorizedUncaptured = false;
+    let isAlreadyRefunded = false;
+
+    if (paymentState === 'authorized') {
+      // Payment was authorized but never captured — no funds were debited by merchant.
+      // Uncaptured payments cannot be refunded via payments.refund(). Release safely without refund API call.
+      console.log(`Payment ${orderData.razorpayPaymentId} is authorized (uncaptured). Skipping refund call.`);
+      isAuthorizedUncaptured = true;
+    } else if (paymentState === 'refunded') {
+      // Payment was already refunded at Razorpay.
+      console.log(`Payment ${orderData.razorpayPaymentId} is already refunded at gateway.`);
+      isAlreadyRefunded = true;
+      refundResult.id = orderData.razorpayRefundId || `existing_refund_${orderData.razorpayPaymentId}`;
+    } else if (paymentState === 'captured') {
+      // Call Razorpay refund API FIRST (do NOT modify inventory or order status before refund succeeds)
+      try {
+        refundResult = await razorpay.payments.refund(orderData.razorpayPaymentId, {
+          amount: refundAmountPaise,
+          notes: {
+            orderId: orderData.id,
+            reason: reason || 'Customer cancellation before dispatch',
+          },
+        });
+        console.log('Razorpay refund initiated successfully:', refundResult.id);
+      } catch (rzpErr) {
+        console.error('Razorpay refund API call failed:', rzpErr);
+        const errMsg = rzpErr?.error?.description || rzpErr?.message || 'Razorpay refund execution failed';
+        return {
+          statusCode: 502,
+          headers,
+          body: JSON.stringify({
+            error: `Razorpay refund failed: ${errMsg}`,
+          }),
+        };
+      }
+    } else {
+      // Handles 'failed', 'created', etc.
+      return {
+        statusCode: 400,
+        headers,
+        body: JSON.stringify({
+          error: `Cannot process refund for payment in state '${paymentState}'. Please contact customer support.`,
+        }),
+      };
+    }
+
+    // Payment step completed. Now execute atomic Firestore transaction for inventory & order finalization.
     let finalInventoryStatus = 'pending_deduction';
 
     try {
@@ -378,20 +419,33 @@ exports.handler = async (event) => {
 
         finalInventoryStatus = newInvStatus;
 
+        let statusNote = '';
+        let targetPaymentStatus = 'Refund Pending';
+
+        if (isAuthorizedUncaptured) {
+          statusNote = 'Order cancelled by customer. Payment was authorized but not captured; authorization released with no charge.';
+          targetPaymentStatus = 'Cancelled';
+        } else if (isAlreadyRefunded) {
+          statusNote = `Order cancelled by customer. Payment was already refunded at gateway (Refund ID: ${refundResult.id}).`;
+          targetPaymentStatus = 'Refunded';
+        } else {
+          statusNote = `Order cancelled by customer. 100% refund of ₹${freshOrder.totalAmount} initiated via Razorpay (Refund ID: ${refundResult.id}). Will credit to source account in 2-4 working days.`;
+          targetPaymentStatus = 'Refund Pending';
+        }
+
         const updatedHistory = [
           ...(freshOrder.statusHistory || []),
           {
             status: 'Cancelled',
             timestamp: nowIso,
-            note: `Order cancelled by customer. 100% refund of ₹${freshOrder.totalAmount} initiated via Razorpay (Refund ID: ${refundResult.id}). Will credit to source account in 2-4 working days.`,
+            note: statusNote,
             updatedBy: 'Customer',
           },
         ];
 
-        transaction.update(orderDocRef, {
+        const updateFields = {
           orderStatus: 'Cancelled',
-          paymentStatus: 'Refund Pending',
-          razorpayRefundId: refundResult.id,
+          paymentStatus: targetPaymentStatus,
           refundAmount: Number(freshOrder.totalAmount),
           refundInitiatedAt: nowIso,
           inventoryStatus: newInvStatus,
@@ -399,36 +453,46 @@ exports.handler = async (event) => {
           cancelledAt: nowIso,
           cancellationReason: reason || 'Customer cancellation',
           updatedAt: nowIso,
-        });
+        };
+
+        if (refundResult.id) {
+          updateFields.razorpayRefundId = refundResult.id;
+        }
+
+        transaction.update(orderDocRef, updateFields);
       });
     } catch (txErr) {
-      console.error('Firestore transaction failed after Razorpay refund succeeded:', txErr);
-      // Emergency recovery: Save the refund ID on the order document so retry cannot trigger duplicate refunds
+      console.error('Firestore transaction failed after Razorpay payment handling:', txErr);
+      // Emergency recovery: Save state on order document so retry cannot cause inconsistency
       try {
         await orderDocRef.update({
           orderStatus: 'Cancelled',
-          paymentStatus: 'Refund Pending',
-          razorpayRefundId: refundResult.id,
+          paymentStatus: isAuthorizedUncaptured ? 'Cancelled' : 'Refund Pending',
+          ...(refundResult.id ? { razorpayRefundId: refundResult.id } : {}),
           refundAmount: Number(orderData.totalAmount),
           refundInitiatedAt: nowIso,
           updatedAt: nowIso,
           statusHistory: FieldValue.arrayUnion({
             status: 'Cancelled',
             timestamp: nowIso,
-            note: `Refund ID ${refundResult.id} created via Razorpay, but inventory restoration encountered a transaction error (${txErr.message}). Manual review required.`,
+            note: isAuthorizedUncaptured
+              ? `Order marked cancelled for uncaptured authorization, but inventory restoration encountered a transaction error (${txErr.message}).`
+              : `Refund ID ${refundResult.id} created via Razorpay, but inventory restoration encountered a transaction error (${txErr.message}). Manual review required.`,
             updatedBy: 'System Recovery',
           }),
         });
       } catch (emergencyErr) {
-        console.error('Emergency update failed after refund creation:', emergencyErr);
+        console.error('Emergency update failed after payment handling:', emergencyErr);
       }
 
       return {
         statusCode: 500,
         headers,
         body: JSON.stringify({
-          error: `Refund was successfully initiated with Razorpay (Refund ID: ${refundResult.id}), but database finalization encountered an error. Please do not retry. Contact customer support.`,
-          refundId: refundResult.id,
+          error: isAuthorizedUncaptured
+            ? 'Order cancellation completed, but database inventory finalization encountered an error. Please contact customer support.'
+            : `Refund was successfully initiated with Razorpay (Refund ID: ${refundResult.id}), but database finalization encountered an error. Please do not retry. Contact customer support.`,
+          refundId: refundResult.id || null,
         }),
       };
     }
@@ -438,10 +502,14 @@ exports.handler = async (event) => {
       headers,
       body: JSON.stringify({
         success: true,
-        message: 'Order cancelled and refund initiated successfully via Razorpay',
-        refundId: refundResult.id,
+        message: isAuthorizedUncaptured
+          ? 'Order cancelled successfully (payment authorization released)'
+          : isAlreadyRefunded
+          ? 'Order cancelled successfully (payment was already refunded)'
+          : 'Order cancelled and refund initiated successfully via Razorpay',
+        refundId: refundResult.id || null,
         orderStatus: 'Cancelled',
-        paymentStatus: 'Refund Pending',
+        paymentStatus: isAuthorizedUncaptured ? 'Cancelled' : isAlreadyRefunded ? 'Refunded' : 'Refund Pending',
         inventoryStatus: finalInventoryStatus,
       }),
     };

@@ -129,6 +129,7 @@ exports.handler = async (event) => {
       amount: finalAmount * 100, // paise
       currency: 'INR',
       receipt: `TV-${Date.now()}`,
+      payment_capture: 1, // Ensures immediate auto-capture upon customer authorization
       notes: {
         source: 'TIMEVERA Customer App',
       },

@@ -86,10 +86,10 @@ service cloud.firestore {
     }
 
     match /customer_profiles/{profileId} {
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated();
-      allow update: if isAuthenticated();
-      allow delete: if false;
+      allow read: if isOwner() || hasPermission('customers.view') || (isAuthenticated() && request.auth.uid == profileId);
+      allow create: if isOwner() || hasPermission('customers.create') || (isAuthenticated() && request.auth.uid == profileId);
+      allow update: if isOwner() || hasPermission('customers.update') || (isAuthenticated() && request.auth.uid == profileId);
+      allow delete: if isOwner() || hasPermission('customers.delete');
     }
 
     match /orders/{orderId} {
@@ -98,26 +98,45 @@ service cloud.firestore {
       allow create: if isOwner() || hasPermission('orders.create')
                     || (isAuthenticated() && (request.resource.data.get('customerUid', '') == request.auth.uid || request.resource.data.get('customerId', '') == request.auth.uid));
       allow update: if isOwner() || hasPermission('orders.update')
-                    || (isAuthenticated() && (resource.data.get('customerUid', '') == request.auth.uid || resource.data.get('customerId', '') == request.auth.uid));
+                    || (
+                      isAuthenticated()
+                      && (resource.data.get('customerUid', '') == request.auth.uid || resource.data.get('customerId', '') == request.auth.uid)
+                      && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['orderStatus', 'cancelledAt', 'cancellationReason', 'statusHistory', 'updatedAt'])
+                      && request.resource.data.get('orderStatus', '') == 'Cancelled'
+                      && resource.data.get('orderStatus', '') in ['Order Received', 'Confirmed', 'Packed', 'Pending']
+                      && request.resource.data.get('customerUid', '') == resource.data.get('customerUid', '')
+                      && request.resource.data.get('customerId', '') == resource.data.get('customerId', '')
+                      && request.resource.data.get('totalAmount', 0) == resource.data.get('totalAmount', 0)
+                      && request.resource.data.get('paymentStatus', '') == resource.data.get('paymentStatus', '')
+                    );
       allow delete: if isOwner() || hasPermission('orders.delete');
     }
 
     match /support_tickets/{ticketId} {
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated();
-      allow update: if isAuthenticated();
-      allow delete: if isOwner();
+      allow read: if isOwner() || hasPermission('support.view')
+                  || (isAuthenticated() && (resource.data.get('customerUid', '') == request.auth.uid || resource.data.get('customerId', '') == request.auth.uid));
+      allow create: if isOwner() || hasPermission('support.create')
+                    || (isAuthenticated() && (request.resource.data.get('customerUid', '') == request.auth.uid || request.resource.data.get('customerId', '') == request.auth.uid));
+      allow update: if isOwner() || hasPermission('support.update')
+                    || (isAuthenticated() && (resource.data.get('customerUid', '') == request.auth.uid || resource.data.get('customerId', '') == request.auth.uid));
+      allow delete: if isOwner() || hasPermission('support.delete');
+
       match /messages/{messageId} {
-        allow read: if isAuthenticated();
-        allow create: if isAuthenticated();
-        allow update, delete: if isOwner();
+        allow read: if isOwner() || hasPermission('support.view')
+                    || (isAuthenticated() && (get(/databases/$(database)/documents/support_tickets/$(ticketId)).data.get('customerUid', '') == request.auth.uid || get(/databases/$(database)/documents/support_tickets/$(ticketId)).data.get('customerId', '') == request.auth.uid));
+        allow create: if isOwner() || hasPermission('support.update')
+                     || (isAuthenticated() && (get(/databases/$(database)/documents/support_tickets/$(ticketId)).data.get('customerUid', '') == request.auth.uid || get(/databases/$(database)/documents/support_tickets/$(ticketId)).data.get('customerId', '') == request.auth.uid));
+        allow update, delete: if isOwner() || hasPermission('support.update');
       }
     }
 
     match /support_notifications/{notifId} {
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated();
-      allow update: if isAuthenticated();
+      allow read: if isOwner() || hasPermission('support.view')
+                  || (isAuthenticated() && (resource.data.get('customerUid', '') == request.auth.uid || resource.data.get('customerId', '') == request.auth.uid));
+      allow create: if isOwner() || hasPermission('support.create')
+                    || (isAuthenticated() && (request.resource.data.get('customerUid', '') == request.auth.uid || request.resource.data.get('customerId', '') == request.auth.uid));
+      allow update: if isOwner() || hasPermission('support.update')
+                    || (isAuthenticated() && (resource.data.get('customerUid', '') == request.auth.uid || resource.data.get('customerId', '') == request.auth.uid));
       allow delete: if isOwner();
     }
 
