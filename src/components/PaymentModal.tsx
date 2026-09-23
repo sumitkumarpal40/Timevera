@@ -139,9 +139,9 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
   }, [isOpen, customer]);
 
 
-  // Payment Method Selection ('upi' = 1-Tap Online UPI Apps, 'cod' = Cash on Delivery)
+  // Payment Method Selection ('upi' = Pay Online / Razorpay, 'cod' = Cash on Delivery)
   const [paymentMethod, setPaymentMethod] = useState<'upi' | 'cod'>('cod');
-  const [hasTriggeredUpi, setHasTriggeredUpi] = useState(false);
+  const [razorpayLoading, setRazorpayLoading] = useState(false);
 
   // Validation errors
   const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
@@ -231,51 +231,211 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
     return Object.keys(errors).length === 0;
   };
 
-  // Direct UPI App Deep-link Launcher (Opens GPay, PhonePe, Paytm with exact pre-filled amount)
-  const handleLaunchUpiApp = (appType: 'any' | 'gpay' | 'phonepe' | 'paytm' = 'any') => {
-    const tempOrderId = placedOrder?.id || 'TV-' + Math.floor(100000 + Math.random() * 900000);
-    const note = `Timevera Watch Order ${tempOrderId}`;
-    const cleanUpiId = BUSINESS_INFO.upiId.trim();
-    const cleanName = BUSINESS_INFO.name.trim();
+  // Razorpay Checkout Handler
+  const handleRazorpayPayment = async () => {
+    setFormErrors({});
 
-    // Universal UPI link with exact order amount
-    const upiUri = `upi://pay?pa=${encodeURIComponent(cleanUpiId)}&pn=${encodeURIComponent(
-      cleanName
-    )}&am=${totalAmount}&cu=INR&tn=${encodeURIComponent(note)}`;
+    // Validate delivery details first
+    if (!validateStep2()) {
+      setCurrentStep(2);
+      return;
+    }
 
-    setHasTriggeredUpi(true);
+    if (!isLoggedIn || !customer) {
+      openLoginModal();
+      return;
+    }
+
+    if (orderItems.length === 0) {
+      alert('Kripya kam se kam 1 ghadi select karein');
+      setCurrentStep(1);
+      return;
+    }
+
+    setRazorpayLoading(true);
 
     try {
-      if (appType === 'gpay') {
-        window.location.href = `tez://upi/pay?pa=${encodeURIComponent(cleanUpiId)}&pn=${encodeURIComponent(
-          cleanName
-        )}&am=${totalAmount}&cu=INR&tn=${encodeURIComponent(note)}`;
-        setTimeout(() => {
-          window.location.href = upiUri;
-        }, 800);
-      } else if (appType === 'phonepe') {
-        window.location.href = `phonepe://pay?pa=${encodeURIComponent(cleanUpiId)}&pn=${encodeURIComponent(
-          cleanName
-        )}&am=${totalAmount}&cu=INR&tn=${encodeURIComponent(note)}`;
-        setTimeout(() => {
-          window.location.href = upiUri;
-        }, 800);
-      } else if (appType === 'paytm') {
-        window.location.href = `paytmmp://pay?pa=${encodeURIComponent(cleanUpiId)}&pn=${encodeURIComponent(
-          cleanName
-        )}&am=${totalAmount}&cu=INR&tn=${encodeURIComponent(note)}`;
-        setTimeout(() => {
-          window.location.href = upiUri;
-        }, 800);
-      } else {
-        window.location.href = upiUri;
+      // STEP 1: Create Razorpay order via backend
+      const items = orderItems.map((it) => ({
+        productId: it.productId || it.id,
+        quantity: Math.max(1, Number(it.quantity) || 1),
+      }));
+
+      const createResponse = await fetch('/.netlify/functions/create-razorpay-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          items,
+          couponCode: activeCoupon?.code || null,
+        }),
+      });
+
+      const createData = await createResponse.json();
+
+      if (!createData.success) {
+        throw new Error(createData.error || 'Failed to create Razorpay order');
       }
-    } catch (e) {
-      window.location.href = upiUri;
+
+      // STEP 2: Open Razorpay checkout
+      const options = {
+        key: createData.keyId,
+        amount: createData.amountInPaise,
+        currency: 'INR',
+        name: 'TIMEVERA WATCH',
+        description: `Order for ${items.length} item(s)`,
+        order_id: createData.razorpayOrderId,
+        handler: async function (response: any) {
+          // STEP 3: Verify payment
+          try {
+            setRazorpayLoading(true);
+
+            const orderId = 'TV-' + Math.random().toString(36).substr(2, 6).toUpperCase();
+            const now = new Date().toISOString();
+
+            const sanitizedItems = createData.verifiedItems.map((vi: any) => ({
+              productId: vi.productId,
+              id: vi.productId,
+              name: vi.name,
+              productName: vi.name,
+              price: vi.price,
+              unitPrice: vi.unitPrice,
+              quantity: vi.quantity,
+              image: vi.image,
+              total: vi.total,
+              totalPrice: vi.total,
+            }));
+
+            const firstItem = sanitizedItems[0] || {};
+            const totalQty = sanitizedItems.reduce((acc: number, it: any) => acc + (it.quantity || 1), 0);
+
+            const orderData = {
+              id: orderId,
+              customerUid: customer.uid,
+              customerId: customer.uid,
+              customerName: customerName.trim(),
+              customerPhone: customerPhone.trim(),
+              customerEmail: customer?.email || '',
+              customerAddress: customerAddress.trim(),
+              customerCity: customerCity.trim(),
+              customerPincode: customerPincode.trim(),
+              items: sanitizedItems,
+              productId: firstItem.productId || firstItem.id || '',
+              productName: sanitizedItems.length === 1 ? firstItem.name : sanitizedItems.map((i: any) => `${i.name} (x${i.quantity})`).join(', '),
+              productImage: firstItem.image || '',
+              quantity: totalQty,
+              productPrice: Number(firstItem.price) || 0,
+              price: Number(firstItem.price) || 0,
+              unitPrice: Number(firstItem.price) || 0,
+              subtotal: createData.subtotal,
+              subtotalAmount: createData.subtotal,
+              discount: createData.couponDiscount,
+              discountAmount: createData.couponDiscount,
+              couponCode: activeCoupon?.code || undefined,
+              couponDiscount: createData.couponDiscount > 0 ? createData.couponDiscount : undefined,
+              deliveryCharge: createData.deliveryCharge,
+              shipping: createData.deliveryCharge,
+              finalAmount: createData.finalAmount,
+              totalAmount: createData.finalAmount,
+              grandTotal: createData.finalAmount,
+              paymentMethod: 'Prepaid',
+              paymentStatus: 'Paid',
+              orderStatus: 'Order Received',
+              inventoryStatus: 'pending_deduction',
+              createdAt: now,
+              orderDate: now.split('T')[0],
+              timestamp: Date.now(),
+              notes: 'PREPAID ORDER (Razorpay)',
+            };
+
+            const verifyResponse = await fetch('/.netlify/functions/verify-razorpay-payment', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+                orderData,
+              }),
+            });
+
+            const verifyData = await verifyResponse.json();
+
+            if (!verifyData.success) {
+              throw new Error(verifyData.error || 'Payment verification failed');
+            }
+
+            // Sync customer address profile
+            if (isLoggedIn && customer) {
+              let newAddresses = customer.addresses ? [...customer.addresses] : [];
+              const isExisting = newAddresses.some(
+                a => a.address.toLowerCase() === customerAddress.trim().toLowerCase() && 
+                     a.pincode === customerPincode.trim()
+              );
+              
+              if (!isExisting) {
+                newAddresses.push({
+                  id: 'addr_' + Date.now().toString(),
+                  fullName: customerName.trim(),
+                  phone: customerPhone.trim(),
+                  address: customerAddress.trim(),
+                  city: customerCity.trim(),
+                  state: customerCity.trim(),
+                  pincode: customerPincode.trim(),
+                  isDefault: newAddresses.length === 0,
+                });
+              }
+              
+              updateProfile({
+                fullName: customerName.trim(),
+                address: customerAddress.trim(),
+                city: customerCity.trim(),
+                pincode: customerPincode.trim(),
+                addresses: newAddresses
+              }).catch((e) => console.warn('Customer profile sync error:', e));
+            }
+
+            // Success!
+            orderData.id = verifyData.orderId;
+            setPlacedOrder(orderData as any);
+            setIsSubmitting(false);
+            setIsSubmitted(true);
+            setRazorpayLoading(false);
+            if (onOrderSuccess) {
+              onOrderSuccess();
+            }
+
+          } catch (err: any) {
+            console.error('Verification error:', err);
+            setFormErrors({ _form: err.message || 'Payment verification failed. Please contact support.' });
+            setRazorpayLoading(false);
+          }
+        },
+        prefill: {
+          name: customerName.trim() || customer?.fullName || '',
+          email: customer?.email || '',
+          contact: customerPhone.trim() || customer?.phone || '',
+        },
+        theme: {
+          color: '#D4AF37',
+        },
+        modal: {
+          ondismiss: function () {
+            setRazorpayLoading(false);
+          },
+        },
+      };
+
+      const rzp = new (window as any).Razorpay(options);
+      rzp.open();
+
+    } catch (error: any) {
+      console.error('Razorpay error:', error);
+      setFormErrors({ _form: error.message || 'Failed to start payment. Please try again.' });
+      setRazorpayLoading(false);
     }
   };
 
-  // Step 4: Final Order Place Handler (Instantaneous 1-Click placement)
+  // Step 4: Final Order Place Handler (Instantaneous 1-Click placement for COD)
   const handleFinalOrderPlace = async () => {
     // Guard against duplicate submission from rapid repeated clicks
     if (isSubmitting) return;
@@ -383,8 +543,6 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
       notes: isOnline ? 'PREPAID ORDER (Online)' : 'CASH ON DELIVERY (COD)',
     };
 
-
-    
     try {
       // 1. Await secure server-side transaction and rules validation
       await saveOrderToFirestore(orderData);
@@ -422,6 +580,9 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
       setPlacedOrder(orderData);
       setIsSubmitting(false);
       setIsSubmitted(true);
+      if (onOrderSuccess) {
+        onOrderSuccess();
+      }
     } catch (err: any) {
       console.error("Order failed:", err);
       setFormErrors({ _form: err.message || 'Failed to place order due to server validation.' });
@@ -1090,7 +1251,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                   </span>
                 </div>
 
-                {/* Option 1: Online UPI */}
+                {/* Option 1: Online Razorpay */}
                 <div
                   onClick={() => setPaymentMethod('upi')}
                   className={`p-2.5 sm:p-4 rounded-xl sm:rounded-2xl border cursor-pointer transition-all ${
@@ -1102,17 +1263,17 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <div className="p-1.5 sm:p-2 bg-emerald-600 text-white rounded-lg sm:rounded-xl">
-                        <Smartphone className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                        <CreditCard className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                       </div>
                       <div>
                         <div className="text-[11px] sm:text-xs font-extrabold text-neutral-900 dark:text-white flex items-center gap-1 sm:gap-1.5">
-                          <span>Pay Online (Instant UPI App)</span>
+                          <span>Pay Online (Prepaid)</span>
                           <span className="px-1 sm:px-1.5 py-0.5 bg-emerald-600 text-white text-[8px] sm:text-[9px] font-black uppercase rounded">
                             Fast Dispatch
                           </span>
                         </div>
                         <p className="text-[10px] sm:text-[11px] text-neutral-500 dark:text-neutral-400 mt-0.5">
-                          Google Pay, PhonePe, Paytm (Pre-filled Amount)
+                          Cards, UPI, NetBanking, Wallets (Secure Razorpay)
                         </p>
                       </div>
                     </div>
@@ -1123,68 +1284,30 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                     </div>
                   </div>
 
-                  {/* UPI App Direct Launch Buttons */}
+                  {/* Razorpay 1-Click Pay Button in Step 3 */}
                   {paymentMethod === 'upi' && (
-                    <div className="mt-2.5 pt-2.5 border-t border-emerald-500/20 space-y-1.5 sm:space-y-2">
-                      <p className="text-[10px] sm:text-[11px] text-emerald-800 dark:text-emerald-300 font-bold">
-                        Pay with 1-Tap from your phone (₹{totalAmount} pre-filled):
+                    <div className="mt-2.5 pt-2.5 border-t border-emerald-500/20 space-y-2">
+                      <button
+                        type="button"
+                        disabled={razorpayLoading}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleRazorpayPayment();
+                        }}
+                        className="w-full py-2.5 sm:py-3 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-extrabold text-xs sm:text-sm rounded-xl shadow-md flex items-center justify-center gap-2 transition-all cursor-pointer"
+                      >
+                        {razorpayLoading ? (
+                          <span>Processing...</span>
+                        ) : (
+                          <>
+                            <CreditCard className="w-4 h-4" />
+                            <span>Pay ₹{(Number(totalAmount) || 0).toLocaleString('en-IN')} with Razorpay</span>
+                          </>
+                        )}
+                      </button>
+                      <p className="text-[10px] text-center text-neutral-500 dark:text-neutral-400 font-medium">
+                        🔒 Powered by <strong className="text-neutral-800 dark:text-neutral-200">Razorpay</strong> • 100% Safe & Secure
                       </p>
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2">
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleLaunchUpiApp('gpay');
-                          }}
-                          className="p-1.5 sm:p-2 bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 rounded-lg sm:rounded-xl text-white text-[10px] sm:text-[11px] font-bold flex items-center justify-center gap-1 sm:gap-1.5 shadow active:scale-95 cursor-pointer"
-                        >
-                          <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
-                          <span>Google Pay</span>
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleLaunchUpiApp('phonepe');
-                          }}
-                          className="p-1.5 sm:p-2 bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 rounded-lg sm:rounded-xl text-white text-[10px] sm:text-[11px] font-bold flex items-center justify-center gap-1 sm:gap-1.5 shadow active:scale-95 cursor-pointer"
-                        >
-                          <span className="w-1.5 h-1.5 rounded-full bg-purple-500"></span>
-                          <span>PhonePe</span>
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleLaunchUpiApp('paytm');
-                          }}
-                          className="p-1.5 sm:p-2 bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 rounded-lg sm:rounded-xl text-white text-[10px] sm:text-[11px] font-bold flex items-center justify-center gap-1 sm:gap-1.5 shadow active:scale-95 cursor-pointer"
-                        >
-                          <span className="w-1.5 h-1.5 rounded-full bg-cyan-500"></span>
-                          <span>Paytm</span>
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleLaunchUpiApp('any');
-                          }}
-                          className="p-1.5 sm:p-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg sm:rounded-xl text-[10px] sm:text-[11px] font-bold flex items-center justify-center gap-1 shadow active:scale-95 cursor-pointer"
-                        >
-                          <ExternalLink className="w-3 h-3" />
-                          <span>Any UPI</span>
-                        </button>
-                      </div>
-
-                      {hasTriggeredUpi && (
-                        <div className="p-2 bg-emerald-950/70 border border-emerald-500/50 rounded-lg sm:rounded-xl text-[10px] sm:text-[11px] text-emerald-300 flex items-center gap-1 sm:gap-1.5">
-                          <Check className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-emerald-400 flex-shrink-0" />
-                          <span>UPI App launched. Complete payment and confirm your order in Step 4.</span>
-                        </div>
-                      )}
                     </div>
                   )}
                 </div>
@@ -1286,7 +1409,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                     <div>
                       <span className="text-[9px] sm:text-[10px] uppercase font-bold text-neutral-500">Payment Option:</span>
                       <p className="font-extrabold text-neutral-900 dark:text-white text-[10px] sm:text-xs">
-                        {paymentMethod === 'upi' ? 'Online UPI (Prepaid)' : 'Cash on Delivery (COD)'}
+                        {paymentMethod === 'upi' ? 'Pay Online (Razorpay)' : 'Cash on Delivery (COD)'}
                       </p>
                     </div>
                     <span
@@ -1321,36 +1444,49 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
 
                 {/* Navigation & Submit */}
                 <div className="space-y-1.5 sm:space-y-2 pt-0.5">
-                  <button
-                    type="button"
-                    disabled={isSubmitting}
-                    onClick={handleFinalOrderPlace}
-                    className={`w-full py-2.5 sm:py-4 font-extrabold text-[11px] sm:text-sm uppercase tracking-wider rounded-xl sm:rounded-2xl shadow-xl flex items-center justify-center gap-1.5 sm:gap-2 transition-all transform active:scale-98 cursor-pointer disabled:opacity-50 ${
-                      !isLoggedIn || !customer
-                        ? 'bg-amber-400 hover:bg-amber-300 text-neutral-950 font-black'
-                        : paymentMethod === 'upi'
-                        ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
-                        : 'bg-neutral-900 dark:bg-amber-400 hover:bg-neutral-800 dark:hover:bg-amber-300 text-white dark:text-neutral-950'
-                    }`}
-                  >
-                    {!isLoggedIn || !customer ? (
-                      <>
-                        <Lock className="w-4 h-4 sm:w-5 sm:h-5" />
-                        <span>Login / Create Profile to Place Order (OTP)</span>
-                        <ArrowRight className="w-4 h-4" />
-                      </>
-                    ) : (
-                      <>
-                        <Package className="w-4 h-4 sm:w-5 sm:h-5" />
-                        <span>
-                          {isSubmitting
-                            ? 'Placing Order in System...'
-                            : `Confirm & Place Order (₹${(Number(totalAmount) || 0).toLocaleString('en-IN')})`}
-                        </span>
-                        <ArrowRight className="w-4 h-4" />
-                      </>
-                    )}
-                  </button>
+                  {!isLoggedIn || !customer ? (
+                    <button
+                      type="button"
+                      onClick={() => openLoginModal()}
+                      className="w-full py-2.5 sm:py-4 font-extrabold text-[11px] sm:text-sm uppercase tracking-wider rounded-xl sm:rounded-2xl shadow-xl flex items-center justify-center gap-1.5 sm:gap-2 transition-all transform active:scale-98 cursor-pointer bg-amber-400 hover:bg-amber-300 text-neutral-950 font-black"
+                    >
+                      <Lock className="w-4 h-4 sm:w-5 sm:h-5" />
+                      <span>Login / Create Profile to Place Order (OTP)</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
+                  ) : paymentMethod === 'upi' ? (
+                    <button
+                      type="button"
+                      disabled={razorpayLoading}
+                      onClick={handleRazorpayPayment}
+                      className="w-full py-2.5 sm:py-4 font-extrabold text-[11px] sm:text-sm uppercase tracking-wider rounded-xl sm:rounded-2xl shadow-xl flex items-center justify-center gap-1.5 sm:gap-2 transition-all transform active:scale-98 cursor-pointer disabled:opacity-50 bg-emerald-600 hover:bg-emerald-700 text-white"
+                    >
+                      {razorpayLoading ? (
+                        <span>Processing...</span>
+                      ) : (
+                        <>
+                          <CreditCard className="w-4 h-4 sm:w-5 sm:h-5" />
+                          <span>Pay ₹{(Number(totalAmount) || 0).toLocaleString('en-IN')} with Razorpay</span>
+                          <ArrowRight className="w-4 h-4" />
+                        </>
+                      )}
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      disabled={isSubmitting}
+                      onClick={handleFinalOrderPlace}
+                      className="w-full py-2.5 sm:py-4 font-extrabold text-[11px] sm:text-sm uppercase tracking-wider rounded-xl sm:rounded-2xl shadow-xl flex items-center justify-center gap-1.5 sm:gap-2 transition-all transform active:scale-98 cursor-pointer disabled:opacity-50 bg-neutral-900 dark:bg-amber-400 hover:bg-neutral-800 dark:hover:bg-amber-300 text-white dark:text-neutral-950"
+                    >
+                      <Package className="w-4 h-4 sm:w-5 sm:h-5" />
+                      <span>
+                        {isSubmitting
+                          ? 'Placing Order in System...'
+                          : `Confirm & Place Order (COD) - ₹${(Number(totalAmount) || 0).toLocaleString('en-IN')}`}
+                      </span>
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
+                  )}
 
                   <button
                     type="button"
