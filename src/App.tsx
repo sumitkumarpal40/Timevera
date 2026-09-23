@@ -19,9 +19,12 @@ import { ThemeProvider } from './context/ThemeContext';
 import { CustomerAuthProvider, useCustomerAuth } from './context/CustomerAuthContext';
 import { CustomerLoginModal } from './components/CustomerLoginModal';
 import { CustomerAccountModal } from './components/CustomerAccountModal';
+import { useModalBackButton } from './hooks/useModalBackButton';
 
 import { WatchProduct, CartItem, Coupon } from './types';
-import { subscribeToProducts } from './lib/productInventoryService';
+import { subscribeToProducts, getProductById } from './lib/productInventoryService';
+import { db } from './lib/firebase';
+import { collection, query, where, getDocs, limit } from 'firebase/firestore';
 import { SlidersHorizontal, ShieldCheck, Filter, Sparkles } from 'lucide-react';
 
 function TimeveraStore() {
@@ -55,6 +58,22 @@ function TimeveraStore() {
   const [isLegalModalOpen, setIsLegalModalOpen] = useState(false);
   const [legalModalTab, setLegalModalTab] = useState<'privacy' | 'terms' | 'shipping' | 'refund' | 'cancellation' | 'contact'>('privacy');
 
+  // Back button handling for all local modals/drawers
+  useModalBackButton(isCartOpen, () => setIsCartOpen(false));
+  useModalBackButton(isPaymentOpen, () => {
+    setIsPaymentOpen(false);
+    setPaymentSingleProduct(null);
+    setPaymentSingleQuantity(1);
+  });
+  useModalBackButton(isOrderTrackOpen, () => {
+    setIsOrderTrackOpen(false);
+    setTrackOrderId('');
+  });
+  useModalBackButton(isFilterDrawerOpen, () => setIsFilterDrawerOpen(false));
+  useModalBackButton(isLegalModalOpen, () => setIsLegalModalOpen(false));
+  useModalBackButton(isInstallAppOpen, () => setIsInstallAppOpen(false));
+  useModalBackButton(quickViewProduct !== null, () => setQuickViewProduct(null));
+
   const handleOpenLegal = (tab?: 'privacy' | 'terms' | 'shipping' | 'refund' | 'cancellation' | 'contact') => {
     if (tab) setLegalModalTab(tab);
     setIsLegalModalOpen(true);
@@ -62,9 +81,47 @@ function TimeveraStore() {
 
   // Check URL hash for tracking links (e.g. #track or #orders) -> Redirect to Customer Account
   useEffect(() => {
-    const handleCheckHash = () => {
+    const handleCheckHash = async () => {
       const hash = window.location.hash;
-      if (hash.startsWith('#track') || hash === '#my-orders') {
+      if (!hash) return;
+
+      if (hash.startsWith('#p/')) {
+        const shortCode = decodeURIComponent(hash.substring(3)).trim();
+        if (shortCode) {
+          try {
+            // First check if it's a direct ID (for backwards compatibility with existing links)
+            const directProduct = await getProductById(shortCode);
+            if (directProduct) {
+              setQuickViewProduct(directProduct);
+              return;
+            }
+
+            // Otherwise query by shortCode
+            const q = query(
+              collection(db, 'products'),
+              where('shortCode', '==', shortCode),
+              limit(1)
+            );
+            const snapshot = await getDocs(q);
+            
+            if (!snapshot.empty) {
+              const docSnap = snapshot.docs[0];
+              const data = docSnap.data() as any;
+              const mrp = Number(data.price) || 0;
+              const sellingPrice = Number(data.discountPrice) > 0 ? Number(data.discountPrice) : mrp;
+              
+              setQuickViewProduct({ 
+                id: docSnap.id, 
+                ...data,
+                price: sellingPrice,
+                originalPrice: mrp,
+              } as WatchProduct);
+            }
+          } catch (err) {
+            console.error('Error handling shortCode deep link:', err);
+          }
+        }
+      } else if (hash.startsWith('#track') || hash === '#my-orders') {
         openAccountModal('orders');
       } else if (hash === '#wishlist') {
         openAccountModal('wishlist');
@@ -553,16 +610,16 @@ function TimeveraStore() {
 
         {/* Products Grid */}
         {isProductsLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 md:gap-3 lg:gap-4">
             {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
               <div
                 key={i}
-                className="bg-white dark:bg-[#141414] border border-zinc-200 dark:border-zinc-800 rounded-2xl p-4 animate-pulse space-y-4"
+                className="bg-white dark:bg-[#141414] border border-zinc-200 dark:border-zinc-800 rounded-xl p-3 animate-pulse space-y-3"
               >
-                <div className="w-full aspect-square bg-zinc-200 dark:bg-zinc-800 rounded-xl" />
-                <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-3/4" />
-                <div className="h-3 bg-zinc-200 dark:bg-zinc-800 rounded w-1/2" />
-                <div className="h-9 bg-zinc-200 dark:bg-zinc-800 rounded-xl" />
+                <div className="w-full aspect-square bg-zinc-200 dark:bg-zinc-800 rounded-lg" />
+                <div className="h-3 bg-zinc-200 dark:bg-zinc-800 rounded w-3/4" />
+                <div className="h-2.5 bg-zinc-200 dark:bg-zinc-800 rounded w-1/2" />
+                <div className="h-6 bg-zinc-200 dark:bg-zinc-800 rounded-lg" />
               </div>
             ))}
           </div>
@@ -595,7 +652,7 @@ function TimeveraStore() {
             )}
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 md:gap-3 lg:gap-4">
             {filteredProducts.map((product) => (
               <ProductCard
                 key={product.id}

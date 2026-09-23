@@ -139,7 +139,7 @@ export const TimeveraLogo: React.FC<TimeveraLogoProps> = ({
       {showText && (
         <div className="flex flex-col items-start justify-center">
           <div
-            className={`font-brand font-extrabold ${dim.text} tracking-[2.5px] sm:tracking-[3.5px] leading-none transition-colors ${
+            className={`font-brand font-extrabold ${dim.text} tracking-[1.5px] sm:tracking-[3px] leading-none transition-colors whitespace-nowrap ${
               isRed
                 ? 'text-[#E5C07B]'
                 : 'text-[#F8FAFC] group-hover:text-[#D4AF37]'
@@ -149,7 +149,7 @@ export const TimeveraLogo: React.FC<TimeveraLogoProps> = ({
           </div>
           {showTagline && (
             <span
-              className={`font-medium uppercase ${dim.sub} mt-1 leading-none text-[#D4AF37] tracking-[3px]`}
+              className="font-medium uppercase mt-1 leading-none text-[#D4AF37] whitespace-nowrap text-[6.5px] sm:text-[8px] md:text-[9px] tracking-[0.1em] sm:tracking-[0.2em]"
             >
               PRECISION • LUXURY • HERITAGE
             </span>

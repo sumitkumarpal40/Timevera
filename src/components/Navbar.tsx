@@ -77,7 +77,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         </a>
 
         {/* DESKTOP NAVIGATION */}
-        <nav className="hidden lg:flex items-center space-x-7 text-xs font-semibold uppercase tracking-wider">
+        <nav className="hidden md:flex items-center space-x-7 text-xs font-semibold uppercase tracking-wider">
           <button
             onClick={() => handleNavClick('home')}
             className="text-[#A7AFBF] hover:text-[#D4AF37] transition-colors py-1 cursor-pointer"
@@ -116,7 +116,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           {isLoggedIn ? (
             <button
               onClick={() => openAccountModal('orders')}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#131620] hover:bg-[#1A1E2B] text-[#E5C07B] text-xs font-semibold rounded-lg border border-[#D4AF37]/35 shadow-sm transition-all cursor-pointer"
+              className="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#131620] hover:bg-[#1A1E2B] text-[#E5C07B] text-xs font-semibold rounded-lg border border-[#D4AF37]/35 shadow-sm transition-all cursor-pointer"
               title="Customer Account & Orders"
             >
               <div className="w-4 h-4 rounded-full bg-[#D4AF37]/20 border border-[#D4AF37]/40 text-[#E5C07B] text-[10px] font-bold flex items-center justify-center">
@@ -130,7 +130,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           ) : (
             <button
               onClick={openLoginModal}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#131620] hover:bg-[#1A1E2B] text-[#F8FAFC] text-xs font-semibold rounded-lg border border-[#252A36] shadow-sm transition-all cursor-pointer"
+              className="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#131620] hover:bg-[#1A1E2B] text-[#F8FAFC] text-xs font-semibold rounded-lg border border-[#252A36] shadow-sm transition-all cursor-pointer"
               title="Customer Login"
             >
               <User className="w-3.5 h-3.5 text-[#D4AF37]" />
@@ -189,7 +189,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               if (onOpenWishlist) onOpenWishlist();
               else openAccountModal('wishlist');
             }}
-            className="relative p-1.5 sm:p-2 text-[#A7AFBF] hover:text-[#D4AF37] hover:bg-[#131620] rounded-lg transition-colors flex items-center cursor-pointer"
+            className="hidden md:flex relative p-1.5 sm:p-2 text-[#A7AFBF] hover:text-[#D4AF37] hover:bg-[#131620] rounded-lg transition-colors items-center cursor-pointer"
             title="View Wishlist"
           >
             <Heart className={`w-4 h-4 sm:w-4.5 sm:h-4.5 ${wishlist.length > 0 ? 'text-[#D4AF37] fill-[#D4AF37]' : ''}`} />

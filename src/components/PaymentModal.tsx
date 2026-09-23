@@ -430,40 +430,40 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 animate-fadeIn">
-      <div className="relative w-full max-w-lg bg-white dark:bg-[#111216] text-neutral-900 dark:text-neutral-100 rounded-3xl border border-neutral-200 dark:border-neutral-800 shadow-2xl overflow-hidden my-4">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/80 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 animate-fadeIn">
+      <div className="relative w-full max-w-lg bg-white dark:bg-[#111216] text-neutral-900 dark:text-neutral-100 rounded-2xl sm:rounded-3xl border border-neutral-200 dark:border-neutral-800 shadow-2xl overflow-hidden my-4">
         {/* Header */}
-        <div className="bg-neutral-900 dark:bg-[#16171d] border-b border-neutral-800 p-4 sm:p-5 text-white flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 bg-amber-400/10 border border-amber-400/20 rounded-xl">
-              <Zap className="w-5 h-5 text-amber-400 fill-amber-400" />
+        <div className="bg-neutral-900 dark:bg-[#16171d] border-b border-neutral-800 p-3 sm:p-5 text-white flex items-center justify-between">
+          <div className="flex items-center gap-2 sm:gap-2.5">
+            <div className="p-1.5 sm:p-2 bg-amber-400/10 border border-amber-400/20 rounded-lg sm:rounded-xl">
+              <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-amber-400 fill-amber-400" />
             </div>
             <div>
-              <h3 className="font-brand text-lg font-bold text-white tracking-wide">
+              <h3 className="font-brand text-base sm:text-lg font-bold text-white tracking-wide">
                 Timevera Checkout
               </h3>
-              <p className="text-[11px] text-neutral-400">
+              <p className="text-[10px] sm:text-[11px] text-neutral-400">
                 100% Genuine Quality • Fast Free Delivery • Secure System
               </p>
             </div>
           </div>
           <button
             onClick={handleResetAndClose}
-            className="p-1.5 text-neutral-400 hover:text-white rounded-full hover:bg-neutral-800 transition-colors cursor-pointer"
+            className="p-1 sm:p-1.5 text-neutral-400 hover:text-white rounded-full hover:bg-neutral-800 transition-colors cursor-pointer"
             aria-label="Close"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
         </div>
 
         {/* 4-Step Progress Indicator (Shown during checkout wizard) */}
         {!isSubmitted && (
-          <div className="bg-neutral-100 dark:bg-[#0d0e12] border-b border-neutral-200 dark:border-neutral-800/80 p-2.5">
-            <div className="grid grid-cols-4 gap-1 text-center text-[10px] font-bold uppercase tracking-wider">
+          <div className="bg-neutral-100 dark:bg-[#0d0e12] border-b border-neutral-200 dark:border-neutral-800/80 p-2 sm:p-2.5">
+            <div className="grid grid-cols-4 gap-1 sm:gap-2 text-center text-[9px] sm:text-[10px] font-bold uppercase tracking-wider">
               {/* Step 1 */}
               <div
                 onClick={() => setCurrentStep(1)}
-                className={`py-1.5 px-1 rounded-lg flex flex-col items-center gap-0.5 cursor-pointer transition-all ${
+                className={`py-1 sm:py-1.5 px-1 rounded-lg flex flex-col items-center gap-0.5 cursor-pointer transition-all ${
                   currentStep === 1
                     ? 'bg-amber-400 text-neutral-950 font-black shadow-sm'
                     : currentStep > 1
@@ -479,7 +479,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                 onClick={() => {
                   setCurrentStep(2);
                 }}
-                className={`py-1.5 px-1 rounded-lg flex flex-col items-center gap-0.5 cursor-pointer transition-all ${
+                className={`py-1 sm:py-1.5 px-1 rounded-lg flex flex-col items-center gap-0.5 cursor-pointer transition-all ${
                   currentStep === 2
                     ? 'bg-amber-400 text-neutral-950 font-black shadow-sm'
                     : currentStep > 2
@@ -496,7 +496,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                   if (validateStep2()) setCurrentStep(3);
                   else setCurrentStep(2);
                 }}
-                className={`py-1.5 px-1 rounded-lg flex flex-col items-center gap-0.5 cursor-pointer transition-all ${
+                className={`py-1 sm:py-1.5 px-1 rounded-lg flex flex-col items-center gap-0.5 cursor-pointer transition-all ${
                   currentStep === 3
                     ? 'bg-amber-400 text-neutral-950 font-black shadow-sm'
                     : currentStep > 3
@@ -513,7 +513,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                   if (validateStep2()) setCurrentStep(4);
                   else setCurrentStep(2);
                 }}
-                className={`py-1.5 px-1 rounded-lg flex flex-col items-center gap-0.5 cursor-pointer transition-all ${
+                className={`py-1 sm:py-1.5 px-1 rounded-lg flex flex-col items-center gap-0.5 cursor-pointer transition-all ${
                   currentStep === 4
                     ? 'bg-amber-400 text-neutral-950 font-black shadow-sm'
                     : 'text-neutral-400'
@@ -530,39 +530,39 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
           /* ========================================================= */
           /* SUCCESS SCREEN (ORDER PLACED)                             */
           /* ========================================================= */
-          <div className="p-5 sm:p-7 text-center space-y-4">
-            <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-950/60 border border-emerald-500/40 rounded-full flex items-center justify-center mx-auto text-emerald-600 dark:text-emerald-400 shadow-lg shadow-emerald-500/10">
-              <CheckCircle className="w-9 h-9" />
+          <div className="p-4 sm:p-7 text-center space-y-3 sm:space-y-4">
+            <div className="w-12 h-12 sm:w-16 sm:h-16 bg-emerald-100 dark:bg-emerald-950/60 border border-emerald-500/40 rounded-full flex items-center justify-center mx-auto text-emerald-600 dark:text-emerald-400 shadow-lg shadow-emerald-500/10">
+              <CheckCircle className="w-6 h-6 sm:w-9 sm:h-9" />
             </div>
 
-            <div className="space-y-1">
-              <span className="text-xs font-extrabold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">
+            <div className="space-y-0.5 sm:space-y-1">
+              <span className="text-[10px] sm:text-xs font-extrabold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">
                 Order Confirmed Successfully
               </span>
-              <h3 className="font-brand font-bold text-2xl text-neutral-900 dark:text-white">
+              <h3 className="font-brand font-bold text-lg sm:text-xl md:text-2xl text-neutral-900 dark:text-white">
                 Thank You, {placedOrder.customerName}!
               </h3>
-              <p className="text-xs text-neutral-600 dark:text-neutral-400">
-                Order ID <strong className="text-amber-600 dark:text-amber-300 font-mono text-sm">{placedOrder.id}</strong> has been registered.
+              <p className="text-[11px] sm:text-xs text-neutral-600 dark:text-neutral-400">
+                Order ID <strong className="text-amber-600 dark:text-amber-300 font-mono text-xs sm:text-sm">{placedOrder.id}</strong> has been registered.
               </p>
             </div>
 
             {/* Order Card */}
-            <div className="p-4 bg-neutral-50 dark:bg-[#15161c] border border-neutral-200 dark:border-neutral-800 rounded-2xl text-xs space-y-3 text-left shadow-sm">
+            <div className="p-2.5 sm:p-4 bg-neutral-50 dark:bg-[#15161c] border border-neutral-200 dark:border-neutral-800 rounded-xl sm:rounded-2xl text-[11px] sm:text-xs space-y-2 sm:space-y-3 text-left shadow-sm">
               <div className="flex items-center justify-between border-b border-neutral-200 dark:border-neutral-800 pb-2">
                 <span className="text-neutral-500 font-semibold uppercase">Total Bill:</span>
-                <span className="font-black text-lg text-neutral-900 dark:text-amber-200 font-mono">
+                <span className="font-black text-base sm:text-lg text-neutral-900 dark:text-amber-200 font-mono">
                   ₹{(Number(placedOrder.totalAmount) || 0).toLocaleString('en-IN')}
                 </span>
               </div>
 
               {/* PAYMENT TYPE BADGE (PREPAID OR COD) */}
-              <div className="flex items-center justify-between py-2 px-3 bg-neutral-100 dark:bg-[#0c0d10] rounded-xl border border-neutral-200 dark:border-neutral-800/80">
-                <span className="font-bold uppercase text-[11px] text-neutral-600 dark:text-neutral-400">
+              <div className="flex items-center justify-between py-1.5 sm:py-2 px-2.5 sm:px-3 bg-neutral-100 dark:bg-[#0c0d10] rounded-lg sm:rounded-xl border border-neutral-200 dark:border-neutral-800/80">
+                <span className="font-bold uppercase text-[9px] sm:text-[11px] text-neutral-600 dark:text-neutral-400">
                   Payment Status:
                 </span>
                 <span
-                  className={`px-3 py-1 text-xs font-black rounded-full uppercase font-mono tracking-wider ${
+                  className={`px-2 py-0.5 sm:px-3 sm:py-1 text-[10px] sm:text-xs font-black rounded-full uppercase font-mono tracking-wider ${
                     placedOrder.paymentMethod === 'upi_qr'
                       ? 'bg-emerald-600 text-white shadow-sm'
                       : 'bg-amber-400 text-neutral-950 shadow-sm'
@@ -572,21 +572,21 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                 </span>
               </div>
 
-              <div className="space-y-1.5 text-neutral-600 dark:text-neutral-400 pt-1">
-                <div className="flex items-start gap-1.5">
-                  <MapPin className="w-3.5 h-3.5 text-amber-500 mt-0.5 flex-shrink-0" />
+              <div className="space-y-1 text-neutral-600 dark:text-neutral-400 pt-0.5">
+                <div className="flex items-start gap-1 sm:gap-1.5">
+                  <MapPin className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-amber-500 mt-0.5 flex-shrink-0" />
                   <span className="text-neutral-800 dark:text-neutral-200 font-medium">
                     {placedOrder.customerAddress}, {placedOrder.customerCity} - <strong>{placedOrder.customerPincode}</strong>
                   </span>
                 </div>
-                <div className="flex items-center gap-1.5">
-                  <Phone className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0" />
+                <div className="flex items-center gap-1 sm:gap-1.5">
+                  <Phone className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-emerald-500 flex-shrink-0" />
                   <span className="text-neutral-800 dark:text-neutral-200 font-mono font-bold">
                     {placedOrder.customerPhone}
                   </span>
                 </div>
-                <div className="flex items-center gap-1.5">
-                  <Truck className="w-3.5 h-3.5 text-amber-500 flex-shrink-0" />
+                <div className="flex items-center gap-1 sm:gap-1.5">
+                  <Truck className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-amber-500 flex-shrink-0" />
                   <span className="text-neutral-800 dark:text-neutral-200 font-medium">
                     {placedOrder.paymentMethod === 'upi_qr'
                       ? 'Prepaid Order: Priority Dispatch'
@@ -597,7 +597,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
             </div>
 
             {/* Quick Actions: Track Order, Print Bill & Continue */}
-            <div className="space-y-2 pt-2">
+            <div className="space-y-1.5 sm:space-y-2 pt-1">
               {onOpenTrackOrder && (
                 <button
                   type="button"
@@ -606,27 +606,27 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                     handleResetAndClose();
                     onOpenTrackOrder(ordId);
                   }}
-                  className="w-full py-3.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 shadow-md cursor-pointer transition-all"
+                  className="w-full py-2 px-3 sm:py-3.5 sm:px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1.5 sm:gap-2 shadow-md cursor-pointer transition-all"
                 >
-                  <Truck className="w-4 h-4 text-amber-300" />
+                  <Truck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-300" />
                   <span>Track This Order Live</span>
                 </button>
               )}
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 sm:gap-2">
                 <button
                   type="button"
                   onClick={() => printInvoice(placedOrder, 'thermal_slip')}
-                  className="py-3 px-4 bg-neutral-900 dark:bg-[#1d1f27] hover:bg-neutral-800 text-white border border-neutral-700 rounded-xl text-xs font-bold flex items-center justify-center gap-2 cursor-pointer shadow transition-all"
+                  className="py-2 px-3 sm:py-3 sm:px-4 bg-neutral-900 dark:bg-[#1d1f27] hover:bg-neutral-800 text-white border border-neutral-700 rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-bold flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer shadow transition-all"
                 >
-                  <Printer className="w-4 h-4 text-amber-400" />
+                  <Printer className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-400" />
                   <span>Print Slip</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={handleResetAndClose}
-                  className="py-3 px-4 bg-amber-400 hover:bg-amber-300 text-neutral-950 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 shadow cursor-pointer transition-all"
+                  className="py-2 px-3 sm:py-3 sm:px-4 bg-amber-400 hover:bg-amber-300 text-neutral-950 rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 sm:gap-2 shadow cursor-pointer transition-all"
                 >
                   <span>Continue Shopping</span>
                 </button>
@@ -637,67 +637,67 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
           /* ========================================================= */
           /* 4-STEP WIZARD CHECKOUT FORM                               */
           /* ========================================================= */
-          <div className="p-4 sm:p-6 space-y-4">
+          <div className="p-2.5 sm:p-6 space-y-3 sm:space-y-4">
             {/* STEP 1: ORDER & PRODUCT SUMMARY */}
             {currentStep === 1 && (
-              <div className="space-y-4 animate-fadeIn">
+              <div className="space-y-3 sm:space-y-4 animate-fadeIn">
                 <div className="flex items-center justify-between border-b border-neutral-200 dark:border-neutral-800 pb-2">
-                  <h4 className="text-xs font-extrabold uppercase tracking-wider text-neutral-700 dark:text-neutral-300 flex items-center gap-1.5">
-                    <ShoppingBag className="w-4 h-4 text-amber-500" />
+                  <h4 className="text-[11px] sm:text-xs font-extrabold uppercase tracking-wider text-neutral-700 dark:text-neutral-300 flex items-center gap-1 sm:gap-1.5">
+                    <ShoppingBag className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-500" />
                     <span>Step 1: Order Summary</span>
                   </h4>
-                  <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded">
+                  <span className="text-[10px] sm:text-[11px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-1.5 sm:px-2 py-0.5 rounded">
                     Free Delivery
                   </span>
                 </div>
 
                 {/* Items List with Interactive Quantity Adjustment */}
                 {items.length === 0 ? (
-                  <div className="p-6 text-center text-neutral-500 bg-neutral-50 dark:bg-[#15161c] rounded-2xl border border-dashed border-neutral-300 dark:border-neutral-800">
-                    <p className="text-xs font-semibold">No watches selected in order.</p>
+                  <div className="p-4 sm:p-6 text-center text-neutral-500 bg-neutral-50 dark:bg-[#15161c] rounded-xl sm:rounded-2xl border border-dashed border-neutral-300 dark:border-neutral-800">
+                    <p className="text-[11px] sm:text-xs font-semibold">No watches selected in order.</p>
                   </div>
                 ) : (
-                  <div className="space-y-2.5 max-h-64 overflow-y-auto pr-1">
+                  <div className="space-y-2 max-h-56 sm:max-h-64 overflow-y-auto pr-1">
                     {items.map((it, idx) => (
                       <div
                         key={idx}
-                        className="p-3 bg-neutral-50 dark:bg-[#15161c] border border-neutral-200 dark:border-neutral-800/80 rounded-2xl flex items-center justify-between gap-3 shadow-sm"
+                        className="p-2.5 sm:p-3 bg-neutral-50 dark:bg-[#15161c] border border-neutral-200 dark:border-neutral-800/80 rounded-xl sm:rounded-2xl flex items-center justify-between gap-2.5 sm:gap-3 shadow-sm"
                       >
-                        <div className="flex items-center gap-3 min-w-0 flex-1">
+                        <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
                           <img
                             src={it.image}
                             alt={it.name}
-                            className="w-12 h-14 object-cover rounded-xl border border-neutral-200 dark:border-neutral-700 bg-black flex-shrink-0"
+                            className="w-10 h-12 sm:w-12 sm:h-14 object-cover rounded-lg sm:rounded-xl border border-neutral-200 dark:border-neutral-700 bg-black flex-shrink-0"
                             referrerPolicy="no-referrer"
                           />
                           <div className="min-w-0 flex-1">
-                            <p className="text-xs font-bold text-neutral-900 dark:text-white truncate">
+                            <p className="text-[11px] sm:text-xs font-bold text-neutral-900 dark:text-white truncate">
                               {it.name}
                             </p>
-                            <p className="text-[11px] text-neutral-500 dark:text-neutral-400 mb-1.5">
-                              ₹{(Number(it.price) || 0).toLocaleString('en-IN')} / piece
+                            <p className="text-[10px] sm:text-[11px] text-neutral-500 dark:text-neutral-400 mb-1 sm:mb-1.5">
+                              ₹{(Number(it.price) || 0).toLocaleString('en-IN')} / pc
                             </p>
 
                             {/* In-Checkout Quantity Stepper */}
-                            <div className="flex items-center gap-2">
-                              <span className="text-[10px] text-neutral-400 font-semibold">Qty:</span>
-                              <div className="flex items-center border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-[#0c0d10] rounded-lg overflow-hidden">
+                            <div className="flex items-center gap-1.5 sm:gap-2">
+                              <span className="text-[9px] sm:text-[10px] text-neutral-400 font-semibold">Qty:</span>
+                              <div className="flex items-center border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-[#0c0d10] rounded-md sm:rounded-lg overflow-hidden">
                                 <button
                                   type="button"
                                   onClick={() => handleUpdateItemQty(idx, it.quantity - 1)}
-                                  className="px-2 py-1 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-800 transition-colors cursor-pointer"
+                                  className="px-1.5 py-0.5 sm:px-2 sm:py-1 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-800 transition-colors cursor-pointer"
                                 >
-                                  <Minus className="w-3 h-3" />
+                                  <Minus className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                                 </button>
-                                <span className="px-2.5 text-xs font-bold text-neutral-900 dark:text-white">
+                                <span className="px-1.5 sm:px-2.5 text-[11px] sm:text-xs font-bold text-neutral-900 dark:text-white">
                                   {it.quantity}
                                 </span>
                                 <button
                                   type="button"
                                   onClick={() => handleUpdateItemQty(idx, it.quantity + 1)}
-                                  className="px-2 py-1 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-800 transition-colors cursor-pointer"
+                                  className="px-1.5 py-0.5 sm:px-2 sm:py-1 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-800 transition-colors cursor-pointer"
                                 >
-                                  <Plus className="w-3 h-3" />
+                                  <Plus className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                                 </button>
                               </div>
 
@@ -708,18 +708,18 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                                   className="p-1 text-neutral-400 hover:text-rose-500 rounded transition-colors cursor-pointer"
                                   title="Remove"
                                 >
-                                  <Trash2 className="w-3.5 h-3.5" />
+                                  <Trash2 className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                                 </button>
                               )}
                             </div>
                           </div>
                         </div>
 
-                        <div className="text-right flex-shrink-0 pl-2">
-                          <p className="text-sm font-black text-neutral-900 dark:text-amber-200 font-mono">
+                        <div className="text-right flex-shrink-0 pl-1.5">
+                          <p className="text-xs sm:text-sm font-black text-neutral-900 dark:text-amber-200 font-mono">
                             ₹{((Number(it.price) || 0) * (Number(it.quantity) || 1)).toLocaleString('en-IN')}
                           </p>
-                          <span className="text-[10px] text-neutral-400">
+                          <span className="text-[9px] sm:text-[10px] text-neutral-400">
                             ({it.quantity} {it.quantity === 1 ? 'pc' : 'pcs'})
                           </span>
                         </div>
@@ -730,15 +730,15 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
 
                 {/* Merge other Bag items banner if available */}
                 {singleProduct && cartItems.length > 0 && cartItems.some((ci) => !items.some((it) => it.name === ci.product.name)) && (
-                  <div className="p-2.5 bg-amber-50 dark:bg-amber-950/30 border border-amber-300 dark:border-amber-800 rounded-xl flex items-center justify-between gap-2 text-xs">
-                    <div className="flex items-center gap-1.5 text-amber-800 dark:text-amber-300">
-                      <ShoppingBag className="w-4 h-4 flex-shrink-0 text-amber-500" />
+                  <div className="p-2 bg-amber-50 dark:bg-amber-950/30 border border-amber-300 dark:border-amber-800 rounded-lg sm:rounded-xl flex items-center justify-between gap-1.5 text-[11px] sm:text-xs">
+                    <div className="flex items-center gap-1 text-amber-800 dark:text-amber-300">
+                      <ShoppingBag className="w-3.5 h-3.5 flex-shrink-0 text-amber-500" />
                       <span>{cartItems.length} other items in bag</span>
                     </div>
                     <button
                       type="button"
                       onClick={handleMergeCartItems}
-                      className="px-2.5 py-1 bg-amber-400 hover:bg-amber-300 text-neutral-950 font-bold rounded-lg text-[11px] transition-colors cursor-pointer flex-shrink-0"
+                      className="px-2 py-0.5 bg-amber-400 hover:bg-amber-300 text-neutral-950 font-bold rounded text-[10px] sm:text-[11px] transition-colors cursor-pointer flex-shrink-0"
                     >
                       + Add All
                     </button>
@@ -746,40 +746,40 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                 )}
 
                 {/* Total Bill Row */}
-                <div className="p-3.5 bg-neutral-100 dark:bg-[#15161c] border border-neutral-200 dark:border-neutral-800 rounded-2xl flex items-center justify-between">
+                <div className="p-2.5 sm:p-3.5 bg-neutral-100 dark:bg-[#15161c] border border-neutral-200 dark:border-neutral-800 rounded-xl sm:rounded-2xl flex items-center justify-between">
                   <div>
-                    <span className="text-xs text-neutral-500 uppercase font-bold">
+                    <span className="text-[10px] sm:text-xs text-neutral-500 uppercase font-bold">
                       Total Items ({items.reduce((s, it) => s + it.quantity, 0)} pcs):
                     </span>
-                    <p className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold">
+                    <p className="text-[10px] sm:text-xs text-emerald-600 dark:text-emerald-400 font-semibold">
                       ✓ Free Express Delivery included
                     </p>
                   </div>
                   <div className="text-right">
-                    <span className="text-xl font-black text-neutral-900 dark:text-amber-200 font-mono">
+                    <span className="text-lg sm:text-xl font-black text-neutral-900 dark:text-amber-200 font-mono">
                       ₹{(Number(totalAmount) || 0).toLocaleString('en-IN')}
                     </span>
                   </div>
                 </div>
 
                 {/* Benefits */}
-                <div className="grid grid-cols-2 gap-2 text-[11px] text-neutral-600 dark:text-neutral-400 pt-1">
-                  <div className="flex items-center gap-1.5 bg-neutral-100 dark:bg-[#15161c] p-2 rounded-xl border border-neutral-200 dark:border-neutral-800">
-                    <ShieldCheck className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                <div className="grid grid-cols-2 gap-1.5 sm:gap-2 text-[10px] sm:text-[11px] text-neutral-600 dark:text-neutral-400 pt-0.5">
+                  <div className="flex items-center gap-1 sm:gap-1.5 bg-neutral-100 dark:bg-[#15161c] p-1.5 sm:p-2 rounded-lg sm:rounded-xl border border-neutral-200 dark:border-neutral-800">
+                    <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-500 flex-shrink-0" />
                     <span>100% Genuine Watch</span>
                   </div>
-                  <div className="flex items-center gap-1.5 bg-neutral-100 dark:bg-[#15161c] p-2 rounded-xl border border-neutral-200 dark:border-neutral-800">
-                    <Truck className="w-4 h-4 text-amber-500 flex-shrink-0" />
+                  <div className="flex items-center gap-1 sm:gap-1.5 bg-neutral-100 dark:bg-[#15161c] p-1.5 sm:p-2 rounded-lg sm:rounded-xl border border-neutral-200 dark:border-neutral-800">
+                    <Truck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-500 flex-shrink-0" />
                     <span>Free Home Delivery</span>
                   </div>
                 </div>
 
                 {/* Profile Status Banner & Step 1 Proceed Button */}
                 {!isLoggedIn || !customer ? (
-                  <div className="space-y-2 pt-1">
-                    <div className="p-3 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/60 rounded-2xl flex items-start gap-2.5 text-xs">
-                      <ShieldAlert className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
-                      <div className="space-y-1 text-amber-900 dark:text-amber-300 text-[11px] leading-tight">
+                  <div className="space-y-1.5 sm:space-y-2 pt-0.5">
+                    <div className="p-2 sm:p-3 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/60 rounded-xl sm:rounded-2xl flex items-start gap-2 text-xs">
+                      <ShieldAlert className="w-4 h-4 sm:w-5 sm:h-5 text-amber-500 flex-shrink-0 mt-0.5" />
+                      <div className="space-y-0.5 text-amber-900 dark:text-amber-300 text-[10px] sm:text-[11px] leading-tight">
                         <strong className="block text-xs font-bold text-amber-700 dark:text-amber-400">
                           Customer Profile Required
                         </strong>
@@ -792,31 +792,31 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                     <button
                       type="button"
                       onClick={() => openLoginModal()}
-                      className="w-full py-3.5 bg-amber-400 hover:bg-amber-300 text-neutral-950 font-bold text-xs uppercase tracking-wider rounded-xl shadow flex items-center justify-center gap-2 transition-all cursor-pointer"
+                      className="w-full py-2.5 sm:py-3.5 bg-amber-400 hover:bg-amber-300 text-neutral-950 font-bold text-[10px] sm:text-xs uppercase tracking-wider rounded-lg sm:rounded-xl shadow flex items-center justify-center gap-1.5 sm:gap-2 transition-all cursor-pointer"
                     >
-                      <Lock className="w-4 h-4" />
+                      <Lock className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                       <span>Step 1: Login / Create Profile (OTP)</span>
-                      <ArrowRight className="w-4 h-4" />
+                      <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                     </button>
 
                     <button
                       type="button"
                       onClick={() => setCurrentStep(2)}
-                      className="w-full py-2 text-[11px] text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-300 font-semibold cursor-pointer text-center"
+                      className="w-full py-1.5 text-[10px] sm:text-[11px] text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-300 font-semibold cursor-pointer text-center"
                     >
                       Or proceed to view delivery form ➔
                     </button>
                   </div>
                 ) : (
-                  <div className="space-y-2 pt-1">
-                    <div className="p-2.5 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/80 rounded-2xl flex items-center justify-between gap-2 text-xs">
-                      <div className="flex items-center gap-2">
-                        <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
-                        <span className="text-emerald-900 dark:text-emerald-300 text-[11px] font-semibold">
+                  <div className="space-y-1.5 sm:space-y-2 pt-0.5">
+                    <div className="p-2 sm:p-2.5 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/80 rounded-xl sm:rounded-2xl flex items-center justify-between gap-1.5 text-xs">
+                      <div className="flex items-center gap-1.5">
+                        <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
+                        <span className="text-emerald-900 dark:text-emerald-300 text-[10px] sm:text-[11px] font-semibold">
                           Profile: <strong>{customer.fullName || 'Customer'}</strong> (+91-{customer.phone})
                         </span>
                       </div>
-                      <span className="text-[9px] bg-emerald-600 text-white font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider">
+                      <span className="text-[8px] sm:text-[9px] bg-emerald-600 text-white font-extrabold px-1.5 sm:px-2 py-0.5 rounded-full uppercase tracking-wider">
                         Verified
                       </span>
                     </div>
@@ -824,10 +824,10 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                     <button
                       type="button"
                       onClick={() => setCurrentStep(2)}
-                      className="w-full py-3.5 bg-neutral-900 dark:bg-amber-400 hover:bg-neutral-800 dark:hover:bg-amber-300 text-white dark:text-neutral-950 font-extrabold text-xs uppercase tracking-wider rounded-xl shadow flex items-center justify-center gap-2 transition-all cursor-pointer"
+                      className="w-full py-2.5 sm:py-3.5 bg-neutral-900 dark:bg-amber-400 hover:bg-neutral-800 dark:hover:bg-amber-300 text-white dark:text-neutral-950 font-extrabold text-[10px] sm:text-xs uppercase tracking-wider rounded-lg sm:rounded-xl shadow flex items-center justify-center gap-1.5 sm:gap-2 transition-all cursor-pointer"
                     >
                       <span>Step 2: Delivery Address & Details</span>
-                      <ArrowRight className="w-4 h-4" />
+                      <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                     </button>
                   </div>
                 )}
@@ -836,10 +836,10 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
 
             {/* STEP 2: DELIVERY ADDRESS & DETAILS */}
             {currentStep === 2 && (
-              <div className="space-y-3.5 animate-fadeIn">
+              <div className="space-y-3 sm:space-y-3.5 animate-fadeIn">
                 <div className="flex items-center justify-between border-b border-neutral-200 dark:border-neutral-800 pb-2">
-                  <h4 className="text-xs font-extrabold uppercase tracking-wider text-neutral-700 dark:text-neutral-300 flex items-center gap-1.5">
-                    <MapPin className="w-4 h-4 text-amber-500" />
+                  <h4 className="text-[11px] sm:text-xs font-extrabold uppercase tracking-wider text-neutral-700 dark:text-neutral-300 flex items-center gap-1 sm:gap-1.5">
+                    <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-500" />
                     <span>Step 2: Delivery Details</span>
                   </h4>
                   <span className="text-[10px] text-neutral-400">* All Fields Required</span>
@@ -847,25 +847,25 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
 
                 {/* Customer Account Status / Auto-fill Banner */}
                 {isLoggedIn && customer ? (
-                  <div className="space-y-3">
-                    <div className="p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/80 rounded-2xl flex items-center justify-between gap-2 text-xs">
-                      <div className="flex items-center gap-2">
-                        <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
-                        <span className="text-emerald-900 dark:text-emerald-300 text-[11px] font-semibold">
+                  <div className="space-y-2.5 sm:space-y-3">
+                    <div className="p-2 sm:p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/80 rounded-xl sm:rounded-2xl flex items-center justify-between gap-1.5 sm:gap-2 text-xs">
+                      <div className="flex items-center gap-1.5 sm:gap-2">
+                        <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
+                        <span className="text-emerald-900 dark:text-emerald-300 text-[10px] sm:text-[11px] font-semibold">
                           Logged in as <strong>{customer.fullName || 'Customer'}</strong> (+91-{customer.phone})
                         </span>
                       </div>
-                      <span className="text-[10px] bg-emerald-600 text-white font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider whitespace-nowrap">
+                      <span className="text-[8px] sm:text-[10px] bg-emerald-600 text-white font-extrabold px-1.5 sm:px-2 py-0.5 rounded-full uppercase tracking-wider whitespace-nowrap">
                         Auto-Filled
                       </span>
                     </div>
                     {customer.addresses && customer.addresses.length > 0 && (
-                      <div className="space-y-2">
-                        <label className="block text-xs font-bold text-neutral-700 dark:text-neutral-300">
+                      <div className="space-y-1 sm:space-y-2">
+                        <label className="block text-[10px] sm:text-xs font-bold text-neutral-700 dark:text-neutral-300">
                           Select from Saved Addresses:
                         </label>
                         <select
-                          className="w-full px-3 py-2 bg-white dark:bg-[#0c0d10] border border-neutral-300 dark:border-neutral-700 rounded-xl text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none text-neutral-900 dark:text-white"
+                          className="w-full px-2 sm:px-3 py-1.5 sm:py-2 bg-white dark:bg-[#0c0d10] border border-neutral-300 dark:border-neutral-700 rounded-lg sm:rounded-xl text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none text-neutral-900 dark:text-white"
                           onChange={(e) => {
                             const addrId = e.target.value;
                             if (addrId) {
@@ -897,9 +897,9 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                     )}
                   </div>
                 ) : (
-                  <div className="p-3 bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-700/80 rounded-2xl space-y-2 text-xs">
-                    <div className="flex items-start gap-2 text-amber-900 dark:text-amber-300 text-[11px]">
-                      <ShieldAlert className="w-4 h-4 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+                  <div className="p-2.5 sm:p-3 bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-700/80 rounded-xl sm:rounded-2xl space-y-1.5 sm:space-y-2 text-xs">
+                    <div className="flex items-start gap-1.5 sm:gap-2 text-amber-900 dark:text-amber-300 text-[10px] sm:text-[11px]">
+                      <ShieldAlert className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
                       <div>
                         <strong className="block text-amber-800 dark:text-amber-300 font-bold">
                           Customer Profile Required to Place Order:
@@ -912,29 +912,29 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                     <button
                       type="button"
                       onClick={openLoginModal}
-                      className="w-full py-2.5 bg-amber-400 hover:bg-amber-300 text-neutral-950 text-xs font-bold rounded-xl uppercase tracking-wider cursor-pointer shadow flex items-center justify-center gap-1.5 transition-all"
+                      className="w-full py-2 sm:py-2.5 bg-amber-400 hover:bg-amber-300 text-neutral-950 text-[10px] sm:text-xs font-bold rounded-lg sm:rounded-xl uppercase tracking-wider cursor-pointer shadow flex items-center justify-center gap-1 sm:gap-1.5 transition-all"
                     >
-                      <Lock className="w-3.5 h-3.5" />
+                      <Lock className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                       <span>Verify Mobile OTP & Create Profile</span>
                     </button>
                   </div>
                 )}
 
                 {formErrors.profile && (
-                  <div className="p-2.5 bg-rose-500/10 border border-rose-500/40 rounded-xl text-rose-500 text-xs flex items-center gap-2 font-semibold">
-                    <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                  <div className="p-2 sm:p-2.5 bg-rose-500/10 border border-rose-500/40 rounded-lg sm:rounded-xl text-rose-500 text-[11px] sm:text-xs flex items-center gap-1.5 sm:gap-2 font-semibold">
+                    <AlertCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
                     <span>{formErrors.profile}</span>
                   </div>
                 )}
 
                 {/* Name & Phone */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
                   <div>
-                    <label className="block text-[11px] font-bold text-neutral-700 dark:text-neutral-300 mb-1">
+                    <label className="block text-[10px] sm:text-[11px] font-bold text-neutral-700 dark:text-neutral-300 mb-1">
                       Full Name *
                     </label>
                     <div className="relative">
-                      <User className="w-4 h-4 text-neutral-400 absolute left-3 top-2.5" />
+                      <User className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-neutral-400 absolute left-2.5 sm:left-3 top-2 sm:top-2.5" />
                       <input
                         type="text"
                         placeholder="e.g. Rahul Sharma"
@@ -943,22 +943,22 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                           setCustomerName(e.target.value);
                           if (formErrors.name) setFormErrors({ ...formErrors, name: '' });
                         }}
-                        className={`w-full pl-9 pr-3 py-2 bg-white dark:bg-[#0c0d10] border rounded-xl text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none text-neutral-900 dark:text-white ${
+                        className={`w-full pl-8 sm:pl-9 pr-2.5 sm:pr-3 py-1.5 sm:py-2 bg-white dark:bg-[#0c0d10] border rounded-lg sm:rounded-xl text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none text-neutral-900 dark:text-white ${
                           formErrors.name ? 'border-rose-500 ring-1 ring-rose-500' : 'border-neutral-300 dark:border-neutral-700'
                         }`}
                       />
                     </div>
                     {formErrors.name && (
-                      <p className="text-[10px] text-rose-500 mt-1 font-semibold">{formErrors.name}</p>
+                      <p className="text-[9px] sm:text-[10px] text-rose-500 mt-1 font-semibold">{formErrors.name}</p>
                     )}
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-bold text-neutral-700 dark:text-neutral-300 mb-1">
+                    <label className="block text-[10px] sm:text-[11px] font-bold text-neutral-700 dark:text-neutral-300 mb-1">
                       Mobile Number *
                     </label>
                     <div className="relative">
-                      <Phone className="w-4 h-4 text-neutral-400 absolute left-3 top-2.5" />
+                      <Phone className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-neutral-400 absolute left-2.5 sm:left-3 top-2 sm:top-2.5" />
                       <input
                         type="tel"
                         maxLength={15}
@@ -968,20 +968,20 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                           setCustomerPhone(e.target.value);
                           if (formErrors.phone) setFormErrors({ ...formErrors, phone: '' });
                         }}
-                        className={`w-full pl-9 pr-3 py-2 bg-white dark:bg-[#0c0d10] border rounded-xl text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none font-mono text-neutral-900 dark:text-white ${
+                        className={`w-full pl-8 sm:pl-9 pr-2.5 sm:pr-3 py-1.5 sm:py-2 bg-white dark:bg-[#0c0d10] border rounded-lg sm:rounded-xl text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none font-mono text-neutral-900 dark:text-white ${
                           formErrors.phone ? 'border-rose-500 ring-1 ring-rose-500' : 'border-neutral-300 dark:border-neutral-700'
                         }`}
                       />
                     </div>
                     {formErrors.phone && (
-                      <p className="text-[10px] text-rose-500 mt-1 font-semibold">{formErrors.phone}</p>
+                      <p className="text-[9px] sm:text-[10px] text-rose-500 mt-1 font-semibold">{formErrors.phone}</p>
                     )}
                   </div>
                 </div>
 
                 {/* Complete Address */}
                 <div>
-                  <label className="block text-[11px] font-bold text-neutral-700 dark:text-neutral-300 mb-1">
+                  <label className="block text-[10px] sm:text-[11px] font-bold text-neutral-700 dark:text-neutral-300 mb-1">
                     House No, Street, Landmark & Area *
                   </label>
                   <textarea
@@ -992,23 +992,23 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                       setCustomerAddress(e.target.value);
                       if (formErrors.address) setFormErrors({ ...formErrors, address: '' });
                     }}
-                    className={`w-full px-3 py-2 bg-white dark:bg-[#0c0d10] border rounded-xl text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none text-neutral-900 dark:text-white ${
+                    className={`w-full px-2.5 sm:px-3 py-1.5 sm:py-2 bg-white dark:bg-[#0c0d10] border rounded-lg sm:rounded-xl text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none text-neutral-900 dark:text-white ${
                       formErrors.address ? 'border-rose-500 ring-1 ring-rose-500' : 'border-neutral-300 dark:border-neutral-700'
                     }`}
                   />
                   {formErrors.address && (
-                    <p className="text-[10px] text-rose-500 mt-0.5 font-semibold">{formErrors.address}</p>
+                    <p className="text-[9px] sm:text-[10px] text-rose-500 mt-0.5 font-semibold">{formErrors.address}</p>
                   )}
                 </div>
 
                 {/* City & Pincode */}
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
                   <div>
-                    <label className="block text-[11px] font-bold text-neutral-700 dark:text-neutral-300 mb-1">
+                    <label className="block text-[10px] sm:text-[11px] font-bold text-neutral-700 dark:text-neutral-300 mb-1">
                       City / District *
                     </label>
                     <div className="relative">
-                      <Building className="w-4 h-4 text-neutral-400 absolute left-3 top-2.5" />
+                      <Building className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-neutral-400 absolute left-2.5 sm:left-3 top-2 sm:top-2.5" />
                       <input
                         type="text"
                         placeholder="e.g. Mumbai"
@@ -1017,18 +1017,18 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                           setCustomerCity(e.target.value);
                           if (formErrors.city) setFormErrors({ ...formErrors, city: '' });
                         }}
-                        className={`w-full pl-9 pr-3 py-2 bg-white dark:bg-[#0c0d10] border rounded-xl text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none text-neutral-900 dark:text-white ${
+                        className={`w-full pl-8 sm:pl-9 pr-2.5 sm:pr-3 py-1.5 sm:py-2 bg-white dark:bg-[#0c0d10] border rounded-lg sm:rounded-xl text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none text-neutral-900 dark:text-white ${
                           formErrors.city ? 'border-rose-500 ring-1 ring-rose-500' : 'border-neutral-300 dark:border-neutral-700'
                         }`}
                       />
                     </div>
                     {formErrors.city && (
-                      <p className="text-[10px] text-rose-500 mt-1 font-semibold">{formErrors.city}</p>
+                      <p className="text-[9px] sm:text-[10px] text-rose-500 mt-1 font-semibold">{formErrors.city}</p>
                     )}
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-bold text-neutral-700 dark:text-neutral-300 mb-1">
+                    <label className="block text-[10px] sm:text-[11px] font-bold text-neutral-700 dark:text-neutral-300 mb-1">
                       Pincode *
                     </label>
                     <input
@@ -1040,24 +1040,24 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                         setCustomerPincode(e.target.value);
                         if (formErrors.pincode) setFormErrors({ ...formErrors, pincode: '' });
                       }}
-                      className={`w-full px-3 py-2 bg-white dark:bg-[#0c0d10] border rounded-xl text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none font-mono text-neutral-900 dark:text-white ${
+                      className={`w-full px-2.5 sm:px-3 py-1.5 sm:py-2 bg-white dark:bg-[#0c0d10] border rounded-lg sm:rounded-xl text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none font-mono text-neutral-900 dark:text-white ${
                         formErrors.pincode ? 'border-rose-500 ring-1 ring-rose-500' : 'border-neutral-300 dark:border-neutral-700'
                       }`}
                     />
                     {formErrors.pincode && (
-                      <p className="text-[10px] text-rose-500 mt-1 font-semibold">{formErrors.pincode}</p>
+                      <p className="text-[9px] sm:text-[10px] text-rose-500 mt-1 font-semibold">{formErrors.pincode}</p>
                     )}
                   </div>
                 </div>
 
                 {/* Navigation Buttons */}
-                <div className="flex items-center gap-2 pt-2">
+                <div className="flex items-center gap-1.5 sm:gap-2 pt-1.5">
                   <button
                     type="button"
                     onClick={() => setCurrentStep(1)}
-                    className="py-3 px-4 bg-neutral-100 dark:bg-[#1c1d25] hover:bg-neutral-200 dark:hover:bg-neutral-700 text-neutral-700 dark:text-neutral-200 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-colors"
+                    className="py-2 sm:py-3 px-3 sm:px-4 bg-neutral-100 dark:bg-[#1c1d25] hover:bg-neutral-200 dark:hover:bg-neutral-700 text-neutral-700 dark:text-neutral-200 rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-bold flex items-center gap-1 sm:gap-1.5 cursor-pointer transition-colors"
                   >
-                    <ArrowLeft className="w-4 h-4" />
+                    <ArrowLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                     <span>Back</span>
                   </button>
 
@@ -1068,10 +1068,10 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                         setCurrentStep(3);
                       }
                     }}
-                    className="flex-1 py-3.5 bg-neutral-900 dark:bg-amber-400 hover:bg-neutral-800 dark:hover:bg-amber-300 text-white dark:text-neutral-950 font-extrabold text-xs uppercase tracking-wider rounded-xl shadow flex items-center justify-center gap-2 transition-all cursor-pointer"
+                    className="flex-1 py-2 sm:py-3.5 bg-neutral-900 dark:bg-amber-400 hover:bg-neutral-800 dark:hover:bg-amber-300 text-white dark:text-neutral-950 font-extrabold text-[10px] sm:text-xs uppercase tracking-wider rounded-lg sm:rounded-xl shadow flex items-center justify-center gap-1.5 sm:gap-2 transition-all cursor-pointer"
                   >
                     <span>Step 3: Choose Payment Mode</span>
-                    <ArrowRight className="w-4 h-4" />
+                    <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   </button>
                 </div>
               </div>
@@ -1079,13 +1079,13 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
 
             {/* STEP 3: PAYMENT MODE SELECTION */}
             {currentStep === 3 && (
-              <div className="space-y-4 animate-fadeIn">
+              <div className="space-y-3 sm:space-y-4 animate-fadeIn">
                 <div className="flex items-center justify-between border-b border-neutral-200 dark:border-neutral-800 pb-2">
-                  <h4 className="text-xs font-extrabold uppercase tracking-wider text-neutral-700 dark:text-neutral-300 flex items-center gap-1.5">
-                    <CreditCard className="w-4 h-4 text-emerald-500" />
+                  <h4 className="text-[11px] sm:text-xs font-extrabold uppercase tracking-wider text-neutral-700 dark:text-neutral-300 flex items-center gap-1 sm:gap-1.5">
+                    <CreditCard className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-500" />
                     <span>Step 3: Payment Mode</span>
                   </h4>
-                  <span className="text-xs font-black text-neutral-900 dark:text-amber-200 font-mono">
+                  <span className="text-xs sm:text-sm font-black text-neutral-900 dark:text-amber-200 font-mono">
                     ₹{(Number(totalAmount) || 0).toLocaleString('en-IN')}
                   </span>
                 </div>
@@ -1093,7 +1093,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                 {/* Option 1: Online UPI */}
                 <div
                   onClick={() => setPaymentMethod('upi')}
-                  className={`p-4 rounded-2xl border cursor-pointer transition-all ${
+                  className={`p-2.5 sm:p-4 rounded-xl sm:rounded-2xl border cursor-pointer transition-all ${
                     paymentMethod === 'upi'
                       ? 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-500 ring-2 ring-emerald-500/20 shadow-md'
                       : 'bg-neutral-50 dark:bg-[#15161c] border-neutral-200 dark:border-neutral-800 hover:border-neutral-400 dark:hover:border-neutral-700'
@@ -1101,44 +1101,44 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <div className="p-2 bg-emerald-600 text-white rounded-xl">
-                        <Smartphone className="w-4 h-4" />
+                      <div className="p-1.5 sm:p-2 bg-emerald-600 text-white rounded-lg sm:rounded-xl">
+                        <Smartphone className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                       </div>
                       <div>
-                        <div className="text-xs font-extrabold text-neutral-900 dark:text-white flex items-center gap-1.5">
+                        <div className="text-[11px] sm:text-xs font-extrabold text-neutral-900 dark:text-white flex items-center gap-1 sm:gap-1.5">
                           <span>Pay Online (Instant UPI App)</span>
-                          <span className="px-1.5 py-0.5 bg-emerald-600 text-white text-[9px] font-black uppercase rounded">
+                          <span className="px-1 sm:px-1.5 py-0.5 bg-emerald-600 text-white text-[8px] sm:text-[9px] font-black uppercase rounded">
                             Fast Dispatch
                           </span>
                         </div>
-                        <p className="text-[11px] text-neutral-500 dark:text-neutral-400 mt-0.5">
+                        <p className="text-[10px] sm:text-[11px] text-neutral-500 dark:text-neutral-400 mt-0.5">
                           Google Pay, PhonePe, Paytm (Pre-filled Amount)
                         </p>
                       </div>
                     </div>
-                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                    <div className={`w-4 h-4 sm:w-5 sm:h-5 rounded-full border-2 flex items-center justify-center ${
                       paymentMethod === 'upi' ? 'border-emerald-600 bg-emerald-600 text-white' : 'border-neutral-400'
                     }`}>
-                      {paymentMethod === 'upi' && <Check className="w-3 h-3 stroke-[3]" />}
+                      {paymentMethod === 'upi' && <Check className="w-2.5 h-2.5 sm:w-3 sm:h-3 stroke-[3]" />}
                     </div>
                   </div>
 
                   {/* UPI App Direct Launch Buttons */}
                   {paymentMethod === 'upi' && (
-                    <div className="mt-3 pt-3 border-t border-emerald-500/20 space-y-2">
-                      <p className="text-[11px] text-emerald-800 dark:text-emerald-300 font-bold">
+                    <div className="mt-2.5 pt-2.5 border-t border-emerald-500/20 space-y-1.5 sm:space-y-2">
+                      <p className="text-[10px] sm:text-[11px] text-emerald-800 dark:text-emerald-300 font-bold">
                         Pay with 1-Tap from your phone (₹{totalAmount} pre-filled):
                       </p>
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2">
                         <button
                           type="button"
                           onClick={(e) => {
                             e.stopPropagation();
                             handleLaunchUpiApp('gpay');
                           }}
-                          className="p-2 bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 rounded-xl text-white text-[11px] font-bold flex items-center justify-center gap-1.5 shadow active:scale-95 cursor-pointer"
+                          className="p-1.5 sm:p-2 bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 rounded-lg sm:rounded-xl text-white text-[10px] sm:text-[11px] font-bold flex items-center justify-center gap-1 sm:gap-1.5 shadow active:scale-95 cursor-pointer"
                         >
-                          <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+                          <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
                           <span>Google Pay</span>
                         </button>
 
@@ -1148,9 +1148,9 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                             e.stopPropagation();
                             handleLaunchUpiApp('phonepe');
                           }}
-                          className="p-2 bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 rounded-xl text-white text-[11px] font-bold flex items-center justify-center gap-1.5 shadow active:scale-95 cursor-pointer"
+                          className="p-1.5 sm:p-2 bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 rounded-lg sm:rounded-xl text-white text-[10px] sm:text-[11px] font-bold flex items-center justify-center gap-1 sm:gap-1.5 shadow active:scale-95 cursor-pointer"
                         >
-                          <span className="w-2 h-2 rounded-full bg-purple-500"></span>
+                          <span className="w-1.5 h-1.5 rounded-full bg-purple-500"></span>
                           <span>PhonePe</span>
                         </button>
 
@@ -1160,9 +1160,9 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                             e.stopPropagation();
                             handleLaunchUpiApp('paytm');
                           }}
-                          className="p-2 bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 rounded-xl text-white text-[11px] font-bold flex items-center justify-center gap-1.5 shadow active:scale-95 cursor-pointer"
+                          className="p-1.5 sm:p-2 bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 rounded-lg sm:rounded-xl text-white text-[10px] sm:text-[11px] font-bold flex items-center justify-center gap-1 sm:gap-1.5 shadow active:scale-95 cursor-pointer"
                         >
-                          <span className="w-2 h-2 rounded-full bg-cyan-500"></span>
+                          <span className="w-1.5 h-1.5 rounded-full bg-cyan-500"></span>
                           <span>Paytm</span>
                         </button>
 
@@ -1172,7 +1172,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                             e.stopPropagation();
                             handleLaunchUpiApp('any');
                           }}
-                          className="p-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-[11px] font-bold flex items-center justify-center gap-1 shadow active:scale-95 cursor-pointer"
+                          className="p-1.5 sm:p-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg sm:rounded-xl text-[10px] sm:text-[11px] font-bold flex items-center justify-center gap-1 shadow active:scale-95 cursor-pointer"
                         >
                           <ExternalLink className="w-3 h-3" />
                           <span>Any UPI</span>
@@ -1180,8 +1180,8 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                       </div>
 
                       {hasTriggeredUpi && (
-                        <div className="p-2 bg-emerald-950/70 border border-emerald-500/50 rounded-xl text-[11px] text-emerald-300 flex items-center gap-1.5">
-                          <Check className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
+                        <div className="p-2 bg-emerald-950/70 border border-emerald-500/50 rounded-lg sm:rounded-xl text-[10px] sm:text-[11px] text-emerald-300 flex items-center gap-1 sm:gap-1.5">
+                          <Check className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-emerald-400 flex-shrink-0" />
                           <span>UPI App launched. Complete payment and confirm your order in Step 4.</span>
                         </div>
                       )}
@@ -1192,7 +1192,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                 {/* Option 2: Cash on Delivery (COD) */}
                 <div
                   onClick={() => setPaymentMethod('cod')}
-                  className={`p-4 rounded-2xl border cursor-pointer transition-all ${
+                  className={`p-2.5 sm:p-4 rounded-xl sm:rounded-2xl border cursor-pointer transition-all ${
                     paymentMethod === 'cod'
                       ? 'bg-amber-50 dark:bg-amber-950/30 border-amber-500 ring-2 ring-amber-500/20 shadow-md'
                       : 'bg-neutral-50 dark:bg-[#15161c] border-neutral-200 dark:border-neutral-800 hover:border-neutral-400 dark:hover:border-neutral-700'
@@ -1200,47 +1200,47 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <div className="p-2 bg-amber-400 text-neutral-950 rounded-xl">
-                        <Truck className="w-4 h-4" />
+                      <div className="p-1.5 sm:p-2 bg-amber-400 text-neutral-950 rounded-lg sm:rounded-xl">
+                        <Truck className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                       </div>
                       <div>
-                        <div className="text-xs font-extrabold text-neutral-900 dark:text-white flex items-center gap-1.5">
+                        <div className="text-[11px] sm:text-xs font-extrabold text-neutral-900 dark:text-white flex items-center gap-1 sm:gap-1.5">
                           <span>Cash on Delivery (COD)</span>
-                          <span className="px-1.5 py-0.5 bg-amber-400 text-neutral-950 text-[9px] font-black uppercase rounded">
+                          <span className="px-1 sm:px-1.5 py-0.5 bg-amber-400 text-neutral-950 text-[8px] sm:text-[9px] font-black uppercase rounded">
                             Popular
                           </span>
                         </div>
-                        <p className="text-[11px] text-neutral-500 dark:text-neutral-400 mt-0.5">
+                        <p className="text-[10px] sm:text-[11px] text-neutral-500 dark:text-neutral-400 mt-0.5">
                           Pay cash to the delivery agent upon receiving your order
                         </p>
                       </div>
                     </div>
-                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                    <div className={`w-4 h-4 sm:w-5 sm:h-5 rounded-full border-2 flex items-center justify-center ${
                       paymentMethod === 'cod' ? 'border-amber-400 bg-amber-400 text-neutral-950' : 'border-neutral-400'
                     }`}>
-                      {paymentMethod === 'cod' && <Check className="w-3 h-3 stroke-[3]" />}
+                      {paymentMethod === 'cod' && <Check className="w-2.5 h-2.5 sm:w-3 sm:h-3 stroke-[3]" />}
                     </div>
                   </div>
                 </div>
 
                 {/* Navigation Buttons */}
-                <div className="flex items-center gap-2 pt-2">
+                <div className="flex items-center gap-1.5 sm:gap-2 pt-1.5">
                   <button
                     type="button"
                     onClick={() => setCurrentStep(2)}
-                    className="py-3 px-4 bg-neutral-100 dark:bg-[#1c1d25] hover:bg-neutral-200 dark:hover:bg-neutral-700 text-neutral-700 dark:text-neutral-200 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-colors"
+                    className="py-2 sm:py-3 px-3 sm:px-4 bg-neutral-100 dark:bg-[#1c1d25] hover:bg-neutral-200 dark:hover:bg-neutral-700 text-neutral-700 dark:text-neutral-200 rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-bold flex items-center gap-1 sm:gap-1.5 cursor-pointer transition-colors"
                   >
-                    <ArrowLeft className="w-4 h-4" />
+                    <ArrowLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                     <span>Back</span>
                   </button>
 
                   <button
                     type="button"
                     onClick={() => setCurrentStep(4)}
-                    className="flex-1 py-3.5 bg-neutral-900 dark:bg-amber-400 hover:bg-neutral-800 dark:hover:bg-amber-300 text-white dark:text-neutral-950 font-extrabold text-xs uppercase tracking-wider rounded-xl shadow flex items-center justify-center gap-2 transition-all cursor-pointer"
+                    className="flex-1 py-2 sm:py-3.5 bg-neutral-900 dark:bg-amber-400 hover:bg-neutral-800 dark:hover:bg-amber-300 text-white dark:text-neutral-950 font-extrabold text-[10px] sm:text-xs uppercase tracking-wider rounded-lg sm:rounded-xl shadow flex items-center justify-center gap-1.5 sm:gap-2 transition-all cursor-pointer"
                   >
                     <span>Step 4: Review & Place Order</span>
-                    <ArrowRight className="w-4 h-4" />
+                    <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   </button>
                 </div>
               </div>
@@ -1248,49 +1248,49 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
 
             {/* STEP 4: REVIEW & FINAL ORDER PLACE */}
             {currentStep === 4 && (
-              <div className="space-y-4 animate-fadeIn">
+              <div className="space-y-3 sm:space-y-4 animate-fadeIn">
                 <div className="flex items-center justify-between border-b border-neutral-200 dark:border-neutral-800 pb-2">
-                  <h4 className="text-xs font-extrabold uppercase tracking-wider text-neutral-700 dark:text-neutral-300 flex items-center gap-1.5">
-                    <Package className="w-4 h-4 text-emerald-500" />
+                  <h4 className="text-[11px] sm:text-xs font-extrabold uppercase tracking-wider text-neutral-700 dark:text-neutral-300 flex items-center gap-1 sm:gap-1.5">
+                    <Package className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-500" />
                     <span>Step 4: Review & Confirm Order</span>
                   </h4>
-                  <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded">
+                  <span className="text-[9px] sm:text-[10px] text-emerald-600 dark:text-emerald-400 font-bold bg-emerald-500/10 px-1.5 sm:px-2 py-0.5 rounded">
                     Final Step
                   </span>
                 </div>
 
                 {/* Review Card */}
-                <div className="p-4 bg-neutral-50 dark:bg-[#15161c] border border-neutral-200 dark:border-neutral-800 rounded-2xl text-xs space-y-3 shadow-sm">
+                <div className="p-3 bg-neutral-50 dark:bg-[#15161c] border border-neutral-200 dark:border-neutral-800 rounded-xl sm:rounded-2xl text-xs space-y-2 sm:space-y-3 shadow-sm">
                   {/* Delivery Info */}
-                  <div className="space-y-1 pb-2 border-b border-neutral-200 dark:border-neutral-800">
+                  <div className="space-y-0.5 pb-2 border-b border-neutral-200 dark:border-neutral-800">
                     <div className="flex items-center justify-between">
-                      <span className="text-[11px] font-bold text-neutral-500 uppercase">Deliver To:</span>
+                      <span className="text-[10px] sm:text-[11px] font-bold text-neutral-500 uppercase">Deliver To:</span>
                       <button
                         type="button"
                         onClick={() => setCurrentStep(2)}
-                        className="text-[10px] font-bold text-amber-600 dark:text-amber-400 hover:underline cursor-pointer"
+                        className="text-[9px] sm:text-[10px] font-bold text-amber-600 dark:text-amber-400 hover:underline cursor-pointer"
                       >
                         Edit Address
                       </button>
                     </div>
-                    <p className="font-bold text-neutral-900 dark:text-white">
+                    <p className="font-bold text-neutral-900 dark:text-white text-[11px] sm:text-xs">
                       {customerName} • <span className="font-mono text-emerald-600 dark:text-emerald-400">{customerPhone}</span>
                     </p>
-                    <p className="text-neutral-600 dark:text-neutral-300">
+                    <p className="text-neutral-600 dark:text-neutral-300 text-[10px] sm:text-[11px]">
                       {customerAddress}, {customerCity} - <strong>{customerPincode}</strong>
                     </p>
                   </div>
 
                   {/* Payment Mode Highlight */}
-                  <div className="flex items-center justify-between py-2 px-3 bg-neutral-100 dark:bg-[#0c0d10] rounded-xl border border-neutral-200 dark:border-neutral-800/80">
+                  <div className="flex items-center justify-between py-1.5 px-2.5 bg-neutral-100 dark:bg-[#0c0d10] rounded-lg sm:rounded-xl border border-neutral-200 dark:border-neutral-800/80">
                     <div>
-                      <span className="text-[10px] uppercase font-bold text-neutral-500">Payment Option:</span>
-                      <p className="font-extrabold text-neutral-900 dark:text-white text-xs">
-                        {paymentMethod === 'upi' ? 'Online UPI App (Prepaid)' : 'Cash on Delivery (COD)'}
+                      <span className="text-[9px] sm:text-[10px] uppercase font-bold text-neutral-500">Payment Option:</span>
+                      <p className="font-extrabold text-neutral-900 dark:text-white text-[10px] sm:text-xs">
+                        {paymentMethod === 'upi' ? 'Online UPI (Prepaid)' : 'Cash on Delivery (COD)'}
                       </p>
                     </div>
                     <span
-                      className={`px-2.5 py-1 text-[11px] font-black rounded-lg uppercase font-mono ${
+                      className={`px-1.5 sm:px-2.5 py-0.5 sm:py-1 text-[9px] sm:text-[11px] font-black rounded-md sm:rounded-lg uppercase font-mono ${
                         paymentMethod === 'upi'
                           ? 'bg-emerald-600 text-white'
                           : 'bg-amber-400 text-neutral-950'
@@ -1301,11 +1301,11 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                   </div>
 
                   {/* Total Bill to Pay */}
-                  <div className="flex items-center justify-between pt-1">
-                    <span className="font-bold text-neutral-700 dark:text-neutral-300 uppercase text-xs">
+                  <div className="flex items-center justify-between pt-0.5">
+                    <span className="font-bold text-neutral-700 dark:text-neutral-300 uppercase text-[10px] sm:text-xs">
                       Total Payable Amount:
                     </span>
-                    <span className="font-black text-xl text-neutral-900 dark:text-amber-200 font-mono">
+                    <span className="font-black text-lg sm:text-xl text-neutral-900 dark:text-amber-200 font-mono">
                       ₹{(Number(totalAmount) || 0).toLocaleString('en-IN')}
                     </span>
                   </div>
@@ -1313,19 +1313,19 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
 
                 {/* Error Display */}
                 {formErrors._form && (
-                  <div className="p-3.5 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 rounded-2xl flex items-start gap-2.5 text-xs text-red-700 dark:text-red-300 animate-fadeIn">
-                    <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
-                    <span className="font-semibold leading-relaxed">{formErrors._form}</span>
+                  <div className="p-2.5 sm:p-3.5 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 rounded-xl sm:rounded-2xl flex items-start gap-2 text-xs text-red-700 dark:text-red-300 animate-fadeIn">
+                    <AlertCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
+                    <span className="font-semibold leading-relaxed text-[10px] sm:text-xs">{formErrors._form}</span>
                   </div>
                 )}
 
                 {/* Navigation & Submit */}
-                <div className="space-y-2 pt-1">
+                <div className="space-y-1.5 sm:space-y-2 pt-0.5">
                   <button
                     type="button"
                     disabled={isSubmitting}
                     onClick={handleFinalOrderPlace}
-                    className={`w-full py-4 font-extrabold text-sm uppercase tracking-wider rounded-2xl shadow-xl flex items-center justify-center gap-2 transition-all transform active:scale-98 cursor-pointer disabled:opacity-50 ${
+                    className={`w-full py-2.5 sm:py-4 font-extrabold text-[11px] sm:text-sm uppercase tracking-wider rounded-xl sm:rounded-2xl shadow-xl flex items-center justify-center gap-1.5 sm:gap-2 transition-all transform active:scale-98 cursor-pointer disabled:opacity-50 ${
                       !isLoggedIn || !customer
                         ? 'bg-amber-400 hover:bg-amber-300 text-neutral-950 font-black'
                         : paymentMethod === 'upi'
@@ -1335,13 +1335,13 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                   >
                     {!isLoggedIn || !customer ? (
                       <>
-                        <Lock className="w-5 h-5" />
+                        <Lock className="w-4 h-4 sm:w-5 sm:h-5" />
                         <span>Login / Create Profile to Place Order (OTP)</span>
                         <ArrowRight className="w-4 h-4" />
                       </>
                     ) : (
                       <>
-                        <Package className="w-5 h-5" />
+                        <Package className="w-4 h-4 sm:w-5 sm:h-5" />
                         <span>
                           {isSubmitting
                             ? 'Placing Order in System...'
@@ -1355,7 +1355,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                   <button
                     type="button"
                     onClick={() => setCurrentStep(3)}
-                    className="w-full py-2.5 text-xs text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200 font-semibold cursor-pointer text-center"
+                    className="w-full py-1.5 sm:py-2.5 text-[10px] sm:text-xs text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200 font-semibold cursor-pointer text-center"
                   >
                     ⬅️ Back to Step 3 (Change Payment Mode)
                   </button>

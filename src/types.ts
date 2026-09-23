@@ -38,6 +38,7 @@ export interface StoreProduct {
   stock?: number;
   inStock?: boolean;
   active?: boolean;
+  shortCode?: string;
 }
 
 // Alias for backward compatibility with existing components

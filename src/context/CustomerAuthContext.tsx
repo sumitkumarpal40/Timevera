@@ -3,6 +3,7 @@ import { CustomerProfile, CartItem } from '../types';
 import { auth, db } from '../lib/firebase';
 import { onAuthStateChanged, User, signOut } from 'firebase/auth';
 import { doc, getDoc, setDoc, Timestamp } from 'firebase/firestore';
+import { useModalBackButton } from '../hooks/useModalBackButton';
 
 export type CustomerAccountTab =
   | 'orders'
@@ -55,6 +56,15 @@ export const CustomerAuthProvider: React.FC<{ children: ReactNode }> = ({ childr
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isAccountModalOpen, setIsAccountModalOpen] = useState(false);
   const [accountActiveTab, setAccountActiveTab] = useState<CustomerAccountTab>('orders');
+
+  // Back button handling for auth-related modals
+  useModalBackButton(isLoginModalOpen, () => {
+    setIsLoginModalOpen(false);
+  });
+
+  useModalBackButton(isAccountModalOpen, () => {
+    setIsAccountModalOpen(false);
+  });
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {

@@ -32,6 +32,7 @@ import {
   Heart,
   Trash2,
   Zap,
+  ArrowLeft,
 } from 'lucide-react';
 import { useCustomerAuth } from '../context/CustomerAuthContext';
 import { fetchOrdersForCustomer, fetchCustomerReviews, subscribeToCustomerOrders } from '../lib/customerService';
@@ -312,32 +313,40 @@ export const CustomerAccountModal: React.FC<CustomerAccountModalProps> = ({
 
   return (
     <>
-      <div className="fixed inset-0 z-50 overflow-y-auto bg-black/85 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 md:p-6 animate-fadeIn">
-        <div className="relative w-full max-w-4xl bg-white dark:bg-[#141414] text-zinc-900 dark:text-white rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-2xl overflow-hidden my-4 flex flex-col max-h-[92vh]">
+      <div className="fixed inset-0 z-50 overflow-y-auto bg-black/85 backdrop-blur-sm flex items-center justify-center p-1 sm:p-3 md:p-6 animate-fadeIn">
+        <div className="relative w-full max-w-4xl bg-white dark:bg-[#141414] text-zinc-900 dark:text-white rounded-2xl sm:rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-2xl overflow-hidden my-2 sm:my-4 flex flex-col max-h-[95vh] sm:max-h-[92vh]">
           {/* Top Brand Header */}
-          <div className="bg-gradient-to-r from-red-700 via-rose-700 to-red-800 p-4 sm:p-6 text-white flex-shrink-0">
-            <div className="flex items-start justify-between gap-4">
+          <div className="bg-gradient-to-r from-red-700 via-rose-700 to-red-800 p-3 sm:p-5 md:p-6 text-white flex-shrink-0">
+            <div className="flex items-start justify-between gap-2.5 sm:gap-4">
               {/* Customer Avatar & Bio */}
-              <div className="flex items-center gap-3.5">
-                <div className="w-13 h-13 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-tr from-amber-400 to-amber-200 text-zinc-950 font-black text-xl sm:text-2xl flex items-center justify-center shadow-lg border-2 border-white/40 flex-shrink-0">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <button
+                  onClick={onClose}
+                  className="flex items-center justify-center p-1.5 sm:p-2 rounded-lg sm:rounded-xl bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer flex-shrink-0"
+                  title="Go back"
+                  aria-label="Go back"
+                >
+                  <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
+                </button>
+                <div className="w-11 h-11 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-gradient-to-tr from-amber-400 to-amber-200 text-zinc-950 font-black text-base sm:text-xl md:text-2xl flex items-center justify-center shadow-lg border-2 border-white/40 flex-shrink-0">
                   {customer.fullName ? customer.fullName.charAt(0).toUpperCase() : 'U'}
                 </div>
-                <div>
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="font-brand font-bold text-lg sm:text-xl text-white">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                    <h3 className="font-brand font-bold text-sm sm:text-base md:text-lg text-white truncate max-w-[140px] sm:max-w-none">
                       {customer.fullName || 'Timevera Customer'}
                     </h3>
-                    <span className="px-2 py-0.5 bg-emerald-500/30 border border-emerald-400/50 text-emerald-200 text-[10px] font-black uppercase rounded-full flex items-center gap-1">
-                      <ShieldCheck className="w-3 h-3 text-emerald-300" />
-                      <span>Verified Account</span>
+                    <span className="px-1.5 py-0.5 bg-emerald-500/30 border border-emerald-400/50 text-emerald-200 text-[8px] sm:text-[10px] font-black uppercase rounded-full flex items-center gap-0.5 sm:gap-1">
+                      <ShieldCheck className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-emerald-300" />
+                      <span>Verified</span>
                     </span>
                   </div>
-                  <p className="text-xs text-red-100 font-mono flex items-center gap-1.5 mt-0.5">
-                    <Phone className="w-3 h-3 text-amber-300" />
+                  <p className="text-[10px] sm:text-xs text-red-100 font-mono flex items-center gap-1 sm:gap-1.5 mt-0.5">
+                    <Phone className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-amber-300" />
                     <span>+91 {customer.phone}</span>
                   </p>
-                  <p className="text-[11px] text-red-200 flex items-center gap-1 mt-0.5 truncate max-w-xs sm:max-w-md">
-                    <MapPin className="w-3 h-3 text-amber-300 flex-shrink-0" />
+                  <p className="text-[10px] sm:text-xs text-red-200 flex items-center gap-0.5 sm:gap-1 mt-0.5 truncate max-w-[180px] sm:max-w-md">
+                    <MapPin className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-amber-300 flex-shrink-0" />
                     <span className="truncate">
                       {customer.address || 'Address pending'}, {customer.city || ''} ({customer.pincode || ''})
                     </span>
@@ -346,95 +355,95 @@ export const CustomerAccountModal: React.FC<CustomerAccountModalProps> = ({
               </div>
 
               {/* Close & Logout Buttons */}
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5 sm:gap-2">
                 <button
                   onClick={logout}
-                  className="px-3 py-2 bg-red-800/80 hover:bg-red-900 border border-red-500/30 text-white rounded-xl transition-all cursor-pointer flex items-center gap-1.5 text-xs font-bold shadow-md"
+                  className="px-2 py-1 sm:px-3 sm:py-2 bg-red-800/80 hover:bg-red-900 border border-red-500/30 text-white rounded-lg sm:rounded-xl transition-all cursor-pointer flex items-center gap-1 sm:gap-1.5 text-[10px] sm:text-xs font-bold shadow-md whitespace-nowrap"
                   title="Logout from account"
                 >
-                  <LogOut className="w-4 h-4" />
-                  <span>Logout</span>
+                  <LogOut className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  <span className="hidden xs:inline">Logout</span>
                 </button>
                 <button
                   onClick={onClose}
-                  className="p-2 bg-black/20 hover:bg-black/40 text-white rounded-full transition-colors cursor-pointer"
+                  className="p-1.5 sm:p-2 bg-black/20 hover:bg-black/40 text-white rounded-full transition-colors cursor-pointer"
                   aria-label="Close"
                 >
-                  <X className="w-5 h-5" />
+                  <X className="w-4 h-4 sm:w-5 sm:h-5" />
                 </button>
               </div>
             </div>
 
             {/* Navigation Tabs Bar */}
-            <div className="flex items-center gap-1.5 sm:gap-2 mt-4 pt-3 border-t border-red-500/40 overflow-x-auto no-scrollbar">
+            <div className="flex items-center gap-1 sm:gap-2 mt-3 pt-2.5 border-t border-red-500/40 overflow-x-auto no-scrollbar">
               <button
                 onClick={() => setAccountActiveTab('addresses')}
-                className={`px-3.5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
+                className={`px-2.5 py-1.5 rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-bold uppercase tracking-wider flex items-center gap-1 sm:gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
                   accountActiveTab === 'addresses'
                     ? 'bg-white text-red-700 shadow-md font-extrabold'
                     : 'bg-white/10 text-white hover:bg-white/20'
                 }`}
               >
-                <MapPin className="w-4 h-4" />
+                <MapPin className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                 <span>Addresses</span>
               </button>
               <button
                 onClick={() => setAccountActiveTab('orders')}
-                className={`px-3.5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
+                className={`px-2.5 py-1.5 rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-bold uppercase tracking-wider flex items-center gap-1 sm:gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
                   accountActiveTab === 'orders'
                     ? 'bg-white text-red-700 shadow-md font-extrabold'
                     : 'bg-white/10 text-white hover:bg-white/20'
                 }`}
               >
-                <Package className="w-4 h-4" />
-                <span>Orders & Bills ({orders.length})</span>
+                <Package className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                <span>Orders ({orders.length})</span>
               </button>
 
               <button
                 onClick={() => setAccountActiveTab('wishlist')}
-                className={`px-3.5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
+                className={`px-2.5 py-1.5 rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-bold uppercase tracking-wider flex items-center gap-1 sm:gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
                   accountActiveTab === 'wishlist'
                     ? 'bg-white text-red-700 shadow-md font-extrabold'
                     : 'bg-white/10 text-white hover:bg-white/20'
                 }`}
               >
-                <Heart className="w-4 h-4 text-rose-300 fill-rose-300" />
+                <Heart className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-rose-300 fill-rose-300" />
                 <span>Wishlist ({wishlist.length})</span>
               </button>
 
               <button
                 onClick={() => setAccountActiveTab('profile')}
-                className={`px-3.5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
+                className={`px-2.5 py-1.5 rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-bold uppercase tracking-wider flex items-center gap-1 sm:gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
                   accountActiveTab === 'profile'
                     ? 'bg-white text-red-700 shadow-md font-extrabold'
                     : 'bg-white/10 text-white hover:bg-white/20'
                 }`}
               >
-                <User className="w-4 h-4" />
-                <span>Profile & Address</span>
+                <User className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                <span>Profile</span>
               </button>
 
               <button
                 onClick={() => setAccountActiveTab('feedback')}
-                className={`px-3.5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
+                className={`px-2.5 py-1.5 rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-bold uppercase tracking-wider flex items-center gap-1 sm:gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
                   accountActiveTab === 'feedback'
                     ? 'bg-white text-red-700 shadow-md font-extrabold'
                     : 'bg-white/10 text-white hover:bg-white/20'
                 }`}
               >
-                <Star className="w-4 h-4 text-amber-300" />
+                <Star className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-amber-300" />
                 <span>Reviews ({reviews.length})</span>
               </button>
 
               <button
                 onClick={() => setAccountActiveTab('support')}
-                className={`px-3.5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
+                className={`px-2.5 py-1.5 rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-bold uppercase tracking-wider flex items-center gap-1 sm:gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
                   accountActiveTab === 'support'
                     ? 'bg-white text-red-700 shadow-md font-extrabold'
                     : 'bg-white/10 text-white hover:bg-white/20'
                 }`}
               >
-                <HelpCircle className="w-4 h-4 text-amber-300" />
+                <HelpCircle className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-amber-300" />
                 <span>Support {supportTickets.length > 0 && `(${supportTickets.length})`}</span>
               </button>
             </div>
@@ -456,11 +465,11 @@ export const CustomerAccountModal: React.FC<CustomerAccountModalProps> = ({
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h4 className="text-sm font-extrabold uppercase tracking-wider text-zinc-800 dark:text-zinc-200 flex items-center gap-2">
-                      <Package className="w-4 h-4 text-red-600" />
+                    <h4 className="text-base sm:text-lg md:text-xl font-extrabold uppercase tracking-wider text-zinc-800 dark:text-zinc-200 flex items-center gap-2">
+                      <Package className="w-4 h-4 sm:w-5 sm:h-5 text-red-600" />
                       <span>My Order History & Live Tracking (ऑर्डर विवरण)</span>
                     </h4>
-                    <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+                    <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 mt-0.5">
                       Aapke mobile number se place kiye gaye sabhi orders yahan permanently saved hain.
                     </p>
                   </div>
@@ -469,24 +478,24 @@ export const CustomerAccountModal: React.FC<CustomerAccountModalProps> = ({
                       setIsLoadingOrders(true);
                       setTimeout(() => setIsLoadingOrders(false), 500);
                     }}
-                    className="p-2 text-zinc-500 hover:text-red-600 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
+                    className="p-1.5 sm:p-2 text-zinc-500 hover:text-red-600 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
                     title="Refresh orders"
                   >
-                    <RefreshCw className={`w-4 h-4 ${isLoadingOrders ? 'animate-spin' : ''}`} />
+                    <RefreshCw className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${isLoadingOrders ? 'animate-spin' : ''}`} />
                   </button>
                 </div>
 
                 {isLoadingOrders ? (
                   <div className="py-12 text-center text-zinc-500 space-y-2">
-                    <RefreshCw className="w-6 h-6 animate-spin mx-auto text-red-600" />
+                    <RefreshCw className="w-5 h-5 sm:w-6 sm:h-6 animate-spin mx-auto text-red-600" />
                     <p className="text-xs font-semibold">Loading your order history from cloud...</p>
                   </div>
                 ) : orders.length === 0 ? (
-                  <div className="py-12 px-4 text-center bg-zinc-50 dark:bg-[#181818] border border-dashed border-zinc-300 dark:border-zinc-800 rounded-3xl space-y-3">
-                    <div className="w-14 h-14 bg-zinc-200 dark:bg-zinc-800 rounded-full flex items-center justify-center mx-auto text-zinc-400">
-                      <ShoppingBag className="w-7 h-7" />
+                  <div className="py-12 px-4 text-center bg-zinc-50 dark:bg-[#181818] border border-dashed border-zinc-300 dark:border-zinc-800 rounded-2xl sm:rounded-3xl space-y-3">
+                    <div className="w-12 h-12 sm:w-14 sm:h-14 bg-zinc-200 dark:bg-zinc-800 rounded-full flex items-center justify-center mx-auto text-zinc-400">
+                      <ShoppingBag className="w-6 h-6 sm:w-7 sm:h-7" />
                     </div>
-                    <h4 className="font-bold text-zinc-700 dark:text-zinc-300 text-sm">
+                    <h4 className="font-bold text-zinc-700 dark:text-zinc-300 text-xs sm:text-sm">
                       No Orders Placed Yet
                     </h4>
                     <p className="text-xs text-zinc-500 max-w-sm mx-auto">
@@ -494,14 +503,14 @@ export const CustomerAccountModal: React.FC<CustomerAccountModalProps> = ({
                     </p>
                     <button
                       onClick={onClose}
-                      className="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white text-xs font-bold uppercase tracking-wider rounded-xl shadow cursor-pointer transition-all inline-flex items-center gap-1.5"
+                      className="px-4 py-2 sm:px-5 sm:py-2.5 bg-red-600 hover:bg-red-700 text-white text-[10px] sm:text-xs font-bold uppercase tracking-wider rounded-lg sm:rounded-xl shadow cursor-pointer transition-all inline-flex items-center gap-1.5"
                     >
                       <span>Explore Products (उत्पाद देखें)</span>
-                      <ChevronRight className="w-4 h-4" />
+                      <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                     </button>
                   </div>
                 ) : (
-                  <div className="space-y-4">
+                  <div className="space-y-3 sm:space-y-4">
                     {orders.map((order) => {
                       const badge = getStatusBadge(order.orderStatus);
                       const orderDateFormatted = order.createdAt
@@ -517,33 +526,33 @@ export const CustomerAccountModal: React.FC<CustomerAccountModalProps> = ({
                       return (
                         <div
                           key={order.id}
-                          className="bg-zinc-50 dark:bg-[#181818] border border-zinc-200 dark:border-zinc-800 rounded-3xl p-4 sm:p-5 space-y-3.5 shadow-sm hover:border-zinc-300 dark:hover:border-zinc-700 transition-all"
+                          className="bg-zinc-50 dark:bg-[#181818] border border-zinc-200 dark:border-zinc-800 rounded-xl sm:rounded-3xl p-3 sm:p-4 space-y-3 sm:space-y-3.5 shadow-sm hover:border-zinc-300 dark:hover:border-zinc-700 transition-all"
                         >
                           {/* Order Header */}
-                          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-zinc-200 dark:border-zinc-800 pb-3">
+                          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-zinc-200 dark:border-zinc-800 pb-2.5 sm:pb-3">
                             <div className="space-y-0.5">
-                              <div className="flex items-center gap-2 flex-wrap">
-                                <span className="font-mono font-bold text-sm text-red-600 dark:text-red-400">
+                              <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                                <span className="font-mono font-bold text-xs sm:text-sm md:text-base text-red-600 dark:text-red-400">
                                   #{order.id}
                                 </span>
                                 <span
-                                  className={`px-2.5 py-0.5 text-[11px] font-black rounded-full border uppercase tracking-wider ${badge.bg}`}
+                                  className={`px-2 py-0.5 text-[9px] sm:text-[10px] font-black rounded-full border uppercase tracking-wider ${badge.bg}`}
                                 >
                                   {badge.label}
                                 </span>
                               </div>
-                              <p className="text-[11px] text-zinc-500 dark:text-zinc-400 flex items-center gap-1">
+                              <p className="text-[10px] sm:text-xs text-zinc-500 dark:text-zinc-400 flex items-center gap-1">
                                 <Calendar className="w-3 h-3" />
                                 <span>Ordered on: {orderDateFormatted}</span>
                               </p>
                             </div>
 
                             <div className="text-right">
-                              <span className="text-xs text-zinc-500 uppercase font-semibold">Total Amount:</span>
-                              <p className="text-base font-black text-red-600 dark:text-red-400 font-mono">
+                              <span className="text-[10px] sm:text-xs text-zinc-500 uppercase font-semibold">Total Amount:</span>
+                              <p className="text-sm sm:text-base md:text-lg font-black text-red-600 dark:text-red-400 font-mono">
                                 ₹{(Number(order.totalAmount) || 0).toLocaleString('en-IN')}
                               </p>
-                              <span className="text-[10px] font-bold text-zinc-500 uppercase">
+                              <span className="text-[9px] sm:text-[10px] md:text-xs font-bold text-zinc-500 uppercase">
                                 {(() => {
                                   const isPrepaid = order.paymentMethod === 'Prepaid'
                                     || order.paymentMethod === 'Online'
@@ -556,85 +565,94 @@ export const CustomerAccountModal: React.FC<CustomerAccountModalProps> = ({
                           </div>
 
                           {/* Live Progress Stage Tracker */}
-                          <div className="py-2 px-3 bg-white dark:bg-[#101010] rounded-2xl border border-zinc-200 dark:border-zinc-800">
-                            <div className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider mb-2 flex items-center justify-between">
-                              <span className="flex items-center gap-1.5">
-                                <Truck className="w-3.5 h-3.5 text-amber-500" />
-                                <span>Live Delivery Timeline (लाइव ट्रैकिंग):</span>
+                          <div className="py-2 px-2.5 sm:px-3 bg-white dark:bg-[#101010] rounded-xl sm:rounded-2xl border border-zinc-200 dark:border-zinc-800">
+                            <div className="text-[10px] sm:text-[11px] font-bold text-zinc-500 uppercase tracking-wider mb-2 flex items-center justify-between">
+                              <span className="flex items-center gap-1 sm:gap-1.5">
+                                <Truck className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-amber-500" />
+                                <span>Live Delivery Timeline:</span>
                               </span>
                               {order.courierPartner && (
-                                <span className="text-emerald-600 dark:text-emerald-400">
+                                <span className="text-emerald-600 dark:text-emerald-400 text-[10px] sm:text-[11px]">
                                   Courier: <strong>{order.courierPartner}</strong> ({order.courierTrackingNumber || 'In-transit'})
                                 </span>
                               )}
                             </div>
 
                             {badge.step > 0 ? (
-                              <div className="grid grid-cols-6 gap-1 text-center text-[9px] sm:text-[10px] font-bold">
+                              <div className="grid grid-cols-3 sm:grid-cols-6 gap-1.5 sm:gap-2 text-center text-[9px] sm:text-[10px] md:text-xs font-bold">
                                 {/* 1. Placed */}
                                 <div
-                                  className={`p-1.5 rounded-lg flex flex-col items-center gap-0.5 ${
+                                  className={`p-1 sm:p-1.5 rounded-lg flex flex-col items-center gap-0.5 min-w-0 justify-center ${
                                     badge.step >= 1
                                       ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30'
                                       : 'text-zinc-400 bg-zinc-100 dark:bg-zinc-900'
                                   }`}
                                 >
-                                  <span>1. Placed</span>
+                                  <span className="break-words text-center max-w-full truncate">1. Placed</span>
                                 </div>
 
                                 {/* 2. Confirmed */}
                                 <div
-                                  className={`p-1.5 rounded-lg flex flex-col items-center gap-0.5 ${
+                                  className={`p-1 sm:p-1.5 rounded-lg flex flex-col items-center gap-0.5 min-w-0 justify-center ${
                                     badge.step >= 2
                                       ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30'
                                       : 'text-zinc-400 bg-zinc-100 dark:bg-zinc-900'
                                   }`}
                                 >
-                                  <span>2. Confirmed</span>
+                                  <span className="break-words text-center max-w-full truncate">
+                                    <span className="hidden sm:inline">2. Confirmed</span>
+                                    <span className="sm:hidden">2. Confirm</span>
+                                  </span>
                                 </div>
 
                                 {/* 3. Packed */}
                                 <div
-                                  className={`p-1.5 rounded-lg flex flex-col items-center gap-0.5 ${
+                                  className={`p-1 sm:p-1.5 rounded-lg flex flex-col items-center gap-0.5 min-w-0 justify-center ${
                                     badge.step >= 3
                                       ? 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/30'
                                       : 'text-zinc-400 bg-zinc-100 dark:bg-zinc-900'
                                   }`}
                                 >
-                                  <span>3. Packed</span>
+                                  <span className="break-words text-center max-w-full truncate">3. Packed</span>
                                 </div>
 
                                 {/* 4. Dispatched */}
                                 <div
-                                  className={`p-1.5 rounded-lg flex flex-col items-center gap-0.5 ${
+                                  className={`p-1 sm:p-1.5 rounded-lg flex flex-col items-center gap-0.5 min-w-0 justify-center ${
                                     badge.step >= 4
                                       ? 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/30 font-extrabold'
                                       : 'text-zinc-400 bg-zinc-100 dark:bg-zinc-900'
                                   }`}
                                 >
-                                  <span>4. Dispatched</span>
+                                  <span className="break-words text-center max-w-full truncate">
+                                    <span className="hidden sm:inline">4. Dispatched</span>
+                                    <span className="sm:hidden">4. Dispatch</span>
+                                  </span>
                                 </div>
 
                                 {/* 5. Out for Delivery */}
                                 <div
-                                  className={`p-1.5 rounded-lg flex flex-col items-center gap-0.5 ${
+                                  className={`p-1 sm:p-1.5 rounded-lg flex flex-col items-center gap-0.5 min-w-0 justify-center ${
                                     badge.step >= 5
                                       ? 'bg-teal-500/10 text-teal-600 dark:text-teal-400 border border-teal-500/30 font-extrabold'
                                       : 'text-zinc-400 bg-zinc-100 dark:bg-zinc-900'
                                   }`}
                                 >
-                                  <span>5. Out for Delivery</span>
+                                  <span className="break-words text-center max-w-full truncate">
+                                    <span className="hidden sm:inline">5. Out for Delivery</span>
+                                    <span className="sm:hidden">5. Delivery</span>
+                                  </span>
                                 </div>
 
                                 {/* 6. Delivered */}
                                 <div
-                                  className={`p-1.5 rounded-lg flex flex-col items-center gap-0.5 ${
+                                  className={`p-1 sm:p-1.5 rounded-lg flex flex-col items-center gap-0.5 min-w-0 justify-center ${
                                     badge.step >= 6
                                       ? 'bg-emerald-500 text-white font-extrabold shadow-sm'
                                       : 'text-zinc-400 bg-zinc-100 dark:bg-zinc-900'
                                   }`}
                                 >
-                                  <span>6. Delivered</span>
+                                  <span className="break-words text-center max-w-full truncate">6. Delivered</span>
                                 </div>
                               </div>
                             ) : badge.step === -1 ? (
@@ -662,26 +680,26 @@ export const CustomerAccountModal: React.FC<CustomerAccountModalProps> = ({
                                 ];
 
                             return (
-                              <div className="space-y-2">
-                                {itemsList.map((item, itIdx) => (
+                              <div className="space-y-1.5 sm:space-y-2">
+                                 {itemsList.map((item, itIdx) => (
                                   <div
                                     key={itIdx}
-                                    className="flex items-center justify-between p-2.5 bg-white dark:bg-[#121212] rounded-2xl border border-zinc-200 dark:border-zinc-800/80 gap-3"
+                                    className="flex flex-col sm:flex-row sm:items-center justify-between p-2 sm:p-2.5 bg-white dark:bg-[#121212] rounded-xl sm:rounded-2xl border border-zinc-200 dark:border-zinc-800/80 gap-2 sm:gap-3"
                                   >
-                                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                                    <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1 w-full">
                                       {item.image && (
                                         <img
                                           src={item.image}
                                           alt={item.name}
-                                          className="w-12 h-14 object-cover rounded-xl border border-zinc-300 dark:border-zinc-700 bg-black flex-shrink-0"
+                                          className="w-10 h-10 sm:w-14 sm:h-14 object-cover rounded-lg sm:rounded-xl border border-zinc-300 dark:border-zinc-700 bg-black flex-shrink-0"
                                           referrerPolicy="no-referrer"
                                         />
                                       )}
                                       <div className="min-w-0 flex-1">
-                                        <p className="text-xs font-bold text-zinc-900 dark:text-white truncate">
+                                        <p className="text-xs sm:text-sm font-bold text-zinc-900 dark:text-white truncate">
                                           {item.name}
                                         </p>
-                                        <p className="text-[11px] text-zinc-500">
+                                        <p className="text-[10px] sm:text-xs text-zinc-500">
                                           ₹{(Number(item.price) || 0).toLocaleString('en-IN')} × {item.quantity} {item.quantity === 1 ? 'piece' : 'pieces'}
                                         </p>
                                       </div>
@@ -691,10 +709,10 @@ export const CustomerAccountModal: React.FC<CustomerAccountModalProps> = ({
                                     <button
                                       type="button"
                                       onClick={() => handleReorderClick(item.name)}
-                                      className="px-3 py-1.5 bg-red-50 dark:bg-red-950/40 hover:bg-red-600 hover:text-white border border-red-300 dark:border-red-800 text-red-600 dark:text-red-400 text-[11px] font-bold rounded-xl flex items-center gap-1 transition-all cursor-pointer flex-shrink-0"
+                                      className="w-full sm:w-auto justify-center px-2.5 sm:px-3 py-1 sm:py-1.5 bg-red-50 dark:bg-red-950/40 hover:bg-red-600 hover:text-white border border-red-300 dark:border-red-800 text-red-600 dark:text-red-400 text-[10px] sm:text-xs font-bold rounded-lg sm:rounded-xl flex items-center gap-1 sm:gap-1.5 transition-all cursor-pointer flex-shrink-0"
                                       title="Reorder this product again"
                                     >
-                                      <RotateCcw className="w-3 h-3" />
+                                      <RotateCcw className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                                       <span>Reorder (पुनः मंगाएं)</span>
                                     </button>
                                   </div>
@@ -705,7 +723,7 @@ export const CustomerAccountModal: React.FC<CustomerAccountModalProps> = ({
 
                           {/* Order Action Buttons Footer */}
                           <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-zinc-200 dark:border-zinc-800">
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
                               {/* Rate & Review Button */}
                               <button
                                 type="button"
@@ -713,20 +731,20 @@ export const CustomerAccountModal: React.FC<CustomerAccountModalProps> = ({
                                   setFeedbackOrder(order);
                                   setIsFeedbackModalOpen(true);
                                 }}
-                                className="px-3 py-1.5 bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 dark:hover:bg-amber-900/50 border border-amber-300 dark:border-amber-800 text-amber-700 dark:text-amber-300 text-xs font-bold rounded-xl flex items-center gap-1.5 transition-colors cursor-pointer"
+                                className="px-2.5 sm:px-3 py-1 sm:py-1.5 bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 dark:hover:bg-amber-900/50 border border-amber-300 dark:border-amber-800 text-amber-700 dark:text-amber-300 text-[10px] sm:text-xs font-bold rounded-lg sm:rounded-xl flex items-center gap-1 sm:gap-1.5 transition-colors cursor-pointer"
                               >
-                                <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
-                                <span>Rate / Feedback (रिव्यू दें)</span>
+                                <Star className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-amber-500 fill-amber-500" />
+                                <span>Feedback (रिव्यू)</span>
                               </button>
 
                               {/* Print Receipt / Slip */}
                               <button
                                 type="button"
                                 onClick={() => printInvoice(order, 'thermal_slip')}
-                                className="px-3 py-1.5 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 text-xs font-bold rounded-xl flex items-center gap-1.5 transition-colors cursor-pointer"
+                                className="px-2.5 sm:px-3 py-1 sm:py-1.5 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 text-[10px] sm:text-xs font-bold rounded-lg sm:rounded-xl flex items-center gap-1 sm:gap-1.5 transition-colors cursor-pointer"
                                 title="Print 80mm Thermal Receipt Slip"
                               >
-                                <Printer className="w-3.5 h-3.5 text-zinc-500" />
+                                <Printer className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-zinc-500" />
                                 <span>Thermal Slip</span>
                               </button>
 
@@ -734,11 +752,11 @@ export const CustomerAccountModal: React.FC<CustomerAccountModalProps> = ({
                               <button
                                 type="button"
                                 onClick={() => printInvoice(order, 'tax_invoice')}
-                                className="px-3 py-1.5 bg-red-50 dark:bg-red-950/40 hover:bg-red-100 dark:hover:bg-red-900/50 border border-red-300 dark:border-red-800 text-red-700 dark:text-red-300 text-xs font-bold rounded-xl flex items-center gap-1.5 transition-colors cursor-pointer"
+                                className="px-2.5 sm:px-3 py-1 sm:py-1.5 bg-red-50 dark:bg-red-950/40 hover:bg-red-100 dark:hover:bg-red-900/50 border border-red-300 dark:border-red-800 text-red-700 dark:text-red-300 text-[10px] sm:text-xs font-bold rounded-lg sm:rounded-xl flex items-center gap-1 sm:gap-1.5 transition-colors cursor-pointer"
                                 title="Print Official GST Tax Invoice Bill"
                               >
-                                <FileText className="w-3.5 h-3.5 text-red-600" />
-                                <span>Tax Invoice Bill</span>
+                                <FileText className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-red-600" />
+                                <span>Tax Invoice</span>
                               </button>
                             </div>
 
@@ -749,10 +767,10 @@ export const CustomerAccountModal: React.FC<CustomerAccountModalProps> = ({
                                 setTicketOrderId(order.id);
                                 setAccountActiveTab('support');
                               }}
-                              className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-xl flex items-center gap-1.5 shadow-sm cursor-pointer transition-colors"
+                              className="px-2.5 sm:px-3 py-1 sm:py-1.5 bg-red-600 hover:bg-red-700 text-white text-[10px] sm:text-xs font-bold rounded-lg sm:rounded-xl flex items-center gap-1 sm:gap-1.5 shadow-sm cursor-pointer transition-colors"
                             >
-                              <ShieldCheck className="w-3.5 h-3.5" />
-                              <span>Help & Support</span>
+                              <ShieldCheck className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                              <span>Support</span>
                             </button>
 
                           </div>
@@ -771,22 +789,22 @@ export const CustomerAccountModal: React.FC<CustomerAccountModalProps> = ({
               <div className="space-y-4">
                 <div className="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800 pb-3">
                   <div>
-                    <h4 className="text-sm font-extrabold uppercase tracking-wider text-zinc-800 dark:text-zinc-200 flex items-center gap-2">
-                      <Heart className="w-4 h-4 text-red-600 fill-red-600" />
+                    <h4 className="text-base sm:text-lg md:text-xl font-brand font-extrabold uppercase tracking-wider text-zinc-800 dark:text-zinc-200 flex items-center gap-2">
+                      <Heart className="w-4 h-4 sm:w-5 sm:h-5 text-red-600 fill-red-600" />
                       <span>My Wishlist (पसंदीदा घड़ियां) ({wishlist.length})</span>
                     </h4>
-                    <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+                    <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 mt-0.5">
                       Aapki pasandeeda ghadiyan yahan save hain. Aap 1-click me unhe order ya bag me add kar sakte hain.
                     </p>
                   </div>
                 </div>
 
                 {wishlist.length === 0 ? (
-                  <div className="py-12 text-center bg-zinc-50 dark:bg-[#181818] rounded-3xl border border-dashed border-zinc-300 dark:border-zinc-800 space-y-3">
+                  <div className="py-12 text-center bg-zinc-50 dark:bg-[#181818] rounded-2xl sm:rounded-3xl border border-dashed border-zinc-300 dark:border-zinc-800 space-y-3">
                     <div className="w-12 h-12 mx-auto rounded-full bg-red-100 dark:bg-red-950/60 flex items-center justify-center text-red-500">
                       <Heart className="w-6 h-6" />
                     </div>
-                    <h4 className="text-sm font-bold text-zinc-700 dark:text-zinc-300">
+                    <h4 className="text-xs sm:text-sm font-bold text-zinc-700 dark:text-zinc-300">
                       Aapki Wishlist Khali Hai (Your wishlist is empty)
                     </h4>
                     <p className="text-xs text-zinc-500 max-w-sm mx-auto">
@@ -801,34 +819,34 @@ export const CustomerAccountModal: React.FC<CustomerAccountModalProps> = ({
                       return (
                         <div
                           key={productId}
-                          className="p-3 bg-zinc-50 dark:bg-[#181818] border border-zinc-200 dark:border-zinc-800 rounded-2xl flex gap-3 items-center justify-between"
+                          className="p-2 sm:p-3 bg-zinc-50 dark:bg-[#181818] border border-zinc-200 dark:border-zinc-800 rounded-xl sm:rounded-2xl flex gap-2.5 sm:gap-3 items-center justify-between"
                         >
                           <img
                             src={product.image}
                             alt={product.name}
-                            className="w-16 h-20 object-cover bg-white rounded-xl border border-zinc-300 dark:border-zinc-700 flex-shrink-0"
+                            className="w-12 h-15 sm:w-16 sm:h-20 object-cover bg-white rounded-lg sm:rounded-xl border border-zinc-300 dark:border-zinc-700 flex-shrink-0"
                             referrerPolicy="no-referrer"
                           />
                           <div className="flex-1 min-w-0">
-                            <h5 className="font-brand text-xs font-bold text-zinc-900 dark:text-white truncate">
+                            <h5 className="font-brand text-xs sm:text-sm font-bold text-zinc-900 dark:text-white truncate">
                               {product.name}
                             </h5>
-                            <p className="text-[10px] text-red-500 font-semibold mb-1">
+                            <p className="text-[9px] sm:text-[10px] text-red-500 font-semibold mb-0.5 sm:mb-1">
                               {product.categoryLabel}
                             </p>
-                            <div className="flex items-baseline gap-2 mb-2">
-                              <span className="text-xs font-bold text-red-600 dark:text-red-400">
+                            <div className="flex items-baseline gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
+                              <span className="text-xs sm:text-sm font-bold text-red-600 dark:text-red-400">
                                 ₹{(Number(product.price) || 0).toLocaleString('en-IN')}
                               </span>
                               {Number(product.originalPrice) > Number(product.price) && (
-                                <span className="text-[10px] text-zinc-500 line-through">
+                                <span className="text-[9px] sm:text-[10px] text-zinc-500 line-through">
                                   ₹{(Number(product.originalPrice) || 0).toLocaleString('en-IN')}
                                 </span>
                               )}
                             </div>
 
                             {/* Action Buttons */}
-                            <div className="flex items-center gap-1.5">
+                            <div className="flex items-center gap-1 sm:gap-1.5">
                               {onBuyNow && (
                                 <button
                                   type="button"
@@ -836,9 +854,9 @@ export const CustomerAccountModal: React.FC<CustomerAccountModalProps> = ({
                                     onClose();
                                     onBuyNow(product, 1);
                                   }}
-                                  className="px-2.5 py-1 bg-red-600 hover:bg-red-700 text-white text-[10px] font-bold rounded-lg uppercase flex items-center gap-1 cursor-pointer transition-colors shadow-sm"
+                                  className="px-2 py-1 sm:px-2.5 sm:py-1 bg-red-600 hover:bg-red-700 text-white text-[9px] sm:text-[10px] font-bold rounded-lg uppercase flex items-center gap-0.5 sm:gap-1 cursor-pointer transition-colors shadow-sm"
                                 >
-                                  <Zap className="w-3 h-3 text-amber-300" />
+                                  <Zap className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-amber-300 animate-pulse" />
                                   <span>Order</span>
                                 </button>
                               )}
@@ -846,9 +864,9 @@ export const CustomerAccountModal: React.FC<CustomerAccountModalProps> = ({
                                 <button
                                   type="button"
                                   onClick={() => onAddToCart(product, 1)}
-                                  className="px-2.5 py-1 bg-zinc-200 dark:bg-zinc-800 hover:bg-zinc-300 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 text-[10px] font-semibold rounded-lg flex items-center gap-1 cursor-pointer transition-colors"
+                                  className="px-2 py-1 sm:px-2.5 sm:py-1 bg-zinc-200 dark:bg-zinc-800 hover:bg-zinc-300 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 text-[9px] sm:text-[10px] font-semibold rounded-lg flex items-center gap-0.5 sm:gap-1 cursor-pointer transition-colors"
                                 >
-                                  <ShoppingBag className="w-3 h-3" />
+                                  <ShoppingBag className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                                   <span>Add</span>
                                 </button>
                               )}
@@ -858,7 +876,7 @@ export const CustomerAccountModal: React.FC<CustomerAccountModalProps> = ({
                                 className="p-1 text-zinc-400 hover:text-red-500 rounded-lg transition-colors cursor-pointer"
                                 title="Remove from wishlist"
                               >
-                                <Trash2 className="w-3.5 h-3.5" />
+                                <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                               </button>
                             </div>
                           </div>
@@ -884,18 +902,18 @@ export const CustomerAccountModal: React.FC<CustomerAccountModalProps> = ({
               <div className="space-y-4">
                 <div className="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800 pb-3">
                   <div>
-                    <h4 className="text-sm font-extrabold uppercase tracking-wider text-zinc-800 dark:text-zinc-200 flex items-center gap-2">
-                      <User className="w-4 h-4 text-red-600" />
+                    <h4 className="text-base sm:text-lg md:text-xl font-brand font-extrabold uppercase tracking-wider text-zinc-800 dark:text-zinc-200 flex items-center gap-2">
+                      <User className="w-4 h-4 sm:w-5 sm:h-5 text-red-600" />
                       <span>Customer Profile (प्रोफ़ाइल और पता)</span>
                     </h4>
-                    <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+                    <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 mt-0.5">
                       Update your personal details here.
                     </p>
                   </div>
                   {!isEditingProfile && (
                     <button
                       onClick={() => setIsEditingProfile(true)}
-                      className="px-3.5 py-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-xl flex items-center gap-1.5 shadow cursor-pointer transition-colors"
+                      className="px-3 py-1.5 sm:px-3.5 sm:py-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-lg sm:rounded-xl flex items-center gap-1.5 shadow cursor-pointer transition-colors"
                     >
                       <Edit3 className="w-3.5 h-3.5" />
                       <span>Edit Details</span>
@@ -904,7 +922,7 @@ export const CustomerAccountModal: React.FC<CustomerAccountModalProps> = ({
                 </div>
 
                 {isEditingProfile ? (
-                  <form onSubmit={handleSaveProfile} className="space-y-4 max-w-xl">
+                  <form onSubmit={handleSaveProfile} className="space-y-3 sm:space-y-4 max-w-xl">
                     <div>
                       <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-1">
                         Full Name (आपका नाम) *
@@ -914,7 +932,7 @@ export const CustomerAccountModal: React.FC<CustomerAccountModalProps> = ({
                         required
                         value={editName}
                         onChange={(e) => setEditName(e.target.value)}
-                        className="w-full px-3.5 py-2.5 bg-zinc-50 dark:bg-[#1a0d0d] border border-zinc-300 dark:border-zinc-700 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-red-600 focus:outline-none"
+                        className="w-full px-3 py-2 sm:px-3.5 sm:py-2.5 bg-zinc-50 dark:bg-[#1a0d0d] border border-zinc-300 dark:border-zinc-700 rounded-lg sm:rounded-xl text-xs sm:text-sm font-semibold focus:ring-2 focus:ring-red-600 focus:outline-none"
                       />
                     </div>
 
@@ -922,9 +940,9 @@ export const CustomerAccountModal: React.FC<CustomerAccountModalProps> = ({
                       <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-1">
                         Registered Mobile Number (ओटीपी सत्यापित मोबाइल)
                       </label>
-                      <div className="px-3.5 py-2.5 bg-zinc-100 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-800 rounded-xl text-xs font-mono font-bold text-zinc-600 dark:text-zinc-400 flex items-center justify-between">
+                      <div className="px-3 py-2 sm:px-3.5 sm:py-2.5 bg-zinc-100 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-800 rounded-lg sm:rounded-xl text-xs sm:text-sm font-mono font-bold text-zinc-600 dark:text-zinc-400 flex items-center justify-between">
                         <span>+91 {customer.phone}</span>
-                        <span className="text-[10px] text-emerald-500 font-bold uppercase">✓ Verified Phone</span>
+                        <span className="text-[9px] sm:text-[10px] text-emerald-500 font-bold uppercase">✓ Verified Phone</span>
                       </div>
                     </div>
 
@@ -937,7 +955,7 @@ export const CustomerAccountModal: React.FC<CustomerAccountModalProps> = ({
                         value={editEmail}
                         onChange={(e) => setEditEmail(e.target.value)}
                         placeholder="e.g. rahul@gmail.com"
-                        className="w-full px-3.5 py-2.5 bg-zinc-50 dark:bg-[#1a0d0d] border border-zinc-300 dark:border-zinc-700 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-red-600 focus:outline-none"
+                        className="w-full px-3 py-2 sm:px-3.5 sm:py-2.5 bg-zinc-50 dark:bg-[#1a0d0d] border border-zinc-300 dark:border-zinc-700 rounded-lg sm:rounded-xl text-xs sm:text-sm font-semibold focus:ring-2 focus:ring-red-600 focus:outline-none"
                       />
                     </div>
 
@@ -950,7 +968,7 @@ export const CustomerAccountModal: React.FC<CustomerAccountModalProps> = ({
                         value={editPassword}
                         onChange={(e) => setEditPassword(e.target.value)}
                         placeholder="Set or change your login password"
-                        className="w-full px-3.5 py-2.5 bg-zinc-50 dark:bg-[#1a0d0d] border border-zinc-300 dark:border-zinc-700 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-red-600 focus:outline-none font-mono"
+                        className="w-full px-3 py-2 sm:px-3.5 sm:py-2.5 bg-zinc-50 dark:bg-[#1a0d0d] border border-zinc-300 dark:border-zinc-700 rounded-lg sm:rounded-xl text-xs sm:text-sm font-semibold focus:ring-2 focus:ring-red-600 focus:outline-none font-mono"
                       />
                       <p className="text-[10px] text-zinc-400 mt-1">
                         इस पासवर्ड से आप भविष्य में सीधे बिना OTP के लॉगिन कर सकते हैं।
@@ -966,7 +984,7 @@ export const CustomerAccountModal: React.FC<CustomerAccountModalProps> = ({
                         required
                         value={editAddress}
                         onChange={(e) => setEditAddress(e.target.value)}
-                        className="w-full px-3.5 py-2.5 bg-zinc-50 dark:bg-[#1a0d0d] border border-zinc-300 dark:border-zinc-700 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-red-600 focus:outline-none"
+                        className="w-full px-3 py-2 sm:px-3.5 sm:py-2.5 bg-zinc-50 dark:bg-[#1a0d0d] border border-zinc-300 dark:border-zinc-700 rounded-lg sm:rounded-xl text-xs sm:text-sm font-semibold focus:ring-2 focus:ring-red-600 focus:outline-none"
                       />
                     </div>
 
@@ -980,7 +998,7 @@ export const CustomerAccountModal: React.FC<CustomerAccountModalProps> = ({
                           required
                           value={editCity}
                           onChange={(e) => setEditCity(e.target.value)}
-                          className="w-full px-3.5 py-2.5 bg-zinc-50 dark:bg-[#1a0d0d] border border-zinc-300 dark:border-zinc-700 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-red-600 focus:outline-none"
+                          className="w-full px-3 py-2 sm:px-3.5 sm:py-2.5 bg-zinc-50 dark:bg-[#1a0d0d] border border-zinc-300 dark:border-zinc-700 rounded-lg sm:rounded-xl text-xs sm:text-sm font-semibold focus:ring-2 focus:ring-red-600 focus:outline-none"
                         />
                       </div>
 
@@ -994,7 +1012,7 @@ export const CustomerAccountModal: React.FC<CustomerAccountModalProps> = ({
                           maxLength={6}
                           value={editPincode}
                           onChange={(e) => setEditPincode(e.target.value.replace(/\D/g, ''))}
-                          className="w-full px-3.5 py-2.5 bg-zinc-50 dark:bg-[#1a0d0d] border border-zinc-300 dark:border-zinc-700 rounded-xl text-xs font-mono font-bold focus:ring-2 focus:ring-red-600 focus:outline-none"
+                          className="w-full px-3 py-2 sm:px-3.5 sm:py-2.5 bg-zinc-50 dark:bg-[#1a0d0d] border border-zinc-300 dark:border-zinc-700 rounded-lg sm:rounded-xl text-xs sm:text-sm font-mono font-bold focus:ring-2 focus:ring-red-600 focus:outline-none"
                         />
                       </div>
                     </div>
@@ -1003,23 +1021,23 @@ export const CustomerAccountModal: React.FC<CustomerAccountModalProps> = ({
                       <button
                         type="button"
                         onClick={() => setIsEditingProfile(false)}
-                        className="px-4 py-2.5 bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 text-xs font-bold rounded-xl cursor-pointer"
+                        className="px-3 py-2 sm:px-4 sm:py-2.5 bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 text-xs sm:text-sm font-bold rounded-lg sm:rounded-xl cursor-pointer"
                       >
                         Cancel
                       </button>
                       <button
                         type="submit"
                         disabled={isSavingProfile}
-                        className="flex-1 py-2.5 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 text-white text-xs font-extrabold uppercase tracking-wider rounded-xl shadow flex items-center justify-center gap-2 cursor-pointer transition-all"
+                        className="flex-1 py-2 sm:py-2.5 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 text-white text-xs sm:text-sm font-extrabold uppercase tracking-wider rounded-lg sm:rounded-xl shadow flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer transition-all"
                       >
                         {isSavingProfile ? (
                           <>
-                            <RefreshCw className="w-4 h-4 animate-spin" />
+                            <RefreshCw className="w-3.5 h-3.5 animate-spin" />
                             <span>Saving Changes...</span>
                           </>
                         ) : (
                           <>
-                            <Save className="w-4 h-4" />
+                            <Save className="w-3.5 h-3.5" />
                             <span>Save Profile (सुरक्षित करें)</span>
                           </>
                         )}
@@ -1027,21 +1045,21 @@ export const CustomerAccountModal: React.FC<CustomerAccountModalProps> = ({
                     </div>
                   </form>
                 ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                     {/* Primary Address Card */}
-                    <div className="p-5 bg-zinc-50 dark:bg-[#181818] border border-zinc-200 dark:border-zinc-800 rounded-3xl space-y-3">
-                      <div className="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800 pb-2.5">
-                        <span className="text-xs font-bold uppercase tracking-wider text-red-600 dark:text-red-400 flex items-center gap-1.5">
-                          <MapPin className="w-4 h-4" />
+                    <div className="p-4 sm:p-5 bg-zinc-50 dark:bg-[#181818] border border-zinc-200 dark:border-zinc-800 rounded-2xl sm:rounded-3xl space-y-2.5 sm:space-y-3">
+                      <div className="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800 pb-2 sm:pb-2.5">
+                        <span className="text-xs sm:text-sm font-bold uppercase tracking-wider text-red-600 dark:text-red-400 flex items-center gap-1.5">
+                          <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                           <span>Primary Details</span>
                         </span>
-                        <span className="text-[10px] bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 rounded-full font-bold uppercase">
+                        <span className="text-[9px] sm:text-[10px] bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 rounded-full font-bold uppercase">
                           Default
                         </span>
                       </div>
 
-                      <div className="space-y-2 text-xs text-zinc-700 dark:text-zinc-300">
-                        <p className="font-bold text-sm text-zinc-900 dark:text-white">
+                      <div className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm text-zinc-700 dark:text-zinc-300">
+                        <p className="font-bold text-sm sm:text-base text-zinc-900 dark:text-white">
                           {customer.fullName}
                         </p>
                         <p className="leading-relaxed">
@@ -1050,7 +1068,7 @@ export const CustomerAccountModal: React.FC<CustomerAccountModalProps> = ({
                         <p className="font-semibold">
                           {customer.city} - <strong className="font-mono text-red-600 dark:text-red-400">{customer.pincode}</strong>
                         </p>
-                        <p className="text-zinc-500 font-mono pt-1">
+                        <p className="text-zinc-500 font-mono pt-0.5">
                           Phone: +91 {customer.phone}
                         </p>
                         {customer.email && (
@@ -1062,41 +1080,41 @@ export const CustomerAccountModal: React.FC<CustomerAccountModalProps> = ({
                     </div>
 
                     {/* Account Security & Info */}
-                    <div className="p-5 bg-zinc-50 dark:bg-[#181818] border border-zinc-200 dark:border-zinc-800 rounded-3xl space-y-3">
-                      <div className="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800 pb-2.5">
-                        <span className="text-xs font-bold uppercase tracking-wider text-zinc-700 dark:text-zinc-300 flex items-center gap-1.5">
-                          <ShieldCheck className="w-4 h-4 text-emerald-500" />
+                    <div className="p-4 sm:p-5 bg-zinc-50 dark:bg-[#181818] border border-zinc-200 dark:border-zinc-800 rounded-2xl sm:rounded-3xl space-y-2.5 sm:space-y-3">
+                      <div className="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800 pb-2 sm:pb-2.5">
+                        <span className="text-xs sm:text-sm font-bold uppercase tracking-wider text-zinc-700 dark:text-zinc-300 flex items-center gap-1.5">
+                          <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-500" />
                           <span>Security & Cloud Sync</span>
                         </span>
-                        <span className="text-[10px] bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 rounded-full font-bold uppercase">
+                        <span className="text-[9px] sm:text-[10px] bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 rounded-full font-bold uppercase">
                           Active
                         </span>
                       </div>
 
-                      <div className="space-y-2.5 text-xs text-zinc-600 dark:text-zinc-400">
-                        <p className="flex items-center gap-2">
-                          <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0" />
-                          <span>Mobile & Gmail / Username Authentication: <strong>Active</strong></span>
+                      <div className="space-y-2 text-xs sm:text-sm text-zinc-600 dark:text-zinc-400">
+                        <p className="flex items-center gap-1.5 sm:gap-2">
+                          <CheckCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-500 flex-shrink-0" />
+                          <span>Mobile & Gmail: <strong>Active</strong></span>
                         </p>
-                        <p className="flex items-center gap-2">
-                          <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                        <p className="flex items-center gap-1.5 sm:gap-2">
+                          <CheckCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-500 flex-shrink-0" />
                           <span>
-                            Password Login: {customer.password ? (
-                              <strong className="text-emerald-500">Configured (सक्रिय)</strong>
+                            Password: {customer.password ? (
+                              <strong className="text-emerald-500">Configured</strong>
                             ) : (
-                              <strong className="text-amber-500">Not Set (OTP only)</strong>
+                              <strong className="text-amber-500">OTP only</strong>
                             )}
                           </span>
                         </p>
-                        <p className="flex items-center gap-2">
-                          <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0" />
-                          <span>All past purchases synced to cloud</span>
+                        <p className="flex items-center gap-1.5 sm:gap-2">
+                          <CheckCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-500 flex-shrink-0" />
+                          <span>Past purchases synced to cloud</span>
                         </p>
-                        <p className="flex items-center gap-2">
-                          <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0" />
-                          <span>1-Tap auto-fill enabled for new orders</span>
+                        <p className="flex items-center gap-1.5 sm:gap-2">
+                          <CheckCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-500 flex-shrink-0" />
+                          <span>1-Tap auto-fill enabled</span>
                         </p>
-                        <div className="pt-2 text-[11px] text-zinc-400 font-mono">
+                        <div className="pt-1.5 text-[10px] sm:text-[11px] text-zinc-400 font-mono">
                           Last active: {new Date(customer.lastLoginAt || Date.now()).toLocaleString('en-IN')}
                         </div>
                       </div>
@@ -1113,11 +1131,11 @@ export const CustomerAccountModal: React.FC<CustomerAccountModalProps> = ({
               <div className="space-y-4">
                 <div className="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800 pb-3">
                   <div>
-                    <h4 className="text-sm font-extrabold uppercase tracking-wider text-zinc-800 dark:text-zinc-200 flex items-center gap-2">
-                      <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
+                    <h4 className="text-base sm:text-lg md:text-xl font-brand font-extrabold uppercase tracking-wider text-zinc-800 dark:text-zinc-200 flex items-center gap-2">
+                      <Star className="w-4 h-4 sm:w-5 sm:h-5 text-amber-500 fill-amber-500" />
                       <span>My Ratings & Feedback (मेरी रेटिंग व रिव्यू)</span>
                     </h4>
-                    <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+                    <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 mt-0.5">
                       Aapke dwara diye gaye sabhi reviews aur ratings yahan dikhte hain.
                     </p>
                   </div>
@@ -1126,19 +1144,19 @@ export const CustomerAccountModal: React.FC<CustomerAccountModalProps> = ({
                       setFeedbackOrder(null);
                       setIsFeedbackModalOpen(true);
                     }}
-                    className="px-3.5 py-1.5 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 text-white text-xs font-bold rounded-xl flex items-center gap-1.5 shadow cursor-pointer transition-all"
+                    className="px-3 py-1.5 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 text-white text-xs sm:text-sm font-bold rounded-lg sm:rounded-xl flex items-center gap-1.5 shadow cursor-pointer transition-all"
                   >
-                    <Star className="w-3.5 h-3.5 text-amber-300 fill-amber-300" />
-                    <span>Write Review (नया रिव्यू दें)</span>
+                    <Star className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-amber-300 fill-amber-300" />
+                    <span>Write Review (रिव्यू दें)</span>
                   </button>
                 </div>
 
                 {reviews.length === 0 ? (
-                  <div className="py-10 text-center bg-zinc-50 dark:bg-[#181818] border border-dashed border-zinc-300 dark:border-zinc-800 rounded-3xl space-y-2.5">
-                    <div className="w-12 h-12 bg-amber-100 dark:bg-amber-950/60 rounded-full flex items-center justify-center mx-auto text-amber-500">
-                      <Star className="w-6 h-6 fill-amber-500" />
+                  <div className="py-10 text-center bg-zinc-50 dark:bg-[#181818] border border-dashed border-zinc-300 dark:border-zinc-800 rounded-2xl sm:rounded-3xl space-y-2.5">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-amber-100 dark:bg-amber-950/60 rounded-full flex items-center justify-center mx-auto text-amber-500">
+                      <Star className="w-5 h-5 sm:w-6 sm:h-6 fill-amber-500" />
                     </div>
-                    <h4 className="font-bold text-xs text-zinc-700 dark:text-zinc-300">
+                    <h4 className="font-bold text-xs sm:text-sm text-zinc-700 dark:text-zinc-300">
                       No Reviews Submitted Yet
                     </h4>
                     <p className="text-xs text-zinc-500 max-w-sm mx-auto">
@@ -1149,43 +1167,43 @@ export const CustomerAccountModal: React.FC<CustomerAccountModalProps> = ({
                         setFeedbackOrder(null);
                         setIsFeedbackModalOpen(true);
                       }}
-                      className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-black text-xs font-bold rounded-xl cursor-pointer"
+                      className="px-3 py-1.5 sm:px-4 sm:py-2 bg-amber-500 hover:bg-amber-600 text-black text-xs sm:text-sm font-bold rounded-lg sm:rounded-xl cursor-pointer"
                     >
                       Give Feedback Now
                     </button>
                   </div>
                 ) : (
-                  <div className="space-y-3">
+                  <div className="space-y-2.5 sm:space-y-3">
                     {reviews.map((rev) => (
                       <div
                         key={rev.id}
-                        className="p-4 bg-zinc-50 dark:bg-[#181818] border border-zinc-200 dark:border-zinc-800 rounded-2xl space-y-2 shadow-sm"
+                        className="p-3 sm:p-4 bg-zinc-50 dark:bg-[#181818] border border-zinc-200 dark:border-zinc-800 rounded-xl sm:rounded-2xl space-y-1.5 sm:space-y-2 shadow-sm"
                       >
                         <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <span className="font-bold text-xs text-zinc-900 dark:text-white">
+                          <div className="flex items-center gap-1.5 sm:gap-2">
+                            <span className="font-bold text-xs sm:text-sm text-zinc-900 dark:text-white">
                               {rev.productName}
                             </span>
-                            <span className="px-2 py-0.5 bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold rounded-full">
+                            <span className="px-1.5 py-0.5 bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[8px] sm:text-[10px] font-bold rounded-full">
                               ✓ Verified Buyer
                             </span>
                           </div>
                           <div className="flex items-center gap-0.5 text-amber-400">
                             {Array.from({ length: rev.rating }).map((_, i) => (
-                              <Star key={i} className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                              <Star key={i} className="w-3 h-3 sm:w-3.5 sm:h-3.5 fill-amber-400 text-amber-400" />
                             ))}
                           </div>
                         </div>
 
                         {rev.title && (
-                          <p className="text-xs font-bold text-zinc-800 dark:text-zinc-200">
+                          <p className="text-xs sm:text-sm font-bold text-zinc-800 dark:text-zinc-200">
                             "{rev.title}"
                           </p>
                         )}
-                        <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
+                        <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
                           {rev.comment}
                         </p>
-                        <p className="text-[10px] text-zinc-400 font-mono">
+                        <p className="text-[9px] sm:text-[10px] text-zinc-400 font-mono">
                           Submitted on: {new Date(rev.createdAt).toLocaleDateString('en-IN')}
                         </p>
                       </div>
@@ -1199,41 +1217,41 @@ export const CustomerAccountModal: React.FC<CustomerAccountModalProps> = ({
             {/* TAB 4: 24x7 CUSTOMER HELP & SUPPORT (सहायता एवं शिकायत निवारण)            */}
             {/* ========================================================================= */}
             {accountActiveTab === 'support' && (
-              <div className="space-y-6">
+              <div className="space-y-4 sm:space-y-6">
                 {/* Support Banner & Top Contact Bar */}
-                <div className="p-5 bg-gradient-to-br from-red-600 via-rose-600 to-red-700 rounded-3xl text-white shadow-lg space-y-3">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                    <div className="flex items-center gap-3">
-                      <div className="p-3 bg-white/20 backdrop-blur-md rounded-2xl">
-                        <Headphones className="w-6 h-6 text-amber-300" />
+                <div className="p-4 sm:p-5 bg-gradient-to-br from-red-600 via-rose-600 to-red-700 rounded-2xl sm:rounded-3xl text-white shadow-lg space-y-2.5 sm:space-y-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3">
+                    <div className="flex items-center gap-2.5 sm:gap-3">
+                      <div className="p-2 sm:p-3 bg-white/20 backdrop-blur-md rounded-xl sm:rounded-2xl">
+                        <Headphones className="w-5 h-5 sm:w-6 sm:h-6 text-amber-300" />
                       </div>
                       <div>
-                        <h4 className="font-brand text-lg font-bold">
+                        <h4 className="font-brand text-base sm:text-lg font-bold">
                           Timevera Customer Care & Support
                         </h4>
-                        <p className="text-xs text-red-100">
+                        <p className="text-[10px] sm:text-xs text-red-100">
                           24x7 Direct Helpdesk for Verified Account Holders
                         </p>
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2">
-                      <span className="flex h-2.5 w-2.5 relative">
+                    <div className="flex items-center gap-1.5 sm:gap-2">
+                      <span className="flex h-2 w-2 sm:h-2.5 sm:w-2.5 relative">
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-300 opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-400"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 sm:h-2.5 sm:w-2.5 bg-amber-400"></span>
                       </span>
-                      <span className="text-[11px] font-bold text-amber-200">
+                      <span className="text-[10px] sm:text-[11px] font-bold text-amber-200">
                         Helpdesk Live: 9:00 AM – 9:00 PM
                       </span>
                     </div>
                   </div>
 
                   {/* Support Channels */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2">
-                    <div className="p-3 bg-white/10 border border-white/20 rounded-2xl flex items-center gap-2.5 text-white">
-                      <ShieldCheck className="w-4 h-4 text-amber-300 flex-shrink-0" />
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-2.5 pt-1.5 sm:pt-2">
+                    <div className="p-2.5 sm:p-3 bg-white/10 border border-white/20 rounded-xl sm:rounded-2xl flex items-center gap-2 sm:gap-2.5 text-white">
+                      <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-300 flex-shrink-0" />
                       <div className="text-left">
-                        <div className="text-[10px] uppercase font-bold text-red-200">Online Helpdesk</div>
+                        <div className="text-[9px] sm:text-[10px] uppercase font-bold text-red-200">Online Helpdesk</div>
                         <div className="text-xs font-bold">Raise Support Ticket Below</div>
                       </div>
                     </div>
@@ -1242,11 +1260,11 @@ export const CustomerAccountModal: React.FC<CustomerAccountModalProps> = ({
                       href={`mailto:${BUSINESS_INFO.email}?subject=${encodeURIComponent(
                         `Timevera Customer Inquiry - ${customer.fullName || customer.phone}`
                       )}`}
-                      className="p-3 bg-white/10 hover:bg-white/20 border border-white/20 rounded-2xl flex items-center gap-2.5 transition-all text-white hover:text-amber-200 group"
+                      className="p-2.5 sm:p-3 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl sm:rounded-2xl flex items-center gap-2 sm:gap-2.5 transition-all text-white hover:text-amber-200 group"
                     >
-                      <Mail className="w-4 h-4 text-amber-300 flex-shrink-0 group-hover:scale-110 transition-transform" />
+                      <Mail className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-300 flex-shrink-0 group-hover:scale-110 transition-transform" />
                       <div className="text-left">
-                        <div className="text-[10px] uppercase font-bold text-red-200">Official Email</div>
+                        <div className="text-[9px] sm:text-[10px] uppercase font-bold text-red-200">Official Email</div>
                         <div className="text-xs font-mono font-bold truncate max-w-[180px]">{BUSINESS_INFO.email}</div>
                       </div>
                     </a>
@@ -1255,68 +1273,68 @@ export const CustomerAccountModal: React.FC<CustomerAccountModalProps> = ({
 
                 {/* Ticket Success Alert */}
                 {ticketSuccessMsg && (
-                  <div className="p-4 bg-emerald-50 dark:bg-emerald-950/50 border-2 border-emerald-500 rounded-2xl text-xs text-emerald-800 dark:text-emerald-200 font-bold flex items-start gap-3 shadow-md animate-fadeIn">
-                    <CheckCircle className="w-5 h-5 text-emerald-600 dark:text-emerald-400 flex-shrink-0 mt-0.5" />
+                  <div className="p-3 sm:p-4 bg-emerald-50 dark:bg-emerald-950/50 border-2 border-emerald-500 rounded-xl sm:rounded-2xl text-xs text-emerald-800 dark:text-emerald-200 font-bold flex items-start gap-2.5 sm:gap-3 shadow-md animate-fadeIn">
+                    <CheckCircle className="w-4.5 h-4.5 sm:w-5 sm:h-5 text-emerald-600 dark:text-emerald-400 flex-shrink-0 mt-0.5" />
                     <div>
-                      <p className="font-bold text-sm text-emerald-900 dark:text-white">
+                      <p className="font-bold text-xs sm:text-sm text-emerald-900 dark:text-white">
                         Complaint Registered Successfully!
                       </p>
-                      <p className="mt-0.5 leading-relaxed">{ticketSuccessMsg}</p>
+                      <p className="mt-0.5 leading-relaxed text-[10px] sm:text-xs">{ticketSuccessMsg}</p>
                     </div>
                   </div>
                 )}
 
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-5 items-start">
                   {/* Left Column: Raise New Ticket Form (lg:col-span-7) */}
-                  <div className="lg:col-span-7 p-5 bg-zinc-50 dark:bg-[#181818] border border-zinc-200 dark:border-zinc-800 rounded-3xl space-y-4 shadow-sm">
-                    <div className="border-b border-zinc-200 dark:border-zinc-800 pb-3 flex items-center justify-between">
-                      <div className="flex items-center gap-2">
+                  <div className="lg:col-span-7 p-4 sm:p-5 bg-zinc-50 dark:bg-[#181818] border border-zinc-200 dark:border-zinc-800 rounded-2xl sm:rounded-3xl space-y-3 sm:space-y-4 shadow-sm">
+                    <div className="border-b border-zinc-200 dark:border-zinc-800 pb-2.5 sm:pb-3 flex items-center justify-between">
+                      <div className="flex items-center gap-1.5 sm:gap-2">
                         <FileText className="w-4 h-4 text-red-600" />
-                        <h4 className="text-xs font-extrabold uppercase tracking-wider text-zinc-900 dark:text-white">
-                          Raise a Support Ticket (नई शिकायत / सहायता दर्ज करें)
+                        <h4 className="text-[10px] sm:text-xs font-extrabold uppercase tracking-wider text-zinc-900 dark:text-white">
+                          Raise a Support Ticket (शिकायत दर्ज करें)
                         </h4>
                       </div>
-                      <span className="text-[10px] bg-red-100 dark:bg-red-950/60 text-red-600 dark:text-red-300 px-2 py-0.5 rounded font-bold">
+                      <span className="text-[9px] sm:text-[10px] bg-red-100 dark:bg-red-950/60 text-red-600 dark:text-red-300 px-1.5 py-0.5 rounded font-bold">
                         Live Shop Sync
                       </span>
                     </div>
 
-                    <form onSubmit={handleSubmitTicket} className="space-y-3.5">
+                    <form onSubmit={handleSubmitTicket} className="space-y-3">
                       {/* Customer Info (Auto-filled & Locked) */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
                         <div>
-                          <label className="block text-[11px] font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider mb-1">
-                            Customer Name (ग्राहक का नाम)
+                          <label className="block text-[10px] sm:text-[11px] font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider mb-1">
+                            Customer Name
                           </label>
                           <input
                             type="text"
                             value={customer.fullName || 'Registered Customer'}
                             readOnly
-                            className="w-full px-3 py-2 text-xs bg-zinc-200/70 dark:bg-zinc-800/80 border border-zinc-300 dark:border-zinc-700 rounded-xl text-zinc-800 dark:text-zinc-200 cursor-not-allowed font-semibold"
+                            className="w-full px-2.5 py-1.5 sm:px-3 sm:py-2 text-xs bg-zinc-200/70 dark:bg-zinc-800/80 border border-zinc-300 dark:border-zinc-700 rounded-lg sm:rounded-xl text-zinc-800 dark:text-zinc-200 cursor-not-allowed font-semibold"
                           />
                         </div>
                         <div>
-                          <label className="block text-[11px] font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider mb-1">
-                            Registered Contact (फ़ोन / ईमेल)
+                          <label className="block text-[10px] sm:text-[11px] font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider mb-1">
+                            Registered Contact
                           </label>
                           <input
                             type="text"
-                            value={`+91 ${customer.phone}${customer.email ? ` • ${customer.email}` : ''}`}
+                            value={`+91 {customer.phone}${customer.email ? ` • ${customer.email}` : ''}`}
                             readOnly
-                            className="w-full px-3 py-2 text-xs bg-zinc-200/70 dark:bg-zinc-800/80 border border-zinc-300 dark:border-zinc-700 rounded-xl text-zinc-800 dark:text-zinc-200 cursor-not-allowed font-mono font-semibold"
+                            className="w-full px-2.5 py-1.5 sm:px-3 sm:py-2 text-xs bg-zinc-200/70 dark:bg-zinc-800/80 border border-zinc-300 dark:border-zinc-700 rounded-lg sm:rounded-xl text-zinc-800 dark:text-zinc-200 cursor-not-allowed font-mono font-semibold"
                           />
                         </div>
                       </div>
 
                       {/* Issue Category */}
                       <div>
-                        <label className="block text-[11px] font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider mb-1">
+                        <label className="block text-[10px] sm:text-[11px] font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider mb-1">
                           Issue Category (समस्या का प्रकार) *
                         </label>
                         <select
                           value={ticketCategory}
                           onChange={(e) => setTicketCategory(e.target.value)}
-                          className="w-full px-3 py-2.5 text-xs bg-white dark:bg-[#121212] border border-zinc-300 dark:border-zinc-700 rounded-xl text-zinc-900 dark:text-white focus:ring-2 focus:ring-red-600 focus:outline-none cursor-pointer"
+                          className="w-full px-2.5 py-2 sm:px-3 sm:py-2.5 text-xs bg-white dark:bg-[#121212] border border-zinc-300 dark:border-zinc-700 rounded-lg sm:rounded-xl text-zinc-900 dark:text-white focus:ring-2 focus:ring-red-600 focus:outline-none cursor-pointer"
                         >
                           <option value="Order Tracking / Delivery Delay (डिलीवरी में देरी)">
                             🚚 Order Tracking & Delivery Delay (डिलीवरी में देरी या स्टेटस)
@@ -1344,14 +1362,14 @@ export const CustomerAccountModal: React.FC<CustomerAccountModalProps> = ({
 
                       {/* Select Related Order (if orders exist) */}
                       <div>
-                        <label className="block text-[11px] font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider mb-1 flex items-center justify-between">
+                        <label className="block text-[10px] sm:text-[11px] font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider mb-1 flex items-center justify-between">
                           <span>Related Order (संबंधित ऑर्डर चुनें)</span>
-                          <span className="text-[10px] text-zinc-400 font-normal">Optional</span>
+                          <span className="text-[9px] sm:text-[10px] text-zinc-400 font-normal">Optional</span>
                         </label>
                         <select
                           value={ticketOrderId}
                           onChange={(e) => setTicketOrderId(e.target.value)}
-                          className="w-full px-3 py-2 text-xs bg-white dark:bg-[#121212] border border-zinc-300 dark:border-zinc-700 rounded-xl text-zinc-900 dark:text-white focus:ring-2 focus:ring-red-600 focus:outline-none cursor-pointer font-mono"
+                          className="w-full px-2.5 py-1.5 sm:px-3 sm:py-2 text-xs bg-white dark:bg-[#121212] border border-zinc-300 dark:border-zinc-700 rounded-lg sm:rounded-xl text-zinc-900 dark:text-white focus:ring-2 focus:ring-red-600 focus:outline-none cursor-pointer font-mono"
                         >
                           <option value="">-- No specific order / General Inquiry --</option>
                           {orders.map((ord) => (
@@ -1364,15 +1382,15 @@ export const CustomerAccountModal: React.FC<CustomerAccountModalProps> = ({
 
                       {/* Message / Description */}
                       <div>
-                        <label className="block text-[11px] font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider mb-1">
-                          Describe Your Problem in Detail (अपनी समस्या का विवरण लिखें) *
+                        <label className="block text-[10px] sm:text-[11px] font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider mb-1">
+                          Describe Your Problem in Detail (विवरण लिखें) *
                         </label>
                         <textarea
                           rows={3}
                           value={ticketMessage}
                           onChange={(e) => setTicketMessage(e.target.value)}
                           placeholder="Kripya apni samasya vistaar se likhein (e.g. delivery date, dial issue, replacement request etc.)..."
-                          className="w-full px-3.5 py-2.5 text-xs bg-white dark:bg-[#121212] border border-zinc-300 dark:border-zinc-700 rounded-xl text-zinc-900 dark:text-white placeholder-zinc-400 focus:ring-2 focus:ring-red-600 focus:outline-none resize-none"
+                          className="w-full px-3 py-2 sm:px-3.5 sm:py-2.5 text-xs bg-white dark:bg-[#121212] border border-zinc-300 dark:border-zinc-700 rounded-lg sm:rounded-xl text-zinc-900 dark:text-white placeholder-zinc-400 focus:ring-2 focus:ring-red-600 focus:outline-none resize-none"
                           required
                         />
                       </div>
@@ -1380,16 +1398,16 @@ export const CustomerAccountModal: React.FC<CustomerAccountModalProps> = ({
                       <button
                         type="submit"
                         disabled={isSubmittingTicket}
-                        className="w-full py-3 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white font-extrabold text-xs uppercase tracking-wider rounded-xl shadow-md flex items-center justify-center gap-2 cursor-pointer transition-all disabled:opacity-50"
+                        className="w-full py-2.5 sm:py-3 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white font-extrabold text-xs uppercase tracking-wider rounded-lg sm:rounded-xl shadow-md flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer transition-all disabled:opacity-50"
                       >
                         {isSubmittingTicket ? (
                           <>
-                            <RefreshCw className="w-4 h-4 animate-spin" />
+                            <RefreshCw className="w-3.5 h-3.5 animate-spin" />
                             <span>Transmitting Ticket to Shop...</span>
                           </>
                         ) : (
                           <>
-                            <Send className="w-4 h-4 text-amber-300" />
+                            <Send className="w-3.5 h-3.5 text-amber-300" />
                             <span>Submit Complaint Ticket (शिकायत दर्ज करें)</span>
                           </>
                         )}
@@ -1399,10 +1417,10 @@ export const CustomerAccountModal: React.FC<CustomerAccountModalProps> = ({
 
                   {/* Right Column: Active & Past Support Tickets (lg:col-span-5) */}
                   <div className="lg:col-span-5 space-y-4">
-                    <div className="p-5 bg-zinc-50 dark:bg-[#181818] border border-zinc-200 dark:border-zinc-800 rounded-3xl space-y-3 shadow-sm">
-                      <div className="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800 pb-3">
-                        <h4 className="text-xs font-extrabold uppercase tracking-wider text-zinc-900 dark:text-white flex items-center gap-2">
-                          <Clock className="w-4 h-4 text-amber-500" />
+                    <div className="p-4 sm:p-5 bg-zinc-50 dark:bg-[#181818] border border-zinc-200 dark:border-zinc-800 rounded-2xl sm:rounded-3xl space-y-2.5 sm:space-y-3 shadow-sm">
+                      <div className="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800 pb-2.5 sm:pb-3">
+                        <h4 className="text-[10px] sm:text-xs font-extrabold uppercase tracking-wider text-zinc-900 dark:text-white flex items-center gap-1.5 sm:gap-2">
+                          <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-500" />
                           <span>My Support Tickets ({supportTickets.length})</span>
                         </h4>
                         <button
@@ -1413,26 +1431,26 @@ export const CustomerAccountModal: React.FC<CustomerAccountModalProps> = ({
                               .then((tkts) => setSupportTickets(tkts))
                               .finally(() => setIsLoadingTickets(false));
                           }}
-                          className="p-1.5 text-zinc-400 hover:text-red-600 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
+                          className="p-1 sm:p-1.5 text-zinc-400 hover:text-red-600 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
                           title="Refresh ticket history"
                         >
-                          <RefreshCw className={`w-3.5 h-3.5 ${isLoadingTickets ? 'animate-spin' : ''}`} />
+                          <RefreshCw className={`w-3 h-3 sm:w-3.5 sm:h-3.5 ${isLoadingTickets ? 'animate-spin' : ''}`} />
                         </button>
                       </div>
 
                       {isLoadingTickets ? (
-                        <div className="py-8 text-center text-zinc-400 space-y-2">
-                          <RefreshCw className="w-5 h-5 animate-spin mx-auto text-red-500" />
+                        <div className="py-6 sm:py-8 text-center text-zinc-400 space-y-1.5 sm:space-y-2">
+                          <RefreshCw className="w-4 h-4 sm:w-5 h-5 animate-spin mx-auto text-red-500" />
                           <p className="text-xs">Checking support ticket records...</p>
                         </div>
                       ) : supportTickets.length === 0 ? (
-                        <div className="py-6 px-4 text-center bg-white dark:bg-[#121212] border border-dashed border-zinc-300 dark:border-zinc-800 rounded-2xl space-y-2">
-                          <CheckCircle className="w-8 h-8 text-emerald-500 mx-auto" />
+                        <div className="py-5 px-3.5 sm:py-6 sm:px-4 text-center bg-white dark:bg-[#121212] border border-dashed border-zinc-300 dark:border-zinc-800 rounded-xl sm:rounded-2xl space-y-1.5 sm:space-y-2">
+                          <CheckCircle className="w-6 h-6 sm:w-8 sm:h-8 text-emerald-500 mx-auto" />
                           <h5 className="font-bold text-xs text-zinc-800 dark:text-zinc-200">
                             No Active Complaints
                           </h5>
-                          <p className="text-[11px] text-zinc-500 leading-relaxed">
-                            Aapki koi open shikayat nahi hai. Agar ghadi se judi koi sahayata chahiye ho, to form bhar kar ticket generate karein.
+                          <p className="text-[10px] sm:text-[11px] text-zinc-500 leading-relaxed">
+                            Aapki koi open shikayat nahi hai. Agar sahayata chahiye ho, to form bhar kar ticket generate karein.
                           </p>
                         </div>
                       ) : activeChatTicket ? (
@@ -1443,19 +1461,19 @@ export const CustomerAccountModal: React.FC<CustomerAccountModalProps> = ({
                           />
                         </div>
                       ) : (
-                        <div className="space-y-3 max-h-[380px] overflow-y-auto pr-1">
+                        <div className="space-y-2.5 sm:space-y-3 max-h-[300px] sm:max-h-[380px] overflow-y-auto pr-1">
                           {supportTickets.map((ticket) => (
                             <div
                               key={ticket.id}
-                              className="p-3.5 bg-white dark:bg-[#121212] border border-zinc-200 dark:border-zinc-800 rounded-2xl space-y-2 shadow-sm hover:border-red-500/40 transition-colors"
+                              className="p-3 bg-white dark:bg-[#121212] border border-zinc-200 dark:border-zinc-800 rounded-xl sm:rounded-2xl space-y-1.5 sm:space-y-2 shadow-sm hover:border-red-500/40 transition-colors"
                             >
-                              <div className="flex items-center justify-between">
-                                <span className="font-mono font-extrabold text-xs text-red-600 dark:text-red-400">
+                              <div className="flex items-center justify-between gap-1.5">
+                                <span className="font-mono font-extrabold text-[10px] sm:text-xs text-red-600 dark:text-red-400">
                                   #{ticket.id}
                                 </span>
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-1.5 sm:gap-2">
                                   <span
-                                    className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full border ${
+                                    className={`text-[8px] sm:text-[10px] font-black uppercase px-1.5 py-0.5 rounded-full border ${
                                       ticket.status === 'resolved'
                                         ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20'
                                         : ticket.status === 'in_progress'
@@ -1467,43 +1485,43 @@ export const CustomerAccountModal: React.FC<CustomerAccountModalProps> = ({
                                       ? '✓ Resolved'
                                       : ticket.status === 'in_progress'
                                       ? '⚡ In Progress'
-                                      : '● Open (दर्ज हुई)'}
+                                      : '● Open'}
                                   </span>
                                   <button
                                     onClick={() => setActiveChatTicket(ticket)}
-                                    className="px-2 py-1 bg-red-50 dark:bg-red-950/40 hover:bg-red-100 text-red-600 dark:text-red-400 rounded-lg text-[10px] font-bold flex items-center gap-1 cursor-pointer transition-colors"
+                                    className="px-1.5 py-0.5 bg-red-50 dark:bg-red-950/40 hover:bg-red-100 text-red-600 dark:text-red-400 rounded text-[9px] sm:text-[10px] font-bold flex items-center gap-0.5 sm:gap-1 cursor-pointer transition-colors"
                                     title="Open Live Chat"
                                   >
-                                    <MessageCircle className="w-3 h-3" />
+                                    <MessageCircle className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                                     <span>Live Chat</span>
                                   </button>
                                 </div>
                               </div>
 
-                              <div className="text-xs font-bold text-zinc-800 dark:text-zinc-200">
+                              <div className="text-[11px] sm:text-xs font-bold text-zinc-800 dark:text-zinc-200">
                                 {ticket.subject || ticket.issueCategory || ticket.issueType}
                               </div>
 
                               {ticket.orderId && (
-                                <div className="text-[11px] font-mono text-zinc-500 flex items-center gap-1">
+                                <div className="text-[10px] sm:text-[11px] font-mono text-zinc-500 flex items-center gap-1">
                                   <span>Order:</span>
                                   <strong className="text-zinc-700 dark:text-zinc-300">{ticket.orderId}</strong>
                                 </div>
                               )}
 
                               {(ticket.message || ticket.customerMessage) && (
-                                <p className="text-[11px] text-zinc-600 dark:text-zinc-400 leading-relaxed bg-zinc-50 dark:bg-zinc-900/60 p-2 rounded-lg border border-zinc-200/60 dark:border-zinc-800">
+                                <p className="text-[10px] sm:text-[11px] text-zinc-600 dark:text-zinc-400 leading-relaxed bg-zinc-50 dark:bg-zinc-900/60 p-2 rounded-lg border border-zinc-200/60 dark:border-zinc-800">
                                   "{ticket.message || ticket.customerMessage || ''}"
                                 </p>
                               )}
 
                               {ticket.replyNotes && (
-                                <div className="p-2 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-400/40 rounded-lg text-[11px] text-emerald-800 dark:text-emerald-300">
+                                <div className="p-2 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-400/40 rounded-lg text-[10px] sm:text-[11px] text-emerald-800 dark:text-emerald-300">
                                   <strong>Support Reply:</strong> {ticket.replyNotes}
                                 </div>
                               )}
 
-                              <div className="flex items-center justify-between text-[10px] text-zinc-400 font-mono">
+                              <div className="flex items-center justify-between text-[9px] sm:text-[10px] text-zinc-400 font-mono">
                                 <span>{new Date(ticket.createdAt || ticket.timestamp || Date.now()).toLocaleString('en-IN')}</span>
                                 <span className="text-emerald-600 font-semibold cursor-pointer hover:underline" onClick={() => setActiveChatTicket(ticket)}>
                                   Chat with Admin →
@@ -1516,12 +1534,12 @@ export const CustomerAccountModal: React.FC<CustomerAccountModalProps> = ({
                     </div>
 
                     {/* Store Guarantees Notice */}
-                    <div className="p-4 bg-amber-50 dark:bg-amber-950/30 border border-amber-300/60 dark:border-amber-800/60 rounded-2xl space-y-2 text-xs text-amber-900 dark:text-amber-200">
+                    <div className="p-3.5 sm:p-4 bg-amber-50 dark:bg-amber-950/30 border border-amber-300/60 dark:border-amber-800/60 rounded-xl sm:rounded-2xl space-y-1.5 sm:space-y-2 text-[11px] sm:text-xs text-amber-900 dark:text-amber-200">
                       <div className="font-bold flex items-center gap-1.5 text-amber-950 dark:text-amber-300">
-                        <ShieldCheck className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                        <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-600 dark:text-amber-400" />
                         <span>Timevera 100% Customer Assurance</span>
                       </div>
-                      <ul className="space-y-1 text-[11px] list-disc list-inside text-amber-900/90 dark:text-amber-300/90 leading-relaxed">
+                      <ul className="space-y-1 text-[10px] sm:text-[11px] list-disc list-inside text-amber-900/90 dark:text-amber-300/90 leading-relaxed">
                         <li>1 Year Manufacturer / Replacement Warranty</li>
                         <li>7-Day Hassle-free Exchange for Damaged Deliveries</li>
                         <li>Direct store helpline with no automated robot delays</li>

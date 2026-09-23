@@ -113,24 +113,19 @@ export function verifyCustomerOtp(identifier: string, enteredOtp: string): boole
   // 1. Check in-memory map
   const entry = activeOtpMap.get(clean);
   if (entry) {
-    if (Date.now() <= entry.expiresAt && (entry.otp === cleanOtp || cleanOtp === '123456')) {
+    if (Date.now() <= entry.expiresAt && entry.otp === cleanOtp) {
       activeOtpMap.delete(clean);
       return true;
     }
   }
 
-  // 2. Check session storage fallback or universal demo OTP '123456'
+  // 2. Check session storage fallback
   try {
     const sessionOtp = sessionStorage.getItem(`timevera_otp_${clean}`);
     if (sessionOtp && sessionOtp === cleanOtp) {
       return true;
     }
   } catch {}
-
-  // Allow standard demo OTP for testing
-  if (cleanOtp === '123456' || cleanOtp === '000000') {
-    return true;
-  }
 
   return false;
 }

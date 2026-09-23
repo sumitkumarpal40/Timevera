@@ -383,7 +383,7 @@ export const OrderTrackModal: React.FC<OrderTrackModalProps> = ({
                   <div className="py-2">
                     <div className="relative">
                       {/* Line connecting steps */}
-                      <div className="absolute top-4 left-4 right-4 h-1 bg-zinc-200 dark:bg-zinc-800 -z-0">
+                      <div className="absolute top-4 left-4 right-4 h-1 bg-zinc-200 dark:bg-zinc-800 -z-0 hidden sm:block">
                         <div
                           className="h-full bg-emerald-500 transition-all duration-500"
                           style={{
@@ -395,22 +395,22 @@ export const OrderTrackModal: React.FC<OrderTrackModalProps> = ({
                       </div>
 
                       {/* 6 Step Icons */}
-                      <div className="relative z-10 grid grid-cols-6 text-center">
+                      <div className="relative z-10 grid grid-cols-3 sm:grid-cols-6 text-center gap-2 sm:gap-0">
                         {[
-                          { step: 1, label: 'Placed', hindi: 'दर्ज' },
-                          { step: 2, label: 'Confirmed', hindi: 'कन्फर्म' },
-                          { step: 3, label: 'Packed', hindi: 'पैक' },
-                          { step: 4, label: 'Dispatched', hindi: 'रवाना' },
-                          { step: 5, label: 'Out for Delivery', hindi: 'डिलीवरी' },
-                          { step: 6, label: 'Delivered', hindi: 'सफल' },
+                          { step: 1, label: 'Placed', labelMobile: '1. Placed', hindi: 'दर्ज' },
+                          { step: 2, label: 'Confirmed', labelMobile: '2. Confirm', hindi: 'कन्फर्म' },
+                          { step: 3, label: 'Packed', labelMobile: '3. Packed', hindi: 'पैक' },
+                          { step: 4, label: 'Dispatched', labelMobile: '4. Dispatch', hindi: 'रवाना' },
+                          { step: 5, label: 'Out for Delivery', labelMobile: '5. Delivery', hindi: 'डिलीवरी' },
+                          { step: 6, label: 'Delivered', labelMobile: '6. Delivered', hindi: 'सफल' },
                         ].map((s) => {
                           const currentProg = getStepProgress(selectedOrder.orderStatus);
                           const isDone = currentProg >= s.step;
                           const isCurrent = currentProg === s.step;
                           return (
-                            <div key={s.step} className="flex flex-col items-center">
+                            <div key={s.step} className="flex flex-col items-center p-1 sm:p-2 min-w-0">
                               <div
-                                className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center font-bold text-[11px] sm:text-xs transition-all ${
+                                className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center font-bold text-[10px] sm:text-xs transition-all ${
                                   isDone
                                     ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/30'
                                     : 'bg-zinc-200 dark:bg-zinc-800 text-zinc-500'
@@ -419,13 +419,14 @@ export const OrderTrackModal: React.FC<OrderTrackModalProps> = ({
                                 {isDone ? '✓' : s.step}
                               </div>
                               <span
-                                className={`text-[9px] sm:text-[10px] font-bold mt-1.5 leading-tight ${
+                                className={`text-[10px] sm:text-[10px] font-bold mt-1.5 leading-tight break-words truncate max-w-full ${
                                   isDone ? 'text-emerald-600 dark:text-emerald-400' : 'text-zinc-400'
                                 }`}
                               >
-                                {s.label}
+                                <span className="hidden sm:inline">{s.label}</span>
+                                <span className="sm:hidden">{s.labelMobile}</span>
                               </span>
-                              <span className="text-[8px] sm:text-[9px] text-zinc-400">({s.hindi})</span>
+                              <span className="text-[8px] sm:text-[9px] text-zinc-400 break-words truncate max-w-full">({s.hindi})</span>
                             </div>
                           );
                         })}
@@ -495,9 +496,9 @@ export const OrderTrackModal: React.FC<OrderTrackModalProps> = ({
                       {orderItemsList.map((item, idx) => (
                         <div
                           key={idx}
-                          className="p-2.5 bg-zinc-50 dark:bg-[#121212] border border-zinc-200 dark:border-zinc-800 rounded-xl flex items-center justify-between gap-3"
+                          className="p-2.5 bg-zinc-50 dark:bg-[#121212] border border-zinc-200 dark:border-zinc-800 rounded-xl flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
                         >
-                          <div className="flex items-center gap-3 min-w-0">
+                          <div className="flex items-center gap-3 min-w-0 flex-1">
                             {item.image && (
                               <img
                                 src={item.image}
@@ -506,7 +507,7 @@ export const OrderTrackModal: React.FC<OrderTrackModalProps> = ({
                                 referrerPolicy="no-referrer"
                               />
                             )}
-                            <div className="min-w-0">
+                            <div className="min-w-0 flex-1">
                               <p className="text-xs font-bold text-zinc-900 dark:text-white truncate">
                                 {item.name}
                               </p>
@@ -515,7 +516,7 @@ export const OrderTrackModal: React.FC<OrderTrackModalProps> = ({
                               </p>
                             </div>
                           </div>
-                          <span className="text-xs font-black font-mono text-red-600 dark:text-red-400">
+                          <span className="text-xs font-black font-mono text-red-600 dark:text-red-400 sm:ml-auto self-end sm:self-auto">
                             ₹{((Number(item.price) || 0) * (Number(item.quantity) || 1)).toLocaleString('en-IN')}
                           </span>
                         </div>

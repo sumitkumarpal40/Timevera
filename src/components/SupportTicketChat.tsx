@@ -8,6 +8,7 @@ import {
   ShieldCheck,
   User,
   AlertCircle,
+  ArrowLeft,
 } from 'lucide-react';
 import { SupportTicket, TicketMessage } from '../types';
 import { sendTicketMessage, subscribeToTicketMessages } from '../lib/orderService';
@@ -64,6 +65,16 @@ export const SupportTicketChat: React.FC<SupportTicketChatProps> = ({ ticket, on
       {/* Chat Header */}
       <div className="px-4 py-2.5 bg-zinc-100 dark:bg-[#181818] border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
         <div className="flex items-center gap-2">
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="mr-1 flex items-center gap-1 px-1.5 py-0.5 rounded hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white transition-colors cursor-pointer"
+              title="Go back to support tickets list"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span className="text-[11px] font-bold">Back</span>
+            </button>
+          )}
           <MessageCircle className="w-4 h-4 text-red-600" />
           <span className="text-xs font-bold text-zinc-900 dark:text-white">
             Ticket #{ticket.id}
@@ -86,14 +97,6 @@ export const SupportTicketChat: React.FC<SupportTicketChatProps> = ({ ticket, on
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
             Live Sync
           </span>
-          {onClose && (
-            <button
-              onClick={onClose}
-              className="p-1 hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded-md text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200"
-            >
-              <X className="w-3.5 h-3.5" />
-            </button>
-          )}
         </div>
       </div>
 

@@ -1,17 +1,160 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function isOwner() {
+      return isAuthenticated()
+        && request.auth.token.email != null
+        && (
+          request.auth.token.email == 'sumitkumarpal40@gmail.com'
+          || request.auth.token.email == 'timeverawatch@gmail.com'
+        );
+    }
+
+    function isStaff() {
+      return isAuthenticated()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && getUserData().get('isActive', false) == true;
+    }
+
+    function hasPermission(perm) {
+      return isOwner()
+        || (isStaff() && perm in getUserData().get('permissions', []));
+    }
+
+    match /users/{userId} {
+      allow read: if isAuthenticated() && request.auth.uid == userId;
+      allow read: if isOwner() || hasPermission('employees.view');
+      allow create: if isOwner();
+      allow create: if isAuthenticated()
+                    && request.auth.uid == userId
+                    && request.auth.token.email != null
+                    && exists(/databases/$(database)/documents/staff_directory/$(request.auth.token.email))
+                    && request.resource.data.get('role', '') != 'owner';
+      allow update: if isOwner()
+                    || (isAuthenticated()
+                        && (request.auth.uid == userId
+                            || hasPermission('employees.update')));
+      allow delete: if isOwner();
+    }
+
+    match /employees/{employeeId} {
+      allow read: if isOwner() || hasPermission('employees.view');
+      allow create, update: if isOwner() || hasPermission('employees.update');
+      allow delete: if isOwner();
+    }
+
+    match /staff_directory/{email} {
+      allow read: if isAuthenticated()
+                  && (request.auth.token.email == email
+                      || isOwner()
+                      || hasPermission('employees.view'));
+      allow create, update, delete: if isOwner() || hasPermission('employees.update');
+    }
+
     match /products/{productId} {
-      allow read, write: if true;
+      allow read: if true;
+      allow create: if hasPermission('products.create');
+      allow update: if hasPermission('products.update');
+      allow delete: if hasPermission('products.delete') || isOwner();
     }
+
+    match /categories/{categoryId} {
+      allow read: if true;
+      allow write: if hasPermission('products.update') || isOwner();
+    }
+
+    match /inventory_history/{historyId} {
+      allow read: if hasPermission('inventory.view');
+      allow create: if hasPermission('inventory.update') || hasPermission('products.create') || isOwner();
+      allow update, delete: if false;
+    }
+
+    match /customers/{customerId} {
+      allow read: if isOwner() || hasPermission('customers.view') || (isAuthenticated() && request.auth.uid == customerId);
+      allow create: if isOwner() || hasPermission('customers.create') || (isAuthenticated() && request.auth.uid == customerId);
+      allow update: if isOwner() || hasPermission('customers.update') || (isAuthenticated() && request.auth.uid == customerId);
+      allow delete: if isOwner() || hasPermission('customers.delete');
+    }
+
+    match /customer_profiles/{profileId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated();
+      allow delete: if false;
+    }
+
     match /orders/{orderId} {
-      allow read, write: if true;
+      allow read: if isOwner() || hasPermission('orders.view')
+                  || (isAuthenticated() && (resource.data.get('customerUid', '') == request.auth.uid || resource.data.get('customerId', '') == request.auth.uid));
+      allow create: if isOwner() || hasPermission('orders.create')
+                    || (isAuthenticated() && (request.resource.data.get('customerUid', '') == request.auth.uid || request.resource.data.get('customerId', '') == request.auth.uid));
+      allow update: if isOwner() || hasPermission('orders.update')
+                    || (isAuthenticated() && (resource.data.get('customerUid', '') == request.auth.uid || resource.data.get('customerId', '') == request.auth.uid));
+      allow delete: if isOwner() || hasPermission('orders.delete');
     }
-    match /customers/{userId} {
-      allow read, write: if true;
+
+    match /support_tickets/{ticketId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated();
+      allow delete: if isOwner();
+      match /messages/{messageId} {
+        allow read: if isAuthenticated();
+        allow create: if isAuthenticated();
+        allow update, delete: if isOwner();
+      }
     }
+
+    match /support_notifications/{notifId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated();
+      allow delete: if isOwner();
+    }
+
+    match /customer_reviews/{reviewId} {
+      allow read: if true;
+      allow create: if isAuthenticated()
+                    && request.resource.data.rating is number
+                    && request.resource.data.rating >= 1
+                    && request.resource.data.rating <= 5;
+      allow update, delete: if isOwner();
+    }
+
+    match /coupons/{couponId} {
+      allow read: if true;
+      allow create, update, delete: if isOwner() || hasPermission('settings.update');
+    }
+
+    match /invoices/{invoiceId} {
+      allow read: if isOwner() || hasPermission('billing.view')
+                  || (isAuthenticated() && (resource.data.get('customerId', '') == request.auth.uid || resource.data.get('customerUid', '') == request.auth.uid));
+      allow create: if isOwner() || hasPermission('billing.create');
+      allow update, delete: if isOwner();
+    }
+
+    match /audit_logs/{logId} {
+      allow read: if isOwner() || hasPermission('audit.view');
+      allow create: if isAuthenticated();
+      allow update, delete: if false;
+    }
+
+    match /store_settings/{configId} {
+      allow read: if true;
+      allow write: if isOwner() || hasPermission('settings.update');
+    }
+
     match /{document=**} {
-      allow read, write: if true;
+      allow read, write: if false;
     }
   }
 }
