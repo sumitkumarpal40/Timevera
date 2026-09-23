@@ -18,6 +18,7 @@ import {
 import { CartItem, Coupon } from '../types';
 import { BUSINESS_INFO } from '../data/watches';
 import { useCustomerAuth } from '../context/CustomerAuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import { validateCoupon, STORE_COUPONS, CouponValidationResult } from '../lib/couponService';
 
 interface CartDrawerProps {
@@ -40,6 +41,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   onOpenCheckout,
 }) => {
   const { customer, isLoggedIn, openLoginModal } = useCustomerAuth();
+  const { t } = useLanguage();
   const [couponInput, setCouponInput] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState<CouponValidationResult | null>(null);
   const [couponError, setCouponError] = useState('');
@@ -96,7 +98,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
           <div className="flex items-center gap-2">
             <ShoppingBag className="w-4 h-4 sm:w-5 sm:h-5 text-[#D4AF37]" />
             <h2 className="font-brand text-base sm:text-lg font-bold text-[#F8FAFC] tracking-wide">
-              Shopping Bag
+              {t.yourCart}
             </h2>
             <span className="bg-[#D4AF37]/10 text-[#E5C07B] text-[10px] sm:text-xs font-semibold px-2 py-0.5 border border-[#D4AF37]/30 rounded">
               {cartItems.length} {cartItems.length === 1 ? 'item' : 'items'}

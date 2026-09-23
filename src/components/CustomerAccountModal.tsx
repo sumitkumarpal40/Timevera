@@ -36,6 +36,7 @@ import {
   XCircle,
 } from 'lucide-react';
 import { useCustomerAuth } from '../context/CustomerAuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import { fetchOrdersForCustomer, fetchCustomerReviews, subscribeToCustomerOrders } from '../lib/customerService';
 import {
   saveSupportTicketToFirestore,
@@ -78,6 +79,7 @@ export const CustomerAccountModal: React.FC<CustomerAccountModalProps> = ({
     wishlist,
     removeFromWishlist,
   } = useCustomerAuth();
+  const { t, translateStatus } = useLanguage();
 
   const [orders, setOrders] = useState<StoreOrder[]>([]);
   const [reviews, setReviews] = useState<CustomerReviewFeedback[]>([]);

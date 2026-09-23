@@ -15,9 +15,9 @@ import {
   Heart,
 } from 'lucide-react';
 import { BUSINESS_INFO } from '../data/watches';
-import { ThemeToggle } from './ThemeToggle';
 import { TimeveraLogo } from './TimeveraLogo';
 import { useCustomerAuth } from '../context/CustomerAuthContext';
+import { useLanguage } from '../context/LanguageContext';
 
 interface NavbarProps {
   cartCount: number;
@@ -39,6 +39,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenWishlist,
 }) => {
   const { customer, isLoggedIn, openLoginModal, openAccountModal, wishlist } = useCustomerAuth();
+  const { t } = useLanguage();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showSearchInput, setShowSearchInput] = useState(false);
 
@@ -57,9 +58,9 @@ export const Navbar: React.FC<NavbarProps> = ({
     <header className="sticky top-0 z-40 bg-[#0B0C10]/95 backdrop-blur-md border-b border-[#252A36] transition-colors shadow-lg shadow-black/40">
       {/* Top Luxury Announcement Bar */}
       <div className="bg-[#131620] py-1.5 px-4 text-center text-xs text-[#A7AFBF] font-medium flex items-center justify-center gap-3 border-b border-[#252A36] flex-wrap">
-        <span className="text-[#A7AFBF]">Pan-India Express Delivery & COD Available</span>
+        <span className="text-[#A7AFBF]">{t.panIndiaDelivery}</span>
         <span className="hidden sm:inline text-[#252A36]">•</span>
-        <span className="hidden sm:inline text-[#A7AFBF]">100% Quality Inspected & Direct Dispatch</span>
+        <span className="hidden sm:inline text-[#A7AFBF]">{t.qualityInspected}</span>
       </div>
 
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-2.5 sm:py-3 flex items-center justify-between gap-2">
@@ -82,31 +83,31 @@ export const Navbar: React.FC<NavbarProps> = ({
             onClick={() => handleNavClick('home')}
             className="text-[#A7AFBF] hover:text-[#D4AF37] transition-colors py-1 cursor-pointer"
           >
-            Home
+            {t.home}
           </button>
           <button
             onClick={() => handleNavClick('categories')}
             className="text-[#A7AFBF] hover:text-[#D4AF37] transition-colors py-1 cursor-pointer"
           >
-            Collections
+            {t.collections}
           </button>
           <button
             onClick={() => handleNavClick('shop')}
             className="text-[#A7AFBF] hover:text-[#D4AF37] transition-colors py-1 cursor-pointer"
           >
-            Shop All
+            {t.shopAll}
           </button>
           <button
             onClick={() => handleNavClick('about')}
             className="text-[#A7AFBF] hover:text-[#D4AF37] transition-colors py-1 cursor-pointer"
           >
-            About Us
+            {t.aboutUs}
           </button>
           <button
             onClick={() => handleNavClick('contact')}
             className="text-[#A7AFBF] hover:text-[#D4AF37] transition-colors py-1 cursor-pointer"
           >
-            Contact
+            {t.contact}
           </button>
         </nav>
 
@@ -123,9 +124,9 @@ export const Navbar: React.FC<NavbarProps> = ({
                 {customer?.fullName ? customer.fullName.charAt(0).toUpperCase() : 'U'}
               </div>
               <span className="hidden sm:inline truncate max-w-[90px]">
-                {customer?.fullName?.split(' ')[0] || 'My Account'}
+                {customer?.fullName?.split(' ')[0] || t.myAccount}
               </span>
-              <span className="sm:hidden">Account</span>
+              <span className="sm:hidden">{t.myAccount}</span>
             </button>
           ) : (
             <button
@@ -134,8 +135,8 @@ export const Navbar: React.FC<NavbarProps> = ({
               title="Customer Login"
             >
               <User className="w-3.5 h-3.5 text-[#D4AF37]" />
-              <span className="hidden sm:inline">Sign In</span>
-              <span className="sm:hidden">Login</span>
+              <span className="hidden sm:inline">{t.signIn}</span>
+              <span className="sm:hidden">{t.signIn}</span>
             </button>
           )}
 
@@ -146,7 +147,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             title="Install Timevera Mobile App"
           >
             <Smartphone className="w-3.5 h-3.5 text-[#D4AF37]" />
-            <span>App</span>
+            <span>{t.app}</span>
           </button>
 
           {/* Search Toggle */}
@@ -156,7 +157,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <Search className="w-3.5 h-3.5 text-[#D4AF37] mr-1" />
                 <input
                   type="text"
-                  placeholder="Search products..."
+                  placeholder={t.searchPlaceholder}
                   value={searchTerm}
                   onChange={(e) => onSearchChange(e.target.value)}
                   className="bg-transparent text-[#F8FAFC] focus:outline-none w-24 sm:w-36 text-xs placeholder-[#A7AFBF]/50"
@@ -226,6 +227,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           </button>
         </div>
       </div>
+
 
       {/* MOBILE DRAWER */}
       {mobileMenuOpen && (

@@ -9,23 +9,22 @@ if (!getApps().length) {
     .replace(/^"|"$/g, '')
     .replace(/\\n/g, '\n');
 
-  if (process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_CLIENT_EMAIL && privateKey) {
+  const projectId = process.env.FIREBASE_PROJECT_ID || 'timeverawatchstore';
+
+  if (process.env.FIREBASE_CLIENT_EMAIL && privateKey) {
     initializeApp({
       credential: cert({
-        projectId: process.env.FIREBASE_PROJECT_ID,
+        projectId,
         clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
         privateKey,
       }),
     });
-  } else if (process.env.FIREBASE_PROJECT_ID) {
-    initializeApp({
-      projectId: process.env.FIREBASE_PROJECT_ID,
-    });
   } else {
     initializeApp({
-      projectId: 'timevera-customer',
+      projectId,
     });
   }
+  console.log('Firebase Admin initialized for project:', projectId);
 }
 
 const db = getFirestore();
@@ -63,7 +62,7 @@ exports.handler = async (event) => {
 
     const cleanOrderId = orderId.trim();
 
-    // 1. Strict Customer Authentication (FIX 2)
+    // 1. Strict Customer Authentication
     const authHeader = event.headers?.authorization || event.headers?.Authorization || '';
     const token = authHeader.startsWith('Bearer ') ? authHeader.substring(7) : (idToken || '');
 
@@ -88,6 +87,8 @@ exports.handler = async (event) => {
     }
 
     const verifiedUid = decodedToken.uid;
+    const verifiedPhone = (decodedToken.phone_number || '').replace(/\D/g, '');
+
     if (!verifiedUid) {
       return {
         statusCode: 401,
@@ -106,23 +107,37 @@ exports.handler = async (event) => {
         orderDocRef = upperSnap.ref;
         orderSnap = upperSnap;
       } else {
-        const querySnap = await db.collection('orders').where('id', '==', cleanOrderId).limit(1).get();
-        if (!querySnap.empty) {
-          orderDocRef = querySnap.docs[0].ref;
-          orderSnap = querySnap.docs[0];
+        const lowerSnap = await db.collection('orders').doc(cleanOrderId.toLowerCase()).get();
+        if (lowerSnap.exists) {
+          orderDocRef = lowerSnap.ref;
+          orderSnap = lowerSnap;
         } else {
-          return { statusCode: 404, headers, body: JSON.stringify({ error: 'Order not found' }) };
+          const querySnap = await db.collection('orders').where('id', '==', cleanOrderId).limit(1).get();
+          if (!querySnap.empty) {
+            orderDocRef = querySnap.docs[0].ref;
+            orderSnap = querySnap.docs[0];
+          } else {
+            const queryUpperSnap = await db.collection('orders').where('id', '==', cleanOrderId.toUpperCase()).limit(1).get();
+            if (!queryUpperSnap.empty) {
+              orderDocRef = queryUpperSnap.docs[0].ref;
+              orderSnap = queryUpperSnap.docs[0];
+            } else {
+              return { statusCode: 404, headers, body: JSON.stringify({ error: 'Order not found' }) };
+            }
+          }
         }
       }
     }
 
     const orderData = orderSnap.data();
 
-    // 3. Ownership Check: decodedToken.uid MUST match customerUid or customerId (FIX 2)
+    // 3. Ownership Check: decodedToken.uid MUST match customerUid/customerId OR verified phone
+    const orderPhoneClean = (orderData.customerPhone || '').replace(/\D/g, '');
     const matchesUid = (orderData.customerUid && orderData.customerUid === verifiedUid) ||
                        (orderData.customerId && orderData.customerId === verifiedUid);
+    const matchesPhone = Boolean(verifiedPhone && orderPhoneClean && (verifiedPhone.slice(-10) === orderPhoneClean.slice(-10)));
 
-    if (!matchesUid) {
+    if (!matchesUid && !matchesPhone) {
       return {
         statusCode: 403,
         headers,
@@ -160,9 +175,14 @@ exports.handler = async (event) => {
 
     const nowIso = new Date().toISOString();
     const rawMethod = (orderData.paymentMethod || '').toLowerCase().trim();
-    const isCOD = rawMethod === 'cod';
 
-    // 6. Case A: COD Order Cancellation (Atomic Transaction - FIX 1)
+    // Comprehensive COD / Non-Razorpay determination
+    const isCOD = rawMethod.includes('cod') ||
+                  rawMethod.includes('cash') ||
+                  rawMethod.includes('delivery') ||
+                  !orderData.razorpayPaymentId;
+
+    // 6. Case A: COD Order Cancellation (Atomic Transaction)
     if (isCOD) {
       let finalInventoryStatus = 'pending_deduction';
 
@@ -190,9 +210,11 @@ exports.handler = async (event) => {
 
           // Restore stock ONLY if inventoryStatus === 'deducted'
           if (freshOrder.inventoryStatus === 'deducted') {
-            // Aggregate duplicate product lines by productId
             const productQtyMap = new Map();
-            const items = Array.isArray(freshOrder.items) ? freshOrder.items : [];
+            const items = Array.isArray(freshOrder.items) && freshOrder.items.length > 0
+              ? freshOrder.items
+              : (freshOrder.productId ? [{ productId: freshOrder.productId, quantity: freshOrder.quantity || 1 }] : []);
+
             for (const item of items) {
               const prodId = item.productId || item.id;
               const qty = Number(item.quantity) || 1;
@@ -275,17 +297,7 @@ exports.handler = async (event) => {
       };
     }
 
-    // 7. Case B: Prepaid / Razorpay Order Cancellation & Refund (FIX 1)
-    if (!orderData.razorpayPaymentId) {
-      return {
-        statusCode: 400,
-        headers,
-        body: JSON.stringify({
-          error: 'Online payment record (Razorpay Payment ID) not found for this order. Please contact customer support.',
-        }),
-      };
-    }
-
+    // 7. Case B: Prepaid / Razorpay Order Cancellation & Refund
     const keyId = process.env.RAZORPAY_KEY_ID;
     const keySecret = process.env.RAZORPAY_KEY_SECRET;
 
@@ -329,16 +341,13 @@ exports.handler = async (event) => {
 
     if (paymentState === 'authorized') {
       // Payment was authorized but never captured — no funds were debited by merchant.
-      // Uncaptured payments cannot be refunded via payments.refund(). Release safely without refund API call.
       console.log(`Payment ${orderData.razorpayPaymentId} is authorized (uncaptured). Skipping refund call.`);
       isAuthorizedUncaptured = true;
     } else if (paymentState === 'refunded') {
-      // Payment was already refunded at Razorpay.
       console.log(`Payment ${orderData.razorpayPaymentId} is already refunded at gateway.`);
       isAlreadyRefunded = true;
       refundResult.id = orderData.razorpayRefundId || `existing_refund_${orderData.razorpayPaymentId}`;
     } else if (paymentState === 'captured') {
-      // Call Razorpay refund API FIRST (do NOT modify inventory or order status before refund succeeds)
       try {
         refundResult = await razorpay.payments.refund(orderData.razorpayPaymentId, {
           amount: refundAmountPaise,
@@ -350,17 +359,22 @@ exports.handler = async (event) => {
         console.log('Razorpay refund initiated successfully:', refundResult.id);
       } catch (rzpErr) {
         console.error('Razorpay refund API call failed:', rzpErr);
-        const errMsg = rzpErr?.error?.description || rzpErr?.message || 'Razorpay refund execution failed';
-        return {
-          statusCode: 502,
-          headers,
-          body: JSON.stringify({
-            error: `Razorpay refund failed: ${errMsg}`,
-          }),
-        };
+        const errMsg = rzpErr?.error?.description || rzpErr?.message || '';
+        if (errMsg.toLowerCase().includes('already been refunded') || errMsg.toLowerCase().includes('fully refunded')) {
+          console.log(`Payment ${orderData.razorpayPaymentId} reported as already refunded by Razorpay.`);
+          isAlreadyRefunded = true;
+          refundResult.id = orderData.razorpayRefundId || `existing_refund_${orderData.razorpayPaymentId}`;
+        } else {
+          return {
+            statusCode: 502,
+            headers,
+            body: JSON.stringify({
+              error: `Razorpay refund failed: ${errMsg || 'Refund execution failed'}`,
+            }),
+          };
+        }
       }
     } else {
-      // Handles 'failed', 'created', etc.
       return {
         statusCode: 400,
         headers,
@@ -370,7 +384,7 @@ exports.handler = async (event) => {
       };
     }
 
-    // Payment step completed. Now execute atomic Firestore transaction for inventory & order finalization.
+    // Payment step completed. Execute atomic Firestore transaction for inventory & order finalization.
     let finalInventoryStatus = 'pending_deduction';
 
     try {
@@ -385,9 +399,11 @@ exports.handler = async (event) => {
 
         // Restore stock ONLY if inventoryStatus === 'deducted'
         if (freshOrder.inventoryStatus === 'deducted') {
-          // Aggregate duplicate product lines by productId
           const productQtyMap = new Map();
-          const items = Array.isArray(freshOrder.items) ? freshOrder.items : [];
+          const items = Array.isArray(freshOrder.items) && freshOrder.items.length > 0
+            ? freshOrder.items
+            : (freshOrder.productId ? [{ productId: freshOrder.productId, quantity: freshOrder.quantity || 1 }] : []);
+
           for (const item of items) {
             const prodId = item.productId || item.id;
             const qty = Number(item.quantity) || 1;
@@ -463,7 +479,6 @@ exports.handler = async (event) => {
       });
     } catch (txErr) {
       console.error('Firestore transaction failed after Razorpay payment handling:', txErr);
-      // Emergency recovery: Save state on order document so retry cannot cause inconsistency
       try {
         await orderDocRef.update({
           orderStatus: 'Cancelled',

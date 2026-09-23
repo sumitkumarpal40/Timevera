@@ -15,7 +15,6 @@ import { PaymentModal } from './components/PaymentModal';
 import { OrderTrackModal } from './components/OrderTrackModal';
 import { ProductFilterDrawer, FilterState, DEFAULT_FILTER_STATE } from './components/ProductFilterDrawer';
 import { LegalPagesModal } from './components/LegalPagesModal';
-import { ThemeProvider } from './context/ThemeContext';
 import { CustomerAuthProvider, useCustomerAuth } from './context/CustomerAuthContext';
 import { CustomerLoginModal } from './components/CustomerLoginModal';
 import { CustomerAccountModal } from './components/CustomerAccountModal';
@@ -813,10 +812,8 @@ function TimeveraStore() {
 
 export default function App() {
   return (
-    <ThemeProvider>
-      <CustomerAuthProvider>
-        <TimeveraStore />
-      </CustomerAuthProvider>
-    </ThemeProvider>
+    <CustomerAuthProvider>
+      <TimeveraStore />
+    </CustomerAuthProvider>
   );
 }

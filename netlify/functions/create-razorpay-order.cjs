@@ -22,7 +22,7 @@ if (!getApps().length) {
     });
   } else {
     initializeApp({
-      projectId: 'timevera-customer',
+      projectId: 'timeverawatchstore',
     });
   }
   console.log('Firebase Admin initialized for project:', process.env.FIREBASE_PROJECT_ID);
