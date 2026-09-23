@@ -165,6 +165,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
   const subtotal = items.reduce((sum, item) => sum + (Number(item.price) || 0) * (Number(item.quantity) || 1), 0);
   const couponDiscount = activeCoupon && activeCoupon.valid ? Number(activeCoupon.discountAmount) || 0 : 0;
   const totalAmount = Math.max(0, subtotal - couponDiscount);
+  const finalAmount = totalAmount;
 
   const handleUpdateItemQty = (index: number, newQty: number) => {
     if (newQty <= 0) {
