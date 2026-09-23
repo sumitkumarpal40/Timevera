@@ -145,9 +145,12 @@ export interface StoreOrder {
   customerLandmark?: string;
   customerEmail?: string;
   paymentMethod: 'COD' | 'Online' | 'Prepaid' | 'Online Payment' | 'cod' | 'upi_qr' | string;
-  paymentStatus?: 'Pending' | 'Paid' | 'Failed' | 'pending' | 'verified' | 'failed' | 'refunded';
+  paymentStatus?: 'Pending' | 'Paid' | 'Failed' | 'pending' | 'verified' | 'failed' | 'refunded' | 'Refund Pending' | 'Refunded' | 'refund_pending' | string;
   orderStatus: 'Order Received' | 'Confirmed' | 'Packed' | 'Shipped' | 'Out for Delivery' | 'Delivered' | 'Cancelled' | 'Returned';
-  inventoryStatus?: 'pending_deduction' | 'deducted' | 'restocked' | string;
+  inventoryStatus?: 'pending_deduction' | 'deducted' | 'restocked' | 'restored' | string;
+  razorpayRefundId?: string;
+  refundAmount?: number;
+  refundInitiatedAt?: string;
   statusHistory?: OrderStatusHistoryItem[];
   createdAt: string; // ISO string
   createdAtFirestore?: any;

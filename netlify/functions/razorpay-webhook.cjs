@@ -61,12 +61,14 @@ exports.handler = async (event) => {
     console.log('Webhook received:', eventType);
 
     const paymentEntity = payload.payload?.payment?.entity;
-    if (!paymentEntity) {
+    const refundEntity = payload.payload?.refund?.entity;
+
+    if (!paymentEntity && !refundEntity) {
       return { statusCode: 200, body: 'OK' };
     }
 
-    const razorpayPaymentId = paymentEntity.id;
-    const razorpayOrderId = paymentEntity.order_id;
+    const razorpayPaymentId = paymentEntity?.id || refundEntity?.payment_id;
+    const razorpayOrderId = paymentEntity?.order_id || refundEntity?.order_id;
 
     // Find order by razorpayPaymentId, with fallback to razorpayOrderId
     const ordersRef = db.collection('orders');
@@ -89,10 +91,12 @@ exports.handler = async (event) => {
     }
 
     const orderDoc = snapshot.docs[0];
-    const updates = { updatedAt: new Date().toISOString() };
+    const orderData = orderDoc.data();
+    const nowIso = new Date().toISOString();
+    const updates = { updatedAt: nowIso };
 
     // If order was found by razorpayOrderId and razorpayPaymentId was not set, record it
-    if (!orderDoc.data().razorpayPaymentId && razorpayPaymentId) {
+    if (!orderData.razorpayPaymentId && razorpayPaymentId) {
       updates.razorpayPaymentId = razorpayPaymentId;
     }
 
@@ -102,6 +106,19 @@ exports.handler = async (event) => {
       updates.paymentStatus = 'Failed';
     } else if (eventType === 'refund.processed') {
       updates.paymentStatus = 'Refunded';
+      if (refundEntity?.id) {
+        updates.razorpayRefundId = refundEntity.id;
+      }
+      const existingHistory = orderData.statusHistory || [];
+      updates.statusHistory = [
+        ...existingHistory,
+        {
+          status: orderData.orderStatus || 'Cancelled',
+          timestamp: nowIso,
+          note: 'Razorpay webhook confirmation: 100% refund credited to source account.',
+          updatedBy: 'Razorpay Webhook',
+        },
+      ];
     }
 
     await orderDoc.ref.update(updates);

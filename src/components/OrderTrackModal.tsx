@@ -434,9 +434,20 @@ export const OrderTrackModal: React.FC<OrderTrackModalProps> = ({
                     </div>
                   </div>
                 ) : (selectedOrder.orderStatus || '').toLowerCase().trim() === 'cancelled' ? (
-                  <div className="p-3 bg-rose-50 dark:bg-rose-950/40 border border-rose-300 dark:border-rose-900 rounded-xl text-rose-700 dark:text-rose-300 text-xs font-semibold flex items-center gap-2">
-                    <AlertCircle className="w-4 h-4 text-rose-500 flex-shrink-0" />
-                    <span>Yeh order cancel ho gaya hai. Yadi aapko sahayata chahiye to Support Ticket raise karein.</span>
+                  <div className="p-3 bg-rose-50 dark:bg-rose-950/40 border border-rose-300 dark:border-rose-900 rounded-xl text-rose-700 dark:text-rose-300 text-xs font-semibold space-y-1.5">
+                    <div className="flex items-center gap-2">
+                      <AlertCircle className="w-4 h-4 text-rose-500 flex-shrink-0" />
+                      <span>Yeh order cancel ho gaya hai (Order Cancelled).</span>
+                    </div>
+                    {selectedOrder.paymentStatus === 'Refunded' ? (
+                      <div className="p-2 bg-emerald-100/70 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-300 rounded-lg text-[11px] font-medium flex items-center gap-1.5">
+                        <span>✓ 100% Refund credited to source bank / account.</span>
+                      </div>
+                    ) : selectedOrder.paymentStatus === 'Refund Pending' || selectedOrder.paymentStatus === 'refund_pending' ? (
+                      <div className="p-2 bg-amber-100/70 dark:bg-amber-950/50 text-amber-800 dark:text-amber-300 rounded-lg text-[11px] font-medium flex items-center gap-1.5">
+                        <span>⏳ Refund initiated via Razorpay (Refund ID: {selectedOrder.razorpayRefundId || 'Pending'}). Amount will reflect in 2–4 working days.</span>
+                      </div>
+                    ) : null}
                   </div>
                 ) : (
                   <div className="p-3 bg-orange-50 dark:bg-orange-950/40 border border-orange-300 dark:border-orange-900 rounded-xl text-orange-700 dark:text-orange-300 text-xs font-semibold flex items-center gap-2">

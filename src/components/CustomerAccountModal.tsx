@@ -33,10 +33,16 @@ import {
   Trash2,
   Zap,
   ArrowLeft,
+  XCircle,
 } from 'lucide-react';
 import { useCustomerAuth } from '../context/CustomerAuthContext';
 import { fetchOrdersForCustomer, fetchCustomerReviews, subscribeToCustomerOrders } from '../lib/customerService';
-import { saveSupportTicketToFirestore, fetchCustomerSupportTickets, subscribeToCustomerSupportTickets } from '../lib/orderService';
+import {
+  saveSupportTicketToFirestore,
+  fetchCustomerSupportTickets,
+  subscribeToCustomerSupportTickets,
+  cancelCustomerOrder,
+} from '../lib/orderService';
 import { StoreOrder, CustomerReviewFeedback, StoreProduct, SupportTicket } from '../types';
 import { printInvoice } from '../lib/invoicePrinter';
 import { BUSINESS_INFO } from '../data/watches';
@@ -102,6 +108,43 @@ export const CustomerAccountModal: React.FC<CustomerAccountModalProps> = ({
   // Feedback Modal State for specific order
   const [feedbackOrder, setFeedbackOrder] = useState<StoreOrder | null>(null);
   const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
+
+  // Order Cancellation State
+  const [cancellingOrder, setCancellingOrder] = useState<StoreOrder | null>(null);
+  const [cancelReason, setCancelReason] = useState<string>('Ordered by mistake');
+  const [isCancelling, setIsCancelling] = useState<boolean>(false);
+  const [cancelStatusMsg, setCancelStatusMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  const handleConfirmCancel = async () => {
+    if (!cancellingOrder) return;
+    setIsCancelling(true);
+    setCancelStatusMsg(null);
+    try {
+      const result = await cancelCustomerOrder(cancellingOrder, cancelReason);
+      if (result.success) {
+        setCancelStatusMsg({
+          type: 'success',
+          text: result.message || 'Order cancelled successfully.',
+        });
+        setTimeout(() => {
+          setCancellingOrder(null);
+          setCancelStatusMsg(null);
+        }, 2000);
+      } else {
+        setCancelStatusMsg({
+          type: 'error',
+          text: result.error || 'Failed to cancel order.',
+        });
+      }
+    } catch (e: any) {
+      setCancelStatusMsg({
+        type: 'error',
+        text: e.message || 'An error occurred while cancelling the order.',
+      });
+    } finally {
+      setIsCancelling(false);
+    }
+  };
 
   // Load orders, reviews & support tickets when modal opens or customer changes
   useEffect(() => {
@@ -660,8 +703,22 @@ export const CustomerAccountModal: React.FC<CustomerAccountModalProps> = ({
                                 Yeh order wapas prapt (Returned) ho chuka hai.
                               </div>
                             ) : (
-                              <div className="p-2 text-xs font-semibold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/30 rounded-xl">
-                                Yeh order cancel ho chuka hai.
+                              <div className="p-2.5 text-xs font-semibold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/30 rounded-xl space-y-1">
+                                <div className="flex items-center gap-1.5 font-bold">
+                                  <XCircle className="w-4 h-4 text-rose-600 dark:text-rose-400 flex-shrink-0" />
+                                  <span>Order Cancelled (ऑर्डर रद्द)</span>
+                                </div>
+                                {order.paymentStatus === 'Refunded' ? (
+                                  <div className="text-[11px] font-medium text-emerald-700 dark:text-emerald-300 bg-emerald-100/70 dark:bg-emerald-950/50 p-1.5 rounded-lg flex items-center gap-1">
+                                    <CheckCircle className="w-3.5 h-3.5 flex-shrink-0 text-emerald-600 dark:text-emerald-400" />
+                                    <span>100% Refund credited to your source account.</span>
+                                  </div>
+                                ) : order.paymentStatus === 'Refund Pending' || order.paymentStatus === 'refund_pending' ? (
+                                  <div className="text-[11px] font-medium text-amber-700 dark:text-amber-300 bg-amber-100/70 dark:bg-amber-950/50 p-1.5 rounded-lg flex items-center gap-1">
+                                    <Clock className="w-3.5 h-3.5 flex-shrink-0 text-amber-600 dark:text-amber-400" />
+                                    <span>Refund initiated via Razorpay — Amount will reflect in 2–4 working days.</span>
+                                  </div>
+                                ) : null}
                               </div>
                             )}
                           </div>
@@ -758,6 +815,29 @@ export const CustomerAccountModal: React.FC<CustomerAccountModalProps> = ({
                                 <FileText className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-red-600" />
                                 <span>Tax Invoice</span>
                               </button>
+
+                              {/* Cancel Order Button (Available only before dispatch) */}
+                              {(() => {
+                                const statusClean = (order.orderStatus || '').toLowerCase().trim();
+                                const canCancel = ['order received', 'confirmed', 'packed'].includes(statusClean) && !order.dispatchedAt;
+                                if (!canCancel) return null;
+
+                                return (
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setCancellingOrder(order);
+                                      setCancelReason('Ordered by mistake');
+                                      setCancelStatusMsg(null);
+                                    }}
+                                    className="px-2.5 sm:px-3 py-1 sm:py-1.5 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/50 border border-rose-300 dark:border-rose-800 text-rose-700 dark:text-rose-300 text-[10px] sm:text-xs font-bold rounded-lg sm:rounded-xl flex items-center gap-1 sm:gap-1.5 transition-colors cursor-pointer"
+                                    title="Cancel this order before courier dispatch"
+                                  >
+                                    <XCircle className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-rose-600" />
+                                    <span>Cancel Order</span>
+                                  </button>
+                                );
+                              })()}
                             </div>
 
                             {/* Help & Support Button */}
@@ -1552,6 +1632,135 @@ export const CustomerAccountModal: React.FC<CustomerAccountModalProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Order Cancellation Confirmation Modal */}
+      {cancellingOrder && (
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/85 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 animate-fadeIn">
+          <div className="relative w-full max-w-md bg-white dark:bg-[#181818] rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-2xl overflow-hidden p-4 sm:p-6 space-y-4">
+            <div className="flex items-start justify-between">
+              <div className="flex items-center gap-2 text-rose-600 dark:text-rose-400">
+                <XCircle className="w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0" />
+                <h3 className="font-bold text-sm sm:text-base text-zinc-900 dark:text-white">
+                  Cancel Order #{cancellingOrder.id}
+                </h3>
+              </div>
+              <button
+                type="button"
+                disabled={isCancelling}
+                onClick={() => {
+                  setCancellingOrder(null);
+                  setCancelStatusMsg(null);
+                }}
+                className="p-1 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 rounded-lg cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Notice / Refund info */}
+            {(() => {
+              const isCOD = (cancellingOrder.paymentMethod || '').toLowerCase() === 'cod';
+              const isPrepaid = !isCOD && (
+                cancellingOrder.paymentStatus === 'Paid' ||
+                cancellingOrder.paymentStatus === 'verified' ||
+                (cancellingOrder.paymentMethod || '').toLowerCase().includes('online') ||
+                (cancellingOrder.paymentMethod || '').toLowerCase().includes('upi') ||
+                Boolean(cancellingOrder.razorpayPaymentId)
+              );
+
+              return (
+                <div
+                  className={`p-3 rounded-xl border text-xs leading-relaxed space-y-1 ${
+                    isPrepaid
+                      ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-300 dark:border-amber-800 text-amber-900 dark:text-amber-200'
+                      : 'bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300'
+                  }`}
+                >
+                  <p className="font-bold flex items-center gap-1">
+                    {isPrepaid ? '🛡️ Prepaid Refund Guarantee' : '📦 Cash on Delivery Cancellation'}
+                  </p>
+                  <p>
+                    {isPrepaid
+                      ? `100% of your paid amount (₹${(Number(cancellingOrder.totalAmount) || 0).toLocaleString('en-IN')}) will be refunded back to your original payment method via Razorpay within 2–4 business days.`
+                      : 'This order has not been handed over to the courier yet and will be cancelled free of charge.'}
+                  </p>
+                </div>
+              );
+            })()}
+
+            {/* Reason selector */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-zinc-700 dark:text-zinc-300">
+                Reason for cancellation (रद्द करने का कारण):
+              </label>
+              <select
+                disabled={isCancelling}
+                value={cancelReason}
+                onChange={(e) => setCancelReason(e.target.value)}
+                className="w-full text-xs p-2.5 bg-zinc-50 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 rounded-xl text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500 cursor-pointer"
+              >
+                <option value="Ordered by mistake">Ordered by mistake (गलती से ऑर्डर हो गया)</option>
+                <option value="Want to change delivery address or phone">Want to change delivery address or phone</option>
+                <option value="Changed my mind">Changed my mind (मन बदल गया)</option>
+                <option value="Found better product or lower price">Found better product or lower price</option>
+                <option value="Delivery taking too long">Delivery taking too long</option>
+                <option value="Other">Other reason</option>
+              </select>
+            </div>
+
+            {/* Status message */}
+            {cancelStatusMsg && (
+              <div
+                className={`p-3 rounded-xl text-xs font-semibold flex items-center gap-2 ${
+                  cancelStatusMsg.type === 'success'
+                    ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800'
+                    : 'bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border border-rose-300 dark:border-rose-800'
+                }`}
+              >
+                {cancelStatusMsg.type === 'success' ? (
+                  <CheckCircle className="w-4 h-4 flex-shrink-0 text-emerald-600" />
+                ) : (
+                  <AlertTriangle className="w-4 h-4 flex-shrink-0 text-rose-600" />
+                )}
+                <span>{cancelStatusMsg.text}</span>
+              </div>
+            )}
+
+            {/* Action buttons */}
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-zinc-200 dark:border-zinc-800">
+              <button
+                type="button"
+                disabled={isCancelling}
+                onClick={() => {
+                  setCancellingOrder(null);
+                  setCancelStatusMsg(null);
+                }}
+                className="px-3.5 py-2 text-xs font-semibold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-xl transition-colors cursor-pointer"
+              >
+                Keep Order (रखें)
+              </button>
+              <button
+                type="button"
+                disabled={isCancelling}
+                onClick={handleConfirmCancel}
+                className="px-4 py-2 text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 disabled:opacity-50 rounded-xl transition-colors flex items-center gap-1.5 cursor-pointer shadow-sm"
+              >
+                {isCancelling ? (
+                  <>
+                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                    <span>Processing...</span>
+                  </>
+                ) : (
+                  <>
+                    <XCircle className="w-3.5 h-3.5" />
+                    <span>Confirm Cancellation</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Customer Feedback Modal */}
       <CustomerFeedbackModal

@@ -316,6 +316,115 @@ function getStatusDefaultNote(status: StoreOrder['orderStatus']): string {
   }
 }
 
+export interface CancelOrderResult {
+  success: boolean;
+  message?: string;
+  error?: string;
+  orderStatus?: string;
+  paymentStatus?: string;
+  refundId?: string;
+  inventoryStatus?: string;
+}
+
+/**
+ * Cancel customer order (handles COD and Prepaid Razorpay refunds safely)
+ */
+export async function cancelCustomerOrder(
+  order: StoreOrder,
+  reason: string = 'Cancelled by customer before dispatch'
+): Promise<CancelOrderResult> {
+  const currentStatus = (order.orderStatus || '').toLowerCase().trim();
+  if (currentStatus === 'cancelled') {
+    return { success: false, error: 'Order is already cancelled' };
+  }
+  if (currentStatus === 'returned') {
+    return { success: false, error: 'Order is already returned' };
+  }
+  if (['shipped', 'out for delivery', 'out_for_delivery', 'delivered'].includes(currentStatus) || order.dispatchedAt) {
+    return {
+      success: false,
+      error: 'Order has already been dispatched/delivered. Cancellations cannot be processed on-system after shipment.',
+    };
+  }
+
+  // Retrieve Firebase Auth ID token if customer is logged in
+  let idToken = '';
+  try {
+    if (auth.currentUser) {
+      idToken = await auth.currentUser.getIdToken();
+    }
+  } catch (e) {
+    console.warn('Could not retrieve ID token:', e);
+  }
+
+  const payload = {
+    orderId: order.id,
+    reason,
+    customerUid: auth.currentUser?.uid || order.customerUid || order.customerId,
+    customerPhone: order.customerPhone,
+    idToken,
+  };
+
+  try {
+    const res = await fetch('/.netlify/functions/cancel-order', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(idToken ? { Authorization: `Bearer ${idToken}` } : {}),
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      // If 404 in preview / dev environment where Netlify Functions are not mounted:
+      if (res.status === 404) {
+        console.warn('Netlify function /.netlify/functions/cancel-order returned 404 (preview mode). Falling back to direct client cancel.');
+        await updateOrderStatus(order.id, 'Cancelled', {
+          note: reason,
+          updatedBy: 'Customer (Preview Mode)',
+        });
+        return {
+          success: true,
+          message: 'Order cancelled in preview mode (Production Razorpay refund active on deployed Netlify URL)',
+          orderStatus: 'Cancelled',
+        };
+      }
+      return {
+        success: false,
+        error: data.error || `Cancellation failed (Status: ${res.status})`,
+      };
+    }
+
+    // Success from Netlify function:
+    // Update local cache so the UI updates immediately
+    const updatedOrder: StoreOrder = {
+      ...order,
+      orderStatus: 'Cancelled',
+      paymentStatus: (data.paymentStatus as any) || (order.paymentStatus === 'Paid' ? 'Refund Pending' : order.paymentStatus),
+      inventoryStatus: (data.inventoryStatus as any) || order.inventoryStatus,
+      razorpayRefundId: data.refundId || order.razorpayRefundId,
+    };
+    updateLocalOrderCaches(updatedOrder);
+
+    return {
+      success: true,
+      message: data.message || 'Order cancelled successfully',
+      orderStatus: data.orderStatus || 'Cancelled',
+      paymentStatus: data.paymentStatus,
+      refundId: data.refundId,
+      inventoryStatus: data.inventoryStatus,
+    };
+  } catch (err: any) {
+    console.error('Error in cancelCustomerOrder:', err);
+    return {
+      success: false,
+      error: err.message || 'Network error occurred while requesting cancellation',
+    };
+  }
+}
+
 /**
  * Mark order as printed and billed (with thermal/billing machine counter)
  */
