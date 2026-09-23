@@ -108,7 +108,7 @@ exports.handler = async (event) => {
       }
     }
 
-    const deliveryCharge = subtotal >= 10000 ? 0 : 250;
+    const deliveryCharge = 0;
     const finalAmount = Math.max(0, subtotal - couponDiscount + deliveryCharge);
 
     // Create Razorpay order

@@ -30,7 +30,7 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import { WatchProduct, CartItem, StoreOrder, OrderItem } from '../types';
-import { saveOrderToFirestore } from '../lib/orderService';
+import { saveOrderToFirestore, updateLocalOrderCaches } from '../lib/orderService';
 import { auth } from '../lib/firebase';
 import { BUSINESS_INFO } from '../data/watches';
 import { printInvoice } from '../lib/invoicePrinter';
@@ -271,6 +271,13 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
         }),
       });
 
+      if (!createResponse.ok) {
+        const errData = await createResponse.json().catch(() => ({}));
+        throw new Error(
+          errData.error || `Server error (${createResponse.status})`
+        );
+      }
+
       const createData = await createResponse.json();
 
       if (!createData.success) {
@@ -397,6 +404,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
 
             // Success!
             orderData.id = verifyData.orderId;
+            updateLocalOrderCaches(orderData as StoreOrder);
             setPlacedOrder(orderData as any);
             setIsSubmitting(false);
             setIsSubmitted(true);
@@ -425,6 +433,12 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
           },
         },
       };
+
+      if (typeof (window as any).Razorpay === 'undefined') {
+        throw new Error(
+          'Razorpay payment gateway failed to load. Please check your internet connection and try again.'
+        );
+      }
 
       const rzp = new (window as any).Razorpay(options);
       rzp.open();
@@ -1288,6 +1302,13 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                   {/* Razorpay 1-Click Pay Button in Step 3 */}
                   {paymentMethod === 'upi' && (
                     <div className="mt-2.5 pt-2.5 border-t border-emerald-500/20 space-y-2">
+                      {formErrors._form && (
+                        <div className="p-2.5 sm:p-3.5 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 rounded-xl sm:rounded-2xl flex items-start gap-2 text-xs text-red-700 dark:text-red-300 animate-fadeIn">
+                          <AlertCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
+                          <span className="font-semibold leading-relaxed text-[10px] sm:text-xs">{formErrors._form}</span>
+                        </div>
+                      )}
+
                       <button
                         type="button"
                         disabled={razorpayLoading}

@@ -121,7 +121,6 @@ export const ProductModal: React.FC<ProductModalProps> = ({
   };
 
   const handleBuyNowClick = () => {
-    onClose();
     onBuyNow(product, selectedQty);
   };
 
@@ -439,13 +438,13 @@ export const ProductModal: React.FC<ProductModalProps> = ({
         {/* Action buttons & Trust Footer - Sticky */}
         <div className="flex-shrink-0 p-2 sm:p-3 bg-[#131620] border-t border-[#252A36] space-y-2">
           <div className="flex gap-1.5 sm:gap-2">
-            {/* Order Now Button */}
+            {/* Buy Now Button */}
             <button
               onClick={handleBuyNowClick}
               className="flex-1 py-1.5 sm:py-2 px-3 bg-gradient-to-r from-[#D4AF37] to-[#C59B27] hover:from-[#E5C07B] hover:to-[#D4AF37] text-[#0B0C10] font-extrabold text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all rounded-lg shadow-md cursor-pointer"
             >
               <Zap className="w-3.5 h-3.5 text-[#0B0C10] fill-current" />
-              <span>Order Now</span>
+              <span>Buy Now</span>
             </button>
 
             {/* Add to Shopping Bag Button */}

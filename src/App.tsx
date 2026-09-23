@@ -218,6 +218,7 @@ function TimeveraStore() {
     setPaymentSingleProduct(product);
     setPaymentSingleQuantity(Math.max(1, quantity || 1));
     setIsPaymentOpen(true);
+    setQuickViewProduct(null);
   };
 
   const handleOpenCartCheckout = () => {

@@ -55,20 +55,33 @@ exports.handler = async (event) => {
     const razorpayPaymentId = paymentEntity.id;
     const razorpayOrderId = paymentEntity.order_id;
 
-    // Find order by razorpayPaymentId
+    // Find order by razorpayPaymentId, with fallback to razorpayOrderId
     const ordersRef = db.collection('orders');
-    const snapshot = await ordersRef
+    let snapshot = await ordersRef
       .where('razorpayPaymentId', '==', razorpayPaymentId)
       .limit(1)
       .get();
 
+    // Fallback: If not found by payment ID, attempt lookup by razorpayOrderId
+    if (snapshot.empty && razorpayOrderId) {
+      snapshot = await ordersRef
+        .where('razorpayOrderId', '==', razorpayOrderId)
+        .limit(1)
+        .get();
+    }
+
     if (snapshot.empty) {
-      console.warn('Order not found for payment:', razorpayPaymentId);
+      console.warn('Order not found for payment:', razorpayPaymentId, 'or order:', razorpayOrderId);
       return { statusCode: 200, body: 'OK' };
     }
 
     const orderDoc = snapshot.docs[0];
     const updates = { updatedAt: new Date().toISOString() };
+
+    // If order was found by razorpayOrderId and razorpayPaymentId was not set, record it
+    if (!orderDoc.data().razorpayPaymentId && razorpayPaymentId) {
+      updates.razorpayPaymentId = razorpayPaymentId;
+    }
 
     if (eventType === 'payment.captured') {
       updates.paymentStatus = 'Paid';

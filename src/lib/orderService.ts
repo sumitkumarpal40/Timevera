@@ -47,7 +47,7 @@ function cleanFirestoreData<T extends Record<string, any>>(data: T): Record<stri
 /**
  * Helper to update local storage caches safely
  */
-function updateLocalOrderCaches(order: StoreOrder, isDelete: boolean = false) {
+export function updateLocalOrderCaches(order: StoreOrder, isDelete: boolean = false) {
   try {
     // 1. Offline / Merchant orders cache
     const offlineSaved: StoreOrder[] = JSON.parse(localStorage.getItem('timevera_offline_orders') || '[]');

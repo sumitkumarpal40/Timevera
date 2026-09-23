@@ -54,19 +54,17 @@ export function useModalBackButton(isOpen: boolean, onClose: () => void) {
       window.removeEventListener('popstate', handlePopState);
       openModalCount--;
 
-      // Only call history.back() if:
-      // 1. We pushed the state (isFirstModal)
-      // 2. Not handled by back button
-      // 3. This is the LAST modal closing (counter now 0)
-      if (pushedState && !handledByBack && openModalCount === 0) {
-        try {
-          if (window.history.state?.modalOpen === true) {
-            window.history.back();
+      setTimeout(() => {
+        if (pushedState && !handledByBack && openModalCount === 0) {
+          try {
+            if (window.history.state?.modalOpen === true) {
+              window.history.back();
+            }
+          } catch (e) {
+            // Ignore
           }
-        } catch (e) {
-          // Ignore
         }
-      }
+      }, 0);
     };
   }, [isOpen]);
 }
